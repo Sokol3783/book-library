@@ -2,9 +2,9 @@ package org.example.service.console;
 
 public class MenuOption {
 
-    private int number;
-    private Runnable action;
-    private String nameAction;
+    private final int number;
+    private final Runnable action;
+    private final String nameAction;
 
 
     public MenuOption(int number, Runnable action, String nameAction) {
