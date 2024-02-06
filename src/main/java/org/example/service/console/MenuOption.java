@@ -16,4 +16,13 @@ public class MenuOption {
     public void doAction() {
         action.run();
     }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public String getNameAction() {
+        return nameAction;
+    }
+
 }
