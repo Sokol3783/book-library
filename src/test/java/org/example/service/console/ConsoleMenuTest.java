@@ -46,8 +46,10 @@ class ConsoleMenuTest {
     assertNotEquals(0, output.size());
     String printedText = output.toString();
 
-    assertTrue(printedText.contains("exit"));
-    assertTrue(printedText.contains(""));
+    assertTrue(printedText.contains("EXIT"));
+    assertTrue(printedText.contains("1"));
+    assertTrue(printedText.contains("2"));
+    assertTrue(printedText.contains("PLEASE, SELECT ONE OF THE FOLLOWING ACTIONS BY TYPING THE OPTION’S NUMBER AND PRESSING ENTER KEY:"));
 
   }
 
