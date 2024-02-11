@@ -62,11 +62,12 @@ class ConsoleMenuTest {
     ConsoleMenu menu = factory.getMenu(clazz);
     ConsoleMenu menu2 = factory.getMenu(clazz);
 
+    assertNotNull(menu);
+    assertNotNull(menu2);
+
     assertTrue(ConsoleMenu.class.isInstance(menu));
     assertTrue(ConsoleMenu.class.isInstance(menu2));
 
-    assertNotNull(menu);
-    assertNotNull(menu2);
 
     assertEquals(menu, menu2);
   }
