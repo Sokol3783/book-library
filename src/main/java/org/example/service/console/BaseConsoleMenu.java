@@ -1,19 +1,19 @@
 package org.example.service.console;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
 public class BaseConsoleMenu implements ConsoleMenu {
 
-    private final Map<Integer, MenuOption> map = new LinkedHashMap<>();
+    private final Map<Integer, MenuOption> map;
     private final String welcomeMessage;
     private final Scanner scanner;
 
-    public BaseConsoleMenu(String welcomeMessage, Scanner scanner, Collection<MenuOption> options) {
+    public BaseConsoleMenu(String welcomeMessage, Scanner scanner, LinkedHashMap<Integer, MenuOption> options) {
         this.welcomeMessage = welcomeMessage;
         this.scanner = scanner;
+        this.map = options;
     }
 
     @Override

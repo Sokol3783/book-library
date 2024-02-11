@@ -1,7 +1,6 @@
 package org.example.factory;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,9 +42,10 @@ public class MenuFactory<T extends ConsoleMenu> {
     return new BaseConsoleMenu("WELCOME TO THE LIBRARY!", scanner, getBaseOptions());
   }
 
-  private static Collection<MenuOption> getBaseOptions() {
-    return List.of(new MenuOption(1,() ->BookRepository.getInstance().findAll().forEach(System.out::println), "SHOW ALL BOOKS IN THE LIBRARY"),
-                    new MenuOption(2, () -> ReaderRepository.getInstance().findAll().forEach(System.out::println), "SHOW ALL READERS REGISTERED IN THE LIBRARY"));
+  private static LinkedHashMap<Integer, MenuOption> getBaseOptions() {
+
+    return new LinkedHashMap(Map.of(1, new MenuOption(1,() ->BookRepository.getInstance().findAll().forEach(System.out::println), "SHOW ALL BOOKS IN THE LIBRARY"),
+                    2, new MenuOption(2, () -> ReaderRepository.getInstance().findAll().forEach(System.out::println), "SHOW ALL READERS REGISTERED IN THE LIBRARY")));
   }
 
 
