@@ -56,6 +56,8 @@ class ConsoleMenuTest {
   @ParameterizedTest
   @ValueSource(classes = {BaseConsoleMenu.class})
   void run(Class clazz) {
+
+    assertTrue(false, "Test not implemented!");
   }
 
   @ParameterizedTest
