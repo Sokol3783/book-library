@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.List;
@@ -23,8 +25,8 @@ class ConsoleMenuTest {
 
   private static MenuFactory factory = MenuFactory.getInstance(new Scanner(System.in));
 
-  private static final BookRepository books =  mock(BookRepository.getInstance());
-  private static final ReaderRepository reader = mock(ReaderRepository.getInstance());
+  private static final BookRepository books =  mock(BookRepository.class);
+  private static final ReaderRepository reader = mock(ReaderRepository.class);
   private ByteArrayOutputStream output = new ByteArrayOutputStream();
 
   @BeforeEach
@@ -66,7 +68,7 @@ class ConsoleMenuTest {
 
   @ParameterizedTest
   @ValueSource(classes = {BaseConsoleMenu.class})
-  void whenMenuRunThereNoWelcomeMessage(Class clazz) {
+  void whenMenuRunThereNoWelcomeMessage(Class clazz) throws IOException {
     ConsoleMenu menu = factory.getMenu(clazz);
     menu.printWelcomeMessage();
 
@@ -75,13 +77,17 @@ class ConsoleMenuTest {
 
     when(books.findAll()).thenReturn(getTestBooks());
     when(reader.findAll()).thenReturn(getTestsReaders());
-    menu.run();
 
-    System.out.println(1);
-    System.out.println(2);
-    System.out.println(1213);
+    Thread thread = new Thread(() -> menu.run());
+    thread.start();
+
+    System.setIn(new ByteArrayInputStream("1".getBytes()));
+    System.setIn(new ByteArrayInputStream("2".getBytes()));
+    System.setIn(new ByteArrayInputStream("1213".getBytes()));
+    System.setIn(new ByteArrayInputStream("EXIT".getBytes()));
     String menuInfo = output.toString();
 
+    assertNotEquals(0, output.size());
     assertFalse(menuInfo.contains(welcomeMessage));
   }
 
