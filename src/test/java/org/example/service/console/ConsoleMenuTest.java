@@ -1,6 +1,7 @@
 package org.example.service.console;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
@@ -22,8 +23,8 @@ class ConsoleMenuTest {
 
   private static MenuFactory factory = MenuFactory.getInstance(new Scanner(System.in));
 
-  private static BookRepository books =  BookRepository.getInstance() ;
-  private static ReaderRepository reader = ReaderRepository.getInstance();
+  private static final BookRepository books =  mock(BookRepository.getInstance());
+  private static final ReaderRepository reader = mock(ReaderRepository.getInstance());
   private ByteArrayOutputStream output = new ByteArrayOutputStream();
 
   @BeforeEach
