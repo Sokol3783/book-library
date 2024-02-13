@@ -1,10 +1,17 @@
 package org.example.service.console;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Collection;
+import java.util.List;
 import java.util.Scanner;
+import org.example.dao.BookRepository;
+import org.example.dao.ReaderRepository;
+import org.example.entity.BookEntity;
+import org.example.entity.ReaderEntity;
 import org.example.factory.MenuFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +21,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 class ConsoleMenuTest {
 
   private static MenuFactory factory = MenuFactory.getInstance(new Scanner(System.in));
+
+  private static BookRepository books =  BookRepository.getInstance() ;
+  private static ReaderRepository reader = ReaderRepository.getInstance();
   private ByteArrayOutputStream output = new ByteArrayOutputStream();
 
   @BeforeEach
@@ -55,9 +65,35 @@ class ConsoleMenuTest {
 
   @ParameterizedTest
   @ValueSource(classes = {BaseConsoleMenu.class})
-  void run(Class clazz) {
+  void whenMenuRunThereNoWelcomeMessage(Class clazz) {
+    ConsoleMenu menu = factory.getMenu(clazz);
+    menu.printWelcomeMessage();
 
-    assertTrue(false, "Test not implemented!");
+    String welcomeMessage = output.toString();
+    output = new ByteArrayOutputStream();
+
+    when(books.findAll()).thenReturn(getTestBooks());
+    when(reader.findAll()).thenReturn(getTestsReaders());
+    menu.run();
+
+    System.out.println(1);
+    System.out.println(2);
+    System.out.println(1213);
+    String menuInfo = output.toString();
+
+    assertFalse(menuInfo.contains(welcomeMessage));
+  }
+
+  private Collection<BookEntity> getTestBooks() {
+    return List.of( new BookEntity(1, "Test book1", "Test author1"),
+    new BookEntity(2, "Test book2", "Test author1"),
+        new BookEntity(3, "Test book3", "Test author1"));
+  }
+
+  private Collection<ReaderEntity> getTestsReaders() {
+    return List.of( new ReaderEntity(1, "Test1"),
+        new ReaderEntity(2, "Test2"),
+        new ReaderEntity(3, "Test3"));
   }
 
   @ParameterizedTest
