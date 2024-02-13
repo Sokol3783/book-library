@@ -6,6 +6,15 @@ public class BookEntity {
   private String name;
   private String author;
 
+  public BookEntity(long id, String name, String author) {
+    this.id = id;
+    this.name = name;
+    this.author = author;
+  }
+
+  public BookEntity() {
+  }
+
   public long getId() {
     return id;
   }
