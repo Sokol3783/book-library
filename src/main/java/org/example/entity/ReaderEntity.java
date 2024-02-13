@@ -5,6 +5,14 @@ public class ReaderEntity {
   private long id;
   private String name;
 
+  public ReaderEntity(long id, String name) {
+    this.id = id;
+    this.name = name;
+  }
+
+  public ReaderEntity() {
+  }
+
   public long getId() {
     return id;
   }
