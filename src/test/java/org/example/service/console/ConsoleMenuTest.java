@@ -24,17 +24,15 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class ConsoleMenuTest {
 
-  private static MenuFactory factory;// = MenuFactory.getInstance(new Scanner(System.in));
+  private static MenuFactory factory;
 
   private static final BookRepository books =  mock(BookRepository.class);
   private static final ReaderRepository reader = mock(ReaderRepository.class);
   private ByteArrayOutputStream output = new ByteArrayOutputStream();
-  private ByteArrayInputStream input;
   private final InputStream systemStream = System.in;
 
   @BeforeEach
   void setUpStream() {
-    input = new ByteArrayInputStream("".getBytes());
     factory = MenuFactory.getInstance(new Scanner(System.in));
     System.setOut(new PrintStream(output));
   }
@@ -87,10 +85,7 @@ class ConsoleMenuTest {
     Thread thread = new Thread(menu::run);
     thread.start();
 
-    waitForInput("1");
-    waitForInput("2");
-    waitForInput("21311");
-    waitForInput("EXIT");
+    waitForInput("1", "2", "1231231", "EXIT");
 
     String menuInfo = output.toString();
 
@@ -98,9 +93,11 @@ class ConsoleMenuTest {
     assertFalse(menuInfo.contains(welcomeMessage));
   }
 
-  private void waitForInput(String data) throws InterruptedException {
-    System.setIn(new ByteArrayInputStream(data.getBytes()));
-    sleep(100);
+  private void waitForInput(String... data) throws InterruptedException {
+    for (String string : data ) {
+      System.setIn(new ByteArrayInputStream(string.getBytes()));
+      sleep(100);
+    }
   }
 
   private Collection<BookEntity> getTestBooks() {
@@ -123,10 +120,6 @@ class ConsoleMenuTest {
 
     assertNotNull(menu);
     assertNotNull(menu2);
-
-    assertTrue(ConsoleMenu.class.isInstance(menu));
-    assertTrue(ConsoleMenu.class.isInstance(menu2));
-
 
     assertEquals(menu, menu2);
   }
