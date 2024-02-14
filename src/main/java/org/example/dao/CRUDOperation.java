@@ -9,6 +9,7 @@ public interface CRUDOperation<T> {
   T save(T object);
 
   T update(T object);
+
   boolean deleteById(Long id);
 
   Collection<T> findAll();
