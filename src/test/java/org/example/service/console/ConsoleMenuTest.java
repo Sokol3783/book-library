@@ -1,12 +1,13 @@
 package org.example.service.console;
 
+import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.List;
@@ -23,20 +24,25 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class ConsoleMenuTest {
 
-  private static MenuFactory factory = MenuFactory.getInstance(new Scanner(System.in));
+  private static MenuFactory factory;// = MenuFactory.getInstance(new Scanner(System.in));
 
   private static final BookRepository books =  mock(BookRepository.class);
   private static final ReaderRepository reader = mock(ReaderRepository.class);
   private ByteArrayOutputStream output = new ByteArrayOutputStream();
+  private ByteArrayInputStream input;
+  private final InputStream systemStream = System.in;
 
   @BeforeEach
   void setUpStream() {
+    input = new ByteArrayInputStream("".getBytes());
+    factory = MenuFactory.getInstance(new Scanner(System.in));
     System.setOut(new PrintStream(output));
   }
 
   @AfterEach
   void cleanUpStreams() {
     System.setOut(null);
+    System.setIn(systemStream);
   }
 
   @ParameterizedTest
@@ -68,39 +74,45 @@ class ConsoleMenuTest {
 
   @ParameterizedTest
   @ValueSource(classes = {BaseConsoleMenu.class})
-  void whenMenuRunThereNoWelcomeMessage(Class clazz) throws IOException {
+  void whenMenuRunThereNoWelcomeMessage(Class clazz) throws InterruptedException {
     ConsoleMenu menu = factory.getMenu(clazz);
     menu.printWelcomeMessage();
 
     String welcomeMessage = output.toString();
-    output = new ByteArrayOutputStream();
+    output.reset();
 
     when(books.findAll()).thenReturn(getTestBooks());
     when(reader.findAll()).thenReturn(getTestsReaders());
 
-    Thread thread = new Thread(() -> menu.run());
+    Thread thread = new Thread(menu::run);
     thread.start();
 
-    System.setIn(new ByteArrayInputStream("1".getBytes()));
-    System.setIn(new ByteArrayInputStream("2".getBytes()));
-    System.setIn(new ByteArrayInputStream("1213".getBytes()));
-    System.setIn(new ByteArrayInputStream("EXIT".getBytes()));
+    waitForInput("1");
+    waitForInput("2");
+    waitForInput("21311");
+    waitForInput("EXIT");
+
     String menuInfo = output.toString();
 
     assertNotEquals(0, output.size());
     assertFalse(menuInfo.contains(welcomeMessage));
   }
 
+  private void waitForInput(String data) throws InterruptedException {
+    System.setIn(new ByteArrayInputStream(data.getBytes()));
+    sleep(100);
+  }
+
   private Collection<BookEntity> getTestBooks() {
-    return List.of( new BookEntity(1, "Test book1", "Test author1"),
-    new BookEntity(2, "Test book2", "Test author1"),
-        new BookEntity(3, "Test book3", "Test author1"));
+    return List.of(new BookEntity(1, "Test book1", "Test author1"),
+                   new BookEntity(2, "Test book2", "Test author1"),
+                   new BookEntity(3, "Test book3", "Test author1"));
   }
 
   private Collection<ReaderEntity> getTestsReaders() {
     return List.of( new ReaderEntity(1, "Test1"),
-        new ReaderEntity(2, "Test2"),
-        new ReaderEntity(3, "Test3"));
+                    new ReaderEntity(2, "Test2"),
+                    new ReaderEntity(3, "Test3"));
   }
 
   @ParameterizedTest
