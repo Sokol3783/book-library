@@ -25,13 +25,15 @@ public class BaseConsoleMenu implements ConsoleMenu {
 
         printMenu();
 
-        while (scanner.hasNext()) {
-            String input = scanner.nextLine();
-            if (input.compareToIgnoreCase("exit") == 0) {
-                break;
+        while (true) {
+            if (scanner.hasNext()) {
+                String input = scanner.nextLine();
+                if (input.compareToIgnoreCase("exit") == 0) {
+                    break;
+                }
+                runMenuOption(input);
+                printMenu();
             }
-            runMenuOption(input);
-            printMenu();
         }
     }
 
