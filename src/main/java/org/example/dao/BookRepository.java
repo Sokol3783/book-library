@@ -1,6 +1,7 @@
 package org.example.dao;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import org.example.entity.BookEntity;
@@ -17,7 +18,7 @@ public class BookRepository implements CRUDOperation<BookEntity> {
 
   public static BookRepository getInstance() {
     if (instance == null) {
-      synchronized (ReaderRepository.class) {
+      synchronized (BookRepository.class) {
         if (instance == null){
           instance = new BookRepository();
         }
@@ -27,18 +28,18 @@ public class BookRepository implements CRUDOperation<BookEntity> {
   }
 
   @Override
-  public BookEntity findById(Long id) {
-    return null;
+  public Optional<BookEntity> findById(Long id) {
+    return Optional.empty();
   }
 
   @Override
-  public BookEntity save(BookEntity object) {
-    return null;
+  public Optional<BookEntity> save(BookEntity object) {
+    return Optional.empty();
   }
 
   @Override
-  public BookEntity update(BookEntity object) {
-    return null;
+  public Optional<BookEntity> update(BookEntity object) {
+    return Optional.empty();
   }
 
   @Override

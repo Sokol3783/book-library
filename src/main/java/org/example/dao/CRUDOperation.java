@@ -1,14 +1,15 @@
 package org.example.dao;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface CRUDOperation<T> {
 
-  T findById(Long id);
+  Optional<T> findById(Long id);
 
-  T save(T object);
+  Optional<T> save(T object);
 
-  T update(T object);
+  Optional<T> update(T object);
 
   boolean deleteById(Long id);
 
