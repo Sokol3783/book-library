@@ -58,13 +58,14 @@ class BookRepositoryTest {
   void save() {
     BookEntity entity = new BookEntity(0, "new book", "new author");
     BookEntity copy = copyBookEntity(entity);
-    BookEntity save = repository.save(entity);
-
-    assertNotEquals(0l, save.getId());
-    assertEquals(entity, save);
-    assertNotEquals(copy, save);
-    assertEquals(copy.getAuthor(), save.getAuthor());
-    assertEquals(copy.getName(), save.getAuthor());
+    Optional<BookEntity> optionalSaved = repository.save(entity);
+    assertTrue(optionalSaved.isPresent());
+    BookEntity saved = optionalSaved.get();
+    assertNotEquals(0l, saved.getId());
+    assertEquals(entity, saved);
+    assertNotEquals(copy, saved);
+    assertEquals(copy.getAuthor(), saved.getAuthor());
+    assertEquals(copy.getName(), saved.getAuthor());
 
   }
 
@@ -80,11 +81,12 @@ class BookRepositoryTest {
     BookEntity oldValue = copyBookEntity(entity);
     entity.setAuthor("new author");
     entity.setName("new name");
-    BookEntity save = repository.save(entity);
-
-    assertEquals(entity, save);
-    assertNotEquals(oldValue.getAuthor(), save.getAuthor());
-    assertNotEquals(oldValue.getName(), save.getName());
+    Optional<BookEntity> optionalSaved = repository.update(entity);
+    assertTrue(optionalSaved.isPresent());
+    BookEntity saved = optionalSaved.get();
+    assertEquals(entity, saved);
+    assertNotEquals(oldValue.getAuthor(), saved.getAuthor());
+    assertNotEquals(oldValue.getName(), saved.getName());
   }
 
   @Test
