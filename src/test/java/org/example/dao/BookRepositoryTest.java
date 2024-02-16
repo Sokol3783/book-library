@@ -89,10 +89,15 @@ class BookRepositoryTest {
   }
 
   @Test
-  void deleteById() {
+  void deleteByIdReturnFalseWhenNoData() {
     Collection<BookEntity> all = repository.findAll();
     assertFalse(repository.deleteById(0l));
     assertEquals(all, repository.findAll());
+  }
+
+  @Test
+  void deleteTwiceByTheSameId() {
+    Collection<BookEntity> all = repository.findAll();
     assertTrue(() -> repository.deleteById(1l));
     Collection<BookEntity> afterDelete = repository.findAll();
     assertTrue(all.size() > afterDelete.size());
@@ -100,6 +105,7 @@ class BookRepositoryTest {
     assertFalse(() -> repository.deleteById(1l));
     assertEquals(afterDelete, repository.findAll());
   }
+
 
   @Test
   void findAllAfterStartup() {
