@@ -65,7 +65,7 @@ class BookRepositoryTest {
     assertEquals(entity, saved);
     assertNotEquals(copy, saved);
     assertEquals(copy.getAuthor(), saved.getAuthor());
-    assertEquals(copy.getName(), saved.getAuthor());
+    assertEquals(copy.getName(), saved.getName());
 
   }
 
