@@ -14,7 +14,7 @@ public class BookRepository implements CRUDOperation<BookEntity> {
   private static BookRepository instance;
 
   private BookRepository() {
-    repository = new TreeSet<>();
+    repository = new TreeSet<>(Comparator.comparingLong(BookEntity::getId));
   }
 
   public static BookRepository getInstance() {
@@ -36,12 +36,18 @@ public class BookRepository implements CRUDOperation<BookEntity> {
   @Override
   public Optional<BookEntity> save(BookEntity object) {
     if (object.getId() == 0l) {
-      object.setId(repository.stream().map(s -> s.getId()).max(Comparator.naturalOrder()).orElse(1l));
+      object.setId(getNextId());
     }
     if (repository.add(object))  {
       return Optional.of(object);
     }
     return Optional.empty();
+  }
+
+  private long getNextId() {
+    long l = repository.stream().map(s -> s.getId()).max(Comparator.naturalOrder()).orElse(1l)
+        .longValue();
+    return ++l;
   }
 
   @Override
