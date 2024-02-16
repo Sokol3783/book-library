@@ -38,7 +38,7 @@ public class BookRepository implements CRUDOperation<BookEntity> {
     if (object.getId() == 0l) {
       object.setId(getNextId());
     }
-    if (repository.add(object))  {
+    if (repository.add(object) | repository.contains(object))  {
       return Optional.of(object);
     }
     return Optional.empty();
