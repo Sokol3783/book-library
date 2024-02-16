@@ -20,14 +20,14 @@ class BookRepositoryTest {
 
   @BeforeEach
   void setUp() {
-    Collection<BookEntity> all = repository.findAll();
-    all.forEach(s -> repository.deleteById(s.getId()));
+    Collection<BookEntity> all = getDefaultBookEntity();
+    all.forEach(s -> repository.save(s));
   }
 
   @AfterEach
   void tearDown() {
-    Collection<BookEntity> all = getDefaultBookEntity();
-    all.forEach(s -> repository.save(s));
+    Collection<BookEntity> all = repository.findAll();
+    all.forEach(s -> repository.deleteById(s.getId()));
   }
 
   private Collection<BookEntity> getDefaultBookEntity() {
