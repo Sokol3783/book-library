@@ -1,8 +1,7 @@
 package org.example.dao;
 
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -92,13 +91,13 @@ class BookRepositoryTest {
   @Test
   void deleteById() {
     Collection<BookEntity> all = repository.findAll();
-    assertDoesNotThrow(() -> repository.deleteById(0l), "Throw exception when not delete data!");
+    assertFalse(repository.deleteById(0l));
     assertEquals(all, repository.findAll());
-    assertDoesNotThrow(() -> repository.deleteById(1l), "Throw exception when not delete data!");
+    assertTrue(() -> repository.deleteById(1l));
     Collection<BookEntity> afterDelete = repository.findAll();
     assertTrue(all.size() > afterDelete.size());
     assertNotEquals(all, afterDelete);
-    assertDoesNotThrow(() -> repository.deleteById(1l), "Throw exception when not delete data!");
+    assertFalse(() -> repository.deleteById(1l));
     assertEquals(afterDelete, repository.findAll());
   }
 
