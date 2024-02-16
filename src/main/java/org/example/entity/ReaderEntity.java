@@ -39,7 +39,7 @@ public class ReaderEntity {
     }
 
     ReaderEntity that = (ReaderEntity) o;
-    return id != that.id;
+    return id == that.id;
   }
 
   @Override

@@ -49,7 +49,7 @@ public class BookEntity {
     }
 
     BookEntity that = (BookEntity) o;
-    return id != that.id;
+    return id == that.id;
   }
 
   @Override
