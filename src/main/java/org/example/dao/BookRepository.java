@@ -1,6 +1,7 @@
 package org.example.dao;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,26 +30,32 @@ public class BookRepository implements CRUDOperation<BookEntity> {
 
   @Override
   public Optional<BookEntity> findById(Long id) {
-    return Optional.empty();
+    return repository.stream().filter(s -> s.getId() == id).findFirst();
   }
 
   @Override
   public Optional<BookEntity> save(BookEntity object) {
+    if (object.getId() == 0l) {
+      object.setId(repository.stream().map(s -> s.getId()).max(Comparator.naturalOrder()).orElse(1l));
+    }
+    if (repository.add(object))  {
+      return Optional.of(object);
+    }
     return Optional.empty();
   }
 
   @Override
   public Optional<BookEntity> update(BookEntity object) {
-    return Optional.empty();
+    return save(object);
   }
 
   @Override
   public boolean deleteById(Long id) {
-    return false;
+    return repository.removeIf(s -> s.getId() == id);
   }
 
   @Override
   public Collection<BookEntity> findAll() {
-    return null;
+    return Set.copyOf(repository);
   }
 }
