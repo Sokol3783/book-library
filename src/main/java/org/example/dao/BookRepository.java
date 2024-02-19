@@ -45,7 +45,7 @@ public class BookRepository implements CRUDOperation<BookEntity> {
   }
 
   private long getNextId() {
-    long l = repository.stream().map(s -> s.getId()).max(Comparator.naturalOrder()).orElse(1l)
+    long l = repository.stream().map(s -> s.getId()).max(Comparator.naturalOrder()).orElse(0l)
         .longValue();
     return ++l;
   }
