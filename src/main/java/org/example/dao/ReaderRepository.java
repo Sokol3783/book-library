@@ -29,7 +29,7 @@ public class ReaderRepository implements CRUDOperation<ReaderEntity> {
 
   @Override
   public Optional<ReaderEntity> findById(Long id) {
-    return Optional.empty();
+    return repository.stream().filter(s -> s.getId() == id).findFirst();
   }
 
   @Override
@@ -39,16 +39,16 @@ public class ReaderRepository implements CRUDOperation<ReaderEntity> {
 
   @Override
   public Optional<ReaderEntity> update(ReaderEntity object) {
-    return Optional.empty();
+    return save(object);
   }
 
   @Override
   public boolean deleteById(Long id) {
-    return false;
+    return repository.removeIf(s -> s.getId() == id);
   }
 
   @Override
   public Collection<ReaderEntity> findAll() {
-    return null;
+    return Set.copyOf(repository);
   }
 }
