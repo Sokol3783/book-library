@@ -18,7 +18,7 @@ public class ReaderEntity {
   }
 
   public void setId(long id) {
-    id = id;
+    this.id = id;
   }
 
   public String getName() {
