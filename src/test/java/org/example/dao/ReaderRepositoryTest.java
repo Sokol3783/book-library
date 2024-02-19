@@ -26,10 +26,10 @@ class ReaderRepositoryTest {
     all.forEach(s -> repository.deleteById(s.getId()));
   }
 
-  private Collection<ReaderEntity> getDefaultBookEntity() {
-    return List.of(new ReaderEntity(1, "Test book1", "Test author1"),
-        new ReaderEntity(2, "Test book2", "Test author1"),
-        new ReaderEntity(3, "Test book3", "Test author1"));
+  private Collection<ReaderEntity> getDefaultReaderEntity() {
+    return List.of(new ReaderEntity(1, "Reader 1"),
+        new ReaderEntity(2, "Reader 2"),
+        new ReaderEntity(3, "Reader 3"));
   }
 
   @Test
@@ -39,8 +39,7 @@ class ReaderRepositoryTest {
     assertTrue(optional.isPresent());
     ReaderEntity book = optional.get();
     assertEquals(1l, book.getId());
-    assertEquals("Test book1", book.getName());
-    assertEquals("Test author1", book.getAuthor());
+    assertEquals("Reader 1", book.getName());
 
   }
 
@@ -52,21 +51,20 @@ class ReaderRepositoryTest {
 
   @Test
   void save() {
-    ReaderEntity entity = new BookEntity(0, "new book", "new author");
-    ReaderEntity copy = copyBookEntity(entity);
+    ReaderEntity entity = new ReaderEntity(0, "Reader 4");
+    ReaderEntity copy = copyReaderEntity(entity);
     Optional<ReaderEntity> optionalSaved = repository.save(entity);
     assertTrue(optionalSaved.isPresent());
     ReaderEntity saved = optionalSaved.get();
     assertNotEquals(0l, saved.getId());
     assertEquals(entity, saved);
     assertNotEquals(copy, saved);
-    assertEquals(copy.getAuthor(), saved.getAuthor());
     assertEquals(copy.getName(), saved.getName());
 
   }
 
-  private ReaderEntity copyBookEntity(BookEntity entity) {
-    return new ReaderEntity(entity.getId(), entity.getName(), entity.getAuthor());
+  private ReaderEntity copyReaderEntity(ReaderEntity entity) {
+    return new ReaderEntity(entity.getId(), entity.getName());
   }
 
   @Test
@@ -74,14 +72,12 @@ class ReaderRepositoryTest {
     Optional<ReaderEntity> byId = repository.findById(1l);
     assertTrue(byId.isPresent());
     ReaderEntity entity = byId.get();
-    ReaderEntity oldValue = copyBookEntity(entity);
-    entity.setAuthor("new author");
+    ReaderEntity oldValue = copyReaderEntity(entity);
     entity.setName("new name");
     Optional<ReaderEntity> optionalSaved = repository.update(entity);
     assertTrue(optionalSaved.isPresent());
     ReaderEntity saved = optionalSaved.get();
     assertEquals(entity, saved);
-    assertNotEquals(oldValue.getAuthor(), saved.getAuthor());
     assertNotEquals(oldValue.getName(), saved.getName());
   }
 
@@ -113,5 +109,12 @@ class ReaderRepositoryTest {
   @Test
   void findAllAfterAddOne() {
     Collection<ReaderEntity> all = repository.findAll();
+    assertNotEquals(0, all.size());
+    int size = all.size();
+    repository.save(new ReaderEntity(0, "name"));
+    Collection<ReaderEntity> allAfterAdd = repository.findAll();
+    assertNotEquals(size, allAfterAdd.size());
+    assertNotEquals(allAfterAdd, all);
+  }
 
 }
