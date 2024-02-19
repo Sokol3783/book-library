@@ -1,6 +1,7 @@
 package org.example.dao;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -13,7 +14,7 @@ public class ReaderRepository implements CRUDOperation<ReaderEntity> {
   private static ReaderRepository instance;
 
   private ReaderRepository() {
-    repository = new TreeSet<>();
+    repository = new TreeSet<>(Comparator.comparingLong(ReaderEntity::getId));
   }
 
   public static ReaderRepository getInstance() {
@@ -34,7 +35,19 @@ public class ReaderRepository implements CRUDOperation<ReaderEntity> {
 
   @Override
   public Optional<ReaderEntity> save(ReaderEntity object) {
+    if (object.getId() == 0l) {
+      object.setId(getNextId());
+    }
+    if (repository.add(object) | repository.contains(object))  {
+      return Optional.of(object);
+    }
     return Optional.empty();
+  }
+
+  private long getNextId() {
+    long l = repository.stream().map(s -> s.getId()).max(Comparator.naturalOrder()).orElse(0l)
+        .longValue();
+    return ++l;
   }
 
   @Override
