@@ -1,6 +1,8 @@
 package org.example.service.console;
 
 import static java.lang.Thread.sleep;
+import static org.example.service.console.TestDataUtil.getTestBooks;
+import static org.example.service.console.TestDataUtil.getTestsReaders;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -9,13 +11,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Collection;
-import java.util.List;
 import java.util.Scanner;
 import org.example.dao.BookRepository;
 import org.example.dao.ReaderRepository;
-import org.example.entity.BookEntity;
-import org.example.entity.ReaderEntity;
 import org.example.factory.MenuFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -98,18 +96,6 @@ class ConsoleMenuTest {
       System.setIn(new ByteArrayInputStream(string.getBytes()));
       sleep(100);
     }
-  }
-
-  private Collection<BookEntity> getTestBooks() {
-    return List.of(new BookEntity(1, "Test book1", "Test author1"),
-                   new BookEntity(2, "Test book2", "Test author1"),
-                   new BookEntity(3, "Test book3", "Test author1"));
-  }
-
-  private Collection<ReaderEntity> getTestsReaders() {
-    return List.of( new ReaderEntity(1, "Test1"),
-                    new ReaderEntity(2, "Test2"),
-                    new ReaderEntity(3, "Test3"));
   }
 
   @ParameterizedTest
