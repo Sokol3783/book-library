@@ -30,6 +30,8 @@ public class BaseConsoleMenu implements ConsoleMenu {
                 String input = scanner.nextLine();
                 if (input.compareToIgnoreCase("exit") == 0) {
                     break;
+                } else if (input.length() == 0) {
+                    continue;
                 }
                 runMenuOption(input);
                 printMenu();
@@ -38,8 +40,10 @@ public class BaseConsoleMenu implements ConsoleMenu {
     }
 
     private void runMenuOption(String input) {
-        int i = Integer.parseInt(input);
-        MenuOption option = map.getOrDefault(i, defaultMenuOption());
+        MenuOption option = defaultMenuOption();
+        if (input.matches("\\d+")) {
+          option = map.getOrDefault(Integer.parseInt(input), option);
+        }
         option.doAction();
     }
 
@@ -50,7 +54,7 @@ public class BaseConsoleMenu implements ConsoleMenu {
     }
 
     private MenuOption defaultMenuOption(){
-        return new MenuOption(99, () -> System.out.println("Invalid input"), "invalid input");
+        return new MenuOption(99, () -> System.out.println("Invalid input\n"), "invalid input");
     }
 
 }
