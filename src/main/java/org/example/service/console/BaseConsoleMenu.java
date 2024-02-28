@@ -45,7 +45,7 @@ public class BaseConsoleMenu implements ConsoleMenu {
 
     public void printMenu() {
         System.out.println("PLEASE, SELECT ONE OF THE FOLLOWING ACTIONS BY TYPING THE OPTION’S NUMBER AND PRESSING ENTER KEY:");
-        map.entrySet().forEach(s -> System.out.printf("[%2d] %25s", s.getValue().getNumber(), s.getValue().getNameAction()));
+        map.entrySet().forEach(s -> System.out.printf("[%2d ] %25s\n", s.getValue().getNumber(), s.getValue().getNameAction()));
         System.out.println("\nTYPE “EXIT” TO STOP THE PROGRAM AND EXIT!");
     }
 
