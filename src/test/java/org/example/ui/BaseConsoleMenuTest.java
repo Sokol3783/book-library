@@ -17,9 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BaseConsoleMenuTest {
 
-    private final ByteArrayOutputStream output = new ByteArrayOutputStream();
-    private final InputStream systemStream = System.in;
-    private Thread thread;
+    private static final ByteArrayOutputStream output = new ByteArrayOutputStream();
+    private static final InputStream systemStream = System.in;
+    private static Thread thread;
     @BeforeEach
     void setUpStream() {
         System.setOut(new PrintStream(output));
@@ -29,7 +29,6 @@ class BaseConsoleMenuTest {
     void cleanUpStreams() {
         System.setOut(null);
         System.setIn(systemStream);
-        output.reset();
         thread.interrupt();
     }
 
@@ -99,20 +98,22 @@ class BaseConsoleMenuTest {
         startMenuInThread();
         inputWithSleep("exit");
         String outputString = output.toString();
+        System.out.println(outputString);
         assertTrue(outputString.contains("Goodbye!"));
     }
 
     private void inputWithSleep(String... data) throws InterruptedException {
         for (String string : data ) {
             System.setIn(new ByteArrayInputStream(string.getBytes()));
-            sleep(100);
+            sleep(300);
         }
     }
 
-    private void startMenuInThread() {
+    private void startMenuInThread() throws InterruptedException {
         BaseConsoleMenu menu = new BaseConsoleMenu();
         thread = new Thread(menu::run);
         thread.start();
+        sleep(200);
     }
 
 }
