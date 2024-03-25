@@ -73,20 +73,33 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu shouldn't crash after incorrect input")
-    void shouldNotFallDownAfterIncorrectInput(){
-
+    void shouldNotFallDownAfterIncorrectInput() throws InterruptedException {
+        startMenuInThread();
+        inputWithSleep("200");
+        assertTrue(thread.isAlive());
+        inputWithSleep("asdfasdf");
+        assertTrue(thread.isAlive());
+        inputWithSleep("2aghjasdhdjasdas0");
+        assertTrue(thread.isAlive());
     }
 
     @Test
     @DisplayName("Close menu after input 'exit'")
-    void shouldStopWorkingAfterInputExit(){
-
+    void shouldStopWorkingAfterInputExit() throws InterruptedException {
+        startMenuInThread();
+        sleep(100);
+        assertTrue(thread.isAlive());
+        inputWithSleep("exit");
+        assertFalse(thread.isAlive());
     }
 
     @Test
     @DisplayName("Menu should print 'Goodbye!' after input 'exit'")
-    void shouldPrintGoodbyeAfterInputExit(){
-
+    void shouldPrintGoodbyeAfterInputExit() throws InterruptedException {
+        startMenuInThread();
+        inputWithSleep("exit");
+        String outputString = output.toString();
+        assertTrue(outputString.contains("Goodbye!"));
     }
 
     private void inputWithSleep(String... data) throws InterruptedException {
