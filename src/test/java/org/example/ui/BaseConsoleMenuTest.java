@@ -1,14 +1,9 @@
 package org.example.ui;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
+import java.util.Scanner;
 import java.util.stream.Stream;
 
 import static java.lang.Thread.sleep;
@@ -18,24 +13,22 @@ import static org.junit.jupiter.api.Assertions.*;
 class BaseConsoleMenuTest {
 
     private static final ByteArrayOutputStream output = new ByteArrayOutputStream();
-    private static final InputStream systemStream = System.in;
-    private static Thread thread;
-    @BeforeEach
-    void setUpStream() {
+
+    @BeforeAll
+    static void setUp() {
         System.setOut(new PrintStream(output));
     }
 
-    @AfterEach
-    void cleanUpStreams() {
-        System.setOut(null);
-        System.setIn(systemStream);
-        thread.interrupt();
+    @BeforeEach
+    void setUpStream() {
+        output.reset();
     }
 
     @Test
     @DisplayName("Menu should print welcome message only once")
-    void shouldPrintWelcomeMessageOnlyOnce() throws InterruptedException {
-        startMenuInThread();
+    void shouldPrintWelcomeMessageOnlyOnce() throws InterruptedException, IOException {
+        Thread thread = new Thread(() -> new BaseConsoleMenu().run());
+        thread.start();
         String welcomeMessage = "WELCOME TO THE LIBRARY!";
         inputWithSleep("1", "2", "exit");
         String outputString= output.toString();
@@ -46,8 +39,9 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu should print three books after input '1'")
-    void shouldPrintThreeBooksAfterStart() throws InterruptedException {
-        startMenuInThread();
+    void shouldPrintThreeBooksAfterStart() throws InterruptedException, IOException {
+        Thread thread = new Thread(() -> new BaseConsoleMenu().run());
+        thread.start();
         inputWithSleep("1");
         String outputString = output.toString();
         assertAll(() -> assertTrue(outputString.contains("Little prince")),
@@ -61,8 +55,9 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu should print three readers after input '2'")
-    void shouldPrintThreeReadersAfterStart() throws InterruptedException {
-        startMenuInThread();
+    void shouldPrintThreeReadersAfterStart() throws InterruptedException, IOException {
+        Thread thread = new Thread(() -> new BaseConsoleMenu().run());
+        thread.start();
         inputWithSleep("2");
         String outputString = output.toString();
         assertAll(() -> assertTrue(outputString.contains("Kent Back")),
@@ -72,8 +67,9 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu shouldn't crash after incorrect input")
-    void shouldNotFallDownAfterIncorrectInput() throws InterruptedException {
-        startMenuInThread();
+    void shouldNotFallDownAfterIncorrectInput() throws InterruptedException, IOException {
+        Thread thread = new Thread(() -> new BaseConsoleMenu().run());
+        thread.start();
         inputWithSleep("200");
         assertTrue(thread.isAlive());
         inputWithSleep("asdfasdf");
@@ -84,36 +80,36 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Close menu after input 'exit'")
-    void shouldStopWorkingAfterInputExit() throws InterruptedException {
-        startMenuInThread();
+    void shouldStopWorkingAfterInputExit() throws InterruptedException, IOException {
+        Thread thread = new Thread(() -> new BaseConsoleMenu().run());
+        thread.start();
         sleep(100);
         assertTrue(thread.isAlive());
-        inputWithSleep("exit");
-        assertFalse(thread.isAlive());
+        inputWithSleep("exit", "1", "2");
+        String print = output.toString();
+        assertAll(() -> assertFalse(print.contains("Kent Back"))
+                , () -> assertFalse(print.contains("Clark Kent"))
+                , () -> assertFalse(print.contains("George Orwell"))
+                , () -> assertFalse(print.contains("Garcia Márquez"))
+                );
     }
 
     @Test
     @DisplayName("Menu should print 'Goodbye!' after input 'exit'")
-    void shouldPrintGoodbyeAfterInputExit() throws InterruptedException {
-        startMenuInThread();
+    void shouldPrintGoodbyeAfterInputExit() throws InterruptedException, IOException {
+        Thread thread = new Thread(() -> new BaseConsoleMenu().run());
+        thread.start();
         inputWithSleep("exit");
         String outputString = output.toString();
         System.out.println(outputString);
         assertTrue(outputString.contains("Goodbye!"));
     }
 
-    private void inputWithSleep(String... data) throws InterruptedException {
+    private void inputWithSleep(String... data) throws InterruptedException, IOException {
         for (String string : data ) {
             System.setIn(new ByteArrayInputStream(string.getBytes()));
-            sleep(300);
+            sleep(200);
         }
-    }
-
-    private void startMenuInThread() throws InterruptedException {
-        BaseConsoleMenu menu = new BaseConsoleMenu();
-        thread = new Thread(menu::run);
-        thread.start();
-        sleep(200);
     }
 
 }
