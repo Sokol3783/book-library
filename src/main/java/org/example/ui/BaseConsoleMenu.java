@@ -30,11 +30,16 @@ public class BaseConsoleMenu {
                     switch (line) {
                         case "1" : printBooks();
                         case "2" : printReaders();
+                        default  : printInvalidOption();
                     }
                 }
             }
             System.out.println(getTextMenu());
         }
+    }
+
+    private void printInvalidOption() {
+        System.out.println("Invalid option!");
     }
 
     private String getTextMenu() {
