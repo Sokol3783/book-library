@@ -34,6 +34,7 @@ class BaseConsoleMenuTest {
 
     @AfterEach
     void setInExitToMenu() throws InterruptedException {
+        System.err.println(output);
         System.err.println("set exit");
         inputWithSleep("exit");
     }
@@ -155,6 +156,19 @@ class BaseConsoleMenuTest {
     @Test
     @DisplayName("After input 2 doesn't print 'Goodbye' ")
     void shouldNotPrintReadersAndExitAfterInput_2() {
+        assertFalse(true);
+    }
+
+
+    @Test
+    @DisplayName("Books print from new line like: ID = **, author = **, title = **")
+    void shouldPrintBooksInFormatFromNewLine(){
+        assertFalse(true);
+    }
+
+    @Test
+    @DisplayName("Readers print from new line like: ID = **, name = **")
+    void shouldPrintReaderInFormatFromNewLine(){
         assertFalse(true);
     }
 
