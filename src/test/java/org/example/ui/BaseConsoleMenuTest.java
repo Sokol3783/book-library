@@ -18,14 +18,9 @@ class BaseConsoleMenuTest {
         System.setOut(new PrintStream(output));
     }
 
-    @BeforeEach
-    void setUpStream() {
-        output.reset();
-    }
-
     @Test
     @DisplayName("Menu should print welcome message only once")
-    void shouldPrintWelcomeMessageOnlyOnce() throws InterruptedException, IOException {
+    void shouldPrintWelcomeMessageOnlyOnce() throws InterruptedException{
         Thread thread = new Thread(() -> new BaseConsoleMenu().run());
         thread.start();
         String welcomeMessage = "WELCOME TO THE LIBRARY!";
@@ -41,7 +36,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu should print three books after input '1'")
-    void shouldPrintThreeBooksAfterStart() throws InterruptedException, IOException {
+    void shouldPrintThreeBooksAfterInputOption_1() throws InterruptedException {
         Thread thread = new Thread(() -> new BaseConsoleMenu().run());
         thread.start();
         inputWithSleep("1");
@@ -57,7 +52,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu should print three readers after input '2'")
-    void shouldPrintThreeReadersAfterStart() throws InterruptedException, IOException {
+    void shouldPrintThreeReadersAfterInputOption_2() throws InterruptedException, IOException {
         Thread thread = new Thread(() -> new BaseConsoleMenu().run());
         thread.start();
         inputWithSleep("2");
@@ -111,7 +106,7 @@ class BaseConsoleMenuTest {
         thread.interrupt();
     }
 
-    private void inputWithSleep(String... data) throws InterruptedException, IOException {
+    private void inputWithSleep(String... data) throws InterruptedException{
         for (String string : data ) {
             System.setIn(new ByteArrayInputStream(string.getBytes()));
             sleep(200);
@@ -130,7 +125,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("After input should print menu except exit")
-    void shouldPrintMenuAfterAnyInputExceptExit() throws IOException, InterruptedException {
+    void shouldPrintMenuAfterAnyInputExceptExit() throws InterruptedException {
         Thread thread = new Thread(() -> new BaseConsoleMenu().run());
         thread.start();
         output.reset();
