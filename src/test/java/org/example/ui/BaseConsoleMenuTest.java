@@ -134,6 +134,7 @@ class BaseConsoleMenuTest {
     @Test
     @DisplayName("After input should print menu except exit")
     void shouldPrintMenuAfterAnyInputExceptExit() throws InterruptedException {
+        executor.execute(() -> new BaseConsoleMenu().run());
         inputWithSleep("1");
         assertTrue(output.toString().contains(getTextMenu()));
         output.reset();
