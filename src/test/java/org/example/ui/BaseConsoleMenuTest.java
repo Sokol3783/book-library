@@ -52,7 +52,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu should print three readers after input '2'")
-    void shouldPrintThreeReadersAfterInputOption_2() throws InterruptedException, IOException {
+    void shouldPrintThreeReadersAfterInputOption_2() throws InterruptedException {
         Thread thread = new Thread(() -> new BaseConsoleMenu().run());
         thread.start();
         inputWithSleep("2");
@@ -65,7 +65,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu shouldn't crash after incorrect input")
-    void shouldNotFallDownAfterIncorrectInput() throws InterruptedException, IOException {
+    void shouldNotFallDownAfterIncorrectInput() throws InterruptedException {
         Thread thread = new Thread(() -> new BaseConsoleMenu().run());
         thread.start();
         inputWithSleep("200");
@@ -79,7 +79,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Close menu after input 'exit'")
-    void shouldStopWorkingAfterInputExit() throws InterruptedException, IOException {
+    void shouldStopWorkingAfterInputExit() throws InterruptedException {
         Thread thread = new Thread(() -> new BaseConsoleMenu().run());
         thread.start();
         sleep(100);
@@ -96,7 +96,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu should print 'Goodbye!' after input 'exit'")
-    void shouldPrintGoodbyeAfterInputExit() throws InterruptedException, IOException {
+    void shouldPrintGoodbyeAfterInputExit() throws InterruptedException {
         Thread thread = new Thread(() -> new BaseConsoleMenu().run());
         thread.start();
         inputWithSleep("exit");
