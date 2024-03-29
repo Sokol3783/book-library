@@ -146,6 +146,18 @@ class BaseConsoleMenuTest {
         assertTrue(output.toString().contains(getTextMenu()));
     }
 
+    @Test
+    @DisplayName("After input 1 doesn't print another option and 'Goodbye'")
+    void shouldNotPrintReadersAndExitAfterInput_1() {
+        assertFalse(true);
+    }
+
+    @Test
+    @DisplayName("After input 2 doesn't print 'Goodbye' ")
+    void shouldNotPrintReadersAndExitAfterInput_2() {
+        assertFalse(true);
+    }
+
     private String getTextMenu() {
         return """
                 PLEASE, SELECT ONE OF THE FOLLOWING ACTIONS BY TYPING THE OPTION’S NUMBER AND PRESSING ENTER KEY:
