@@ -181,8 +181,4 @@ class BaseConsoleMenuTest {
                 """;
     }
 
-    void waitTerminationPreviousRun(ExecutorService executorService) throws InterruptedException {
-        if ( executorService.isTerminated()) return;
-        executorService.awaitTermination(3, TimeUnit.SECONDS);
-    }
 }
