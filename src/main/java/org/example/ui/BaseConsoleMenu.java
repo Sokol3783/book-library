@@ -19,7 +19,7 @@ public class BaseConsoleMenu {
     }
 
     public void run() {
-        System.out.println(welcomeMessage);
+        System.out.println(welcomeMessage + "\n" + getTextMenu());
         while (true) {
             if (scanner.hasNext()) {
                 String line = scanner.nextLine();
@@ -33,8 +33,8 @@ public class BaseConsoleMenu {
                         default  : printInvalidOption();
                     }
                 }
+                System.out.println(getTextMenu());
             }
-            System.out.println(getTextMenu());
         }
     }
 
