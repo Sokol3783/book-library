@@ -39,7 +39,7 @@ public class BaseConsoleMenu {
     }
 
     private void printInvalidOption() {
-        System.out.println("Invalid option!");
+        System.err.println("Invalid option!");
     }
 
     private String getTextMenu() {
@@ -51,11 +51,9 @@ public class BaseConsoleMenu {
     }
 
     private void printReaders() {
-        String buffer = String.format(" %2s %27s\n", "id", "name") +
-                getReaders().stream().sorted(Comparator.comparing(ReaderEntity::getId)).map(
-                                s -> String.format(" %4d %-25s", s.getId(), s.getName()))
-                        .collect(Collectors.joining("\n"));
-        System.out.println(buffer);
+                getReaders().stream().sorted(Comparator.comparing(ReaderEntity::getId)).
+                        forEach(s -> System.out.println("ID = " + s.getId() + " name = " + s.getName()));
+        System.out.println("\n");
     }
 
     private void printBooks() {
