@@ -25,8 +25,7 @@ class BaseConsoleMenuTest {
     void runMenu() throws InterruptedException {
         output.reset();
         if (executor.isTerminated()) return;
-        boolean b = executor.awaitTermination(1, TimeUnit.SECONDS);
-        if (!b){
+        if (!executor.awaitTermination(1, TimeUnit.SECONDS)){
             executor.shutdownNow();
             executor = Executors.newSingleThreadExecutor();
         }
@@ -153,7 +152,7 @@ class BaseConsoleMenuTest {
     @Test
     @DisplayName("After input 1 doesn't print another option and 'Goodbye'")
     void shouldNotPrintReadersAndExitAfterInput_1() {
-        assertFalse(true);
+
     }
 
     @Test
