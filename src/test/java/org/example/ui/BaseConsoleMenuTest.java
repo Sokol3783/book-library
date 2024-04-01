@@ -28,12 +28,16 @@ class BaseConsoleMenuTest {
         if (!executor.awaitTermination(1, TimeUnit.SECONDS)){
             executor.shutdownNow();
             executor = Executors.newSingleThreadExecutor();
+        } else {
+            executor = Executors.newSingleThreadExecutor();
         }
     }
 
     @AfterEach
     void setInExitToMenu() throws InterruptedException {
-        inputWithSleep("exit");
+        if (!executor.isTerminated()){
+            inputWithSleep("exit");
+        }
     }
 
     @Test
@@ -79,11 +83,16 @@ class BaseConsoleMenuTest {
     @Test
     @DisplayName("Menu shouldn't crash after incorrect input")
     void shouldNotFallDownAfterIncorrectInput() throws InterruptedException {
-        assertTrue(false);
         executor.execute(() -> new BaseConsoleMenu().run());
+        output.reset();
         inputWithSleep("200");
+        assertNotEquals(0 , output.size());
+        output.reset();
         inputWithSleep("asdfasdf");
+        assertNotEquals(0 , output.size());
+        output.reset();
         inputWithSleep("2aghjasdhdjasdas0");
+        assertNotEquals(0 , output.size());
     }
 
     @Test
@@ -124,12 +133,11 @@ class BaseConsoleMenuTest {
     @DisplayName("Menu should print list of option on startup")
     void shouldPrintListOfOptionOnStartup() {
         executor.execute(() -> new BaseConsoleMenu().run());
-        System.err.println("Size of print "  + output.size());
         assertTrue(output.toString().contains(getTextMenu()));
     }
 
     @Test
-    @DisplayName("After any input should print menu except exit")
+    @DisplayName("After any input should print menu except exit, after exit stop run menu")
     void shouldPrintMenuAfterAnyInputExceptExit() throws InterruptedException {
         executor.execute(() -> new BaseConsoleMenu().run());
         inputWithSleep("1");
@@ -144,21 +152,28 @@ class BaseConsoleMenuTest {
         System.err.println(output);
         assertTrue(output.toString().contains(getTextMenu()));
         output.reset();
-        inputWithSleep("4\n" + "gfassdhjfhas");
-        System.err.println(output);
-        assertTrue(output.toString().contains(getTextMenu()));
+        inputWithSleep("exit");
+        assertTrue(executor.awaitTermination(2, TimeUnit.SECONDS), "Should stop running menu after exit");
+        assertTrue(executor.isTerminated());
     }
 
     @Test
     @DisplayName("After input 1 doesn't print another option and 'Goodbye'")
-    void shouldNotPrintReadersAndExitAfterInput_1() {
-
+    void shouldNotPrintReadersAndExitAfterInput_1() throws InterruptedException {
+        executor.execute(() -> new BaseConsoleMenu().run());
+        inputWithSleep("1");
+        String outputString = output.toString();
+                    () -> assertFalse(outputString.contains("Clark Kent")),
+                    () -> assertFalse(outputString.contains("Goodbye")));
     }
 
     @Test
     @DisplayName("After input 2 doesn't print 'Goodbye' ")
-    void shouldNotPrintReadersAndExitAfterInput_2() {
-        assertFalse(true);
+    void shouldNotPrintReadersAndExitAfterInput_2() throws InterruptedException {
+        executor.execute(() -> new BaseConsoleMenu().run());
+        inputWithSleep("2");
+        String outputString = output.toString();
+        assertFalse(outputString.contains("Goodbye"));
     }
 
 
