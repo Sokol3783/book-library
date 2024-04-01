@@ -1,5 +1,6 @@
 package org.example.ui;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +23,6 @@ class BaseConsoleMenuTest {
 
     @BeforeEach
     void runMenu() throws InterruptedException {
-        System.err.println("before each");
         output.reset();
         if (executor.isTerminated()) return;
         boolean b = executor.awaitTermination(1, TimeUnit.SECONDS);
@@ -34,8 +34,6 @@ class BaseConsoleMenuTest {
 
     @AfterEach
     void setInExitToMenu() throws InterruptedException {
-        System.err.println(output);
-        System.err.println("set exit");
         inputWithSleep("exit");
     }
 
@@ -125,26 +123,30 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu should print list of option on startup")
-    void shouldPrintListOfOptionOnStartup() throws InterruptedException {
+    void shouldPrintListOfOptionOnStartup() {
         executor.execute(() -> new BaseConsoleMenu().run());
         System.err.println("Size of print "  + output.size());
         assertTrue(output.toString().contains(getTextMenu()));
     }
 
     @Test
-    @DisplayName("After input should print menu except exit")
+    @DisplayName("After any input should print menu except exit")
     void shouldPrintMenuAfterAnyInputExceptExit() throws InterruptedException {
         executor.execute(() -> new BaseConsoleMenu().run());
         inputWithSleep("1");
         assertTrue(output.toString().contains(getTextMenu()));
+        System.err.println("1\n"  + output);
         output.reset();
         inputWithSleep("2");
+        System.err.println("2\n" + output);
         assertTrue(output.toString().contains(getTextMenu()));
         output.reset();
-        inputWithSleep("3");
+        inputWithSleep("3\n" + "3");
+        System.err.println(output);
         assertTrue(output.toString().contains(getTextMenu()));
         output.reset();
-        inputWithSleep("gfassdhjfhas");
+        inputWithSleep("4\n" + "gfassdhjfhas");
+        System.err.println(output);
         assertTrue(output.toString().contains(getTextMenu()));
     }
 
@@ -163,14 +165,27 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Books print from new line like: ID = **, author = **, title = **")
-    void shouldPrintBooksInFormatFromNewLine(){
-        assertFalse(true);
+    void shouldPrintBooksInFormatFromNewLine() throws InterruptedException {
+        executor.execute(() -> new BaseConsoleMenu().run());
+        output.reset();
+        inputWithSleep("1");
+        String[] split = Arrays.copyOf(output.toString().split("\n"), 3);
+        assertAll( () -> assertTrue(Stream.of(split).allMatch(s -> s.contains("ID"))),
+                   () -> assertTrue(Stream.of(split).allMatch(s -> s.contains("author"))),
+                   () -> assertTrue(Stream.of(split).allMatch(s -> s.contains("title")))
+                );
     }
 
     @Test
     @DisplayName("Readers print from new line like: ID = **, name = **")
-    void shouldPrintReaderInFormatFromNewLine(){
-        assertFalse(true);
+    void shouldPrintReaderInFormatFromNewLine() throws InterruptedException {
+        executor.execute(() -> new BaseConsoleMenu().run());
+        output.reset();
+        inputWithSleep("1");
+        String[] split = Arrays.copyOf(output.toString().split("\n"), 3);
+        assertAll( () -> assertTrue(Stream.of(split).allMatch(s -> s.contains("ID"))),
+            () -> assertTrue(Stream.of(split).allMatch(s -> s.contains("name")))
+        );
     }
 
     private String getTextMenu() {
