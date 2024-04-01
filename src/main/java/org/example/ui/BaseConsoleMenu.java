@@ -51,17 +51,15 @@ public class BaseConsoleMenu {
     }
 
     private void printReaders() {
-                getReaders().stream().sorted(Comparator.comparing(ReaderEntity::getId)).
+        getReaders().stream().sorted(Comparator.comparing(ReaderEntity::getId)).
                         forEach(s -> System.out.println("ID = " + s.getId() + " name = " + s.getName()));
         System.out.println("\n");
     }
 
     private void printBooks() {
-        String buffer = String.format(" %2s %13s %25s\n", "id", "title", "author") +
-                getBooks().stream().map(
-                                s -> String.format(" %4d %-25s %-25s", s.getId(), s.getName(), s.getAuthor()))
-                        .collect(Collectors.joining("\n"));
-        System.out.println(buffer);
+        getBooks().stream().sorted(Comparator.comparing(BookEntity::getId)).
+            forEach(s -> System.out.println("ID = " + s.getId() + " author = " + s.getAuthor() + " title " + s.getName()));
+        System.out.println("\n");
     }
 
     private List<BookEntity> getBooks() {
