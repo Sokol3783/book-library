@@ -19,10 +19,10 @@ public class BaseConsoleMenu {
       if (scanner.hasNextLine()){
         String line = scanner.nextLine().toLowerCase();
         switch (line) {
-          case "1" -> printBooks();
-          case "2" -> printReaders();
-          case "exit" -> shutdown();
-          default -> printInvalidOption();
+          case "1"    -> printBooks();
+          case "2"    -> printReaders();
+          case "exit" -> exit();
+          default     -> printErrInvalidOption();
         }
         if (!terminate) {
           System.out.println(getTextMenu());
@@ -31,12 +31,12 @@ public class BaseConsoleMenu {
     }
   }
 
-  private void shutdown() {
+  private void exit() {
     terminate = true;
     System.out.println("Goodbye!");
   }
 
-  private void printInvalidOption() {
+  private void printErrInvalidOption() {
     System.err.println("Invalid option");
   }
 
