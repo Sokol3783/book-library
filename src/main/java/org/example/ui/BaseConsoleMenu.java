@@ -9,16 +9,9 @@ import org.example.entity.Reader;
 public class BaseConsoleMenu {
 
   private static boolean terminate = false;
-  private final Scanner scanner;
-  private final String welcomeMessage = "WELCOME TO THE LIBRARY!";
+  private static final Scanner scanner = new Scanner(System.in);
+  private static final String welcomeMessage = "WELCOME TO THE LIBRARY!";
 
-  public BaseConsoleMenu() {
-    scanner = new Scanner(System.in);
-  }
-
-  public BaseConsoleMenu(Scanner scanner){
-    this.scanner = scanner;
-  }
 
   public void run() {
     System.out.println(welcomeMessage + getTextMenu());
