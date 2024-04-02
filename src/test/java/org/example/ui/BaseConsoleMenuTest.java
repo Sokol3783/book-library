@@ -22,20 +22,17 @@ class BaseConsoleMenuTest {
     }
 
     private static void run() {
-        System.err.println("RUN IN THREAD");
         menu = new BaseConsoleMenu();
         menu.run();
     }
 
     @BeforeEach
     void terminateThreadExecutor() {
-        System.err.println("\nBEFORE EACH");
         executor = Executors.newSingleThreadExecutor();
     }
 
     @AfterEach
     void setInExitToMenu() {
-        System.err.println("AFTER EACH\n");
         output.reset();
         executor.shutdownNow();
     }

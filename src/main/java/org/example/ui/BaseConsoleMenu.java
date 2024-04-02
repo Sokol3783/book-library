@@ -13,16 +13,11 @@ public class BaseConsoleMenu {
 
   private final Scanner scanner = new Scanner(System.in);
 
-  public BaseConsoleMenu(){
-    System.err.println("Initialize contstructor");
-  }
-
   public void run() {
     System.out.println(WELCOME_MESSAGE + getTextMenu());
     while (!terminate) {
       if (scanner.hasNextLine()){
         String line = scanner.nextLine().toLowerCase();
-        System.err.println("Output in base menu " + line);
         switch (line) {
           case "1"    -> printBooks();
           case "2"    -> printReaders();
