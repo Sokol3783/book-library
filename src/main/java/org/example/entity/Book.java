@@ -1,16 +1,17 @@
 package org.example.entity;
 
-public class ReaderEntity {
-
+public class Book {
     private long id;
     private String name;
+    private String author;
 
-    public ReaderEntity(long id, String name) {
+    public Book(long id, String name, String author) {
         this.id = id;
         this.name = name;
+        this.author = author;
     }
 
-    public ReaderEntity() {
+    public Book() {
     }
 
     public long getId() {
@@ -29,4 +30,11 @@ public class ReaderEntity {
         this.name = name;
     }
 
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 }

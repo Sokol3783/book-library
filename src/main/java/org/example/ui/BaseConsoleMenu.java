@@ -3,8 +3,8 @@ package org.example.ui;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
-import org.example.entity.BookEntity;
-import org.example.entity.ReaderEntity;
+import org.example.entity.Book;
+import org.example.entity.Reader;
 
 public class BaseConsoleMenu {
 
@@ -57,26 +57,26 @@ public class BaseConsoleMenu {
   }
 
   private void printReaders() {
-    getReaders().stream().sorted(Comparator.comparing(ReaderEntity::getId)).
+    getReaders().stream().sorted(Comparator.comparing(Reader::getId)).
         forEach(s -> System.out.println("ID = " + s.getId() + " name = " + s.getName()));
   }
 
   private void printBooks() {
-    getBooks().stream().sorted(Comparator.comparing(BookEntity::getId)).
+    getBooks().stream().sorted(Comparator.comparing(Book::getId)).
         forEach(s -> System.out.println(
             "ID = " + s.getId() + " author = " + s.getAuthor() + " title = " + s.getName()));
   }
 
-  private List<BookEntity> getBooks() {
-    return List.of(new BookEntity(1, "Little prince", "Antoine de Saint-Exupéry"),
-        new BookEntity(2, "Squealer", "George Orwell"),
-        new BookEntity(3, "100 Years of Solitude", "Gabriel García Márquez"));
+  private List<Book> getBooks() {
+    return List.of(new Book(1, "Little prince", "Antoine de Saint-Exupéry"),
+        new Book(2, "Squealer", "George Orwell"),
+        new Book(3, "100 Years of Solitude", "Gabriel García Márquez"));
   }
 
-  private List<ReaderEntity> getReaders() {
-    return List.of(new ReaderEntity(1, "Kent Back"),
-        new ReaderEntity(2, "Clark Kent"),
-        new ReaderEntity(3, "Bruce Wayne"));
+  private List<Reader> getReaders() {
+    return List.of(new Reader(1, "Kent Back"),
+        new Reader(2, "Clark Kent"),
+        new Reader(3, "Bruce Wayne"));
   }
 
   public boolean isTerminated() {
