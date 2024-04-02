@@ -9,15 +9,20 @@ import org.example.entity.Reader;
 public class BaseConsoleMenu {
 
   private static boolean terminate = false;
-  private static final Scanner scanner = new Scanner(System.in);
   private static final String welcomeMessage = "WELCOME TO THE LIBRARY!";
 
+  private final Scanner scanner = new Scanner(System.in);
+
+  public BaseConsoleMenu(){
+    System.err.println("Initialize contstructor");
+  }
 
   public void run() {
     System.out.println(welcomeMessage + getTextMenu());
     while (!terminate) {
       if (scanner.hasNextLine()){
         String line = scanner.nextLine().toLowerCase();
+        System.err.println("Output in base menu " + line);
         switch (line) {
           case "1"    -> printBooks();
           case "2"    -> printReaders();
@@ -34,6 +39,7 @@ public class BaseConsoleMenu {
   private void exit() {
     terminate = true;
     System.out.println("Goodbye!");
+    scanner.close();
   }
 
   private void printErrInvalidOption() {
