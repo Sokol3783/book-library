@@ -1,13 +1,12 @@
 package org.example.ui;
 
-import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.*;
 
 import java.io.*;
-import java.util.stream.Stream;
+
 import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,51 +15,53 @@ class BaseConsoleMenuTest {
     private static final ByteArrayOutputStream output = new ByteArrayOutputStream();
     private static ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    private static BaseConsoleMenu menu;
+
     @BeforeAll
     static void setUp() {
         System.setOut(new PrintStream(output));
     }
 
+    private static void run() {
+        menu = new BaseConsoleMenu();
+        menu.run();
+    }
+
     @BeforeEach
-    void runMenu() throws InterruptedException {
-        output.reset();
+    void terminateThreadExecutor() {
         if (executor.isTerminated()) return;
-        if (!executor.awaitTermination(1, TimeUnit.SECONDS)){
-            executor.shutdownNow();
-            executor = Executors.newSingleThreadExecutor();
-        } else {
-            executor = Executors.newSingleThreadExecutor();
-        }
+      try {
+       executor.awaitTermination(1, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+          System.err.println("DOESN'T CLOSE!!!");
+      }
+        executor = Executors.newSingleThreadExecutor();
     }
 
     @AfterEach
-    void setInExitToMenu() throws InterruptedException {
-        if (!executor.isTerminated()){
-            inputWithSleep("exit");
-        }
+    void setInExitToMenu() {
+        output.reset();
     }
 
     @Test
     @DisplayName("Menu should print welcome message only once")
     void shouldPrintWelcomeMessageOnlyOnce() throws InterruptedException{
-        executor.execute(() -> new BaseConsoleMenu().run());
+        executor.execute(BaseConsoleMenuTest::run);
         String welcomeMessage = "WELCOME TO THE LIBRARY!";
         inputWithSleep("1", "2", "exit");
-        String outputString= output.toString();
-        System.err.println(outputString);
-        long repeatTimes = Stream.of(output).map(ByteArrayOutputStream::toString).filter(s -> s.contains(welcomeMessage)).count();
-        assertAll(() -> assertTrue(outputString.contains(welcomeMessage)),
-                () -> assertEquals(1L, repeatTimes));
+        String outputString = output.toString();
+        assertAll( () -> assertTrue(outputString.contains(welcomeMessage)),
+                   () -> assertEquals(1,countRepeatedSubstrings(outputString, welcomeMessage)));
     }
+
 
     @Test
     @DisplayName("Menu should print three books after input '1'")
     void shouldPrintThreeBooksAfterInputOption_1() throws InterruptedException {
-        executor.execute(() -> new BaseConsoleMenu().run());
+        executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("1");
         String outputString = output.toString();
-        System.err.println(outputString);
-        assertAll(() -> assertTrue(outputString.contains("Little prince"), outputString),
+        assertAll(() -> assertTrue(outputString.contains("Little prince")),
                 () -> assertTrue(outputString.contains("Antoine de Saint-Exupéry")),
                 () ->assertTrue(outputString.contains("Squealer")),
                 () ->assertTrue(outputString.contains("George Orwell")),
@@ -71,10 +72,9 @@ class BaseConsoleMenuTest {
     @Test
     @DisplayName("Menu should print three readers after input '2'")
     void shouldPrintThreeReadersAfterInputOption_2() throws InterruptedException {
-        executor.execute(() -> new BaseConsoleMenu().run());
-        inputWithSleep("2");
+        executor.execute(BaseConsoleMenuTest::run);
+        inputWithSleep( "2");
         String outputString = output.toString();
-        System.err.println(outputString);
         assertAll(() -> assertTrue(outputString.contains("Kent Back")),
                 () -> assertTrue(outputString.contains("Clark Kent")),
                 () ->assertTrue(outputString.contains("Bruce Wayne")));
@@ -83,25 +83,19 @@ class BaseConsoleMenuTest {
     @Test
     @DisplayName("Menu shouldn't crash after incorrect input")
     void shouldNotFallDownAfterIncorrectInput() throws InterruptedException {
-        executor.execute(() -> new BaseConsoleMenu().run());
-        output.reset();
-        inputWithSleep("200");
-        assertNotEquals(0 , output.size());
-        output.reset();
-        inputWithSleep("asdfasdf");
-        assertNotEquals(0 , output.size());
-        output.reset();
-        inputWithSleep("2aghjasdhdjasdas0");
-        assertNotEquals(0 , output.size());
+        executor.execute(BaseConsoleMenuTest::run);
+        inputWithSleep("200", "fdasdfhadjs", "asdasdfasdfasd");
+        assertAll(() -> assertNotEquals(0,output.size()),
+                  () -> assertFalse(menu.isTerminated()),
+                  () -> assertEquals(4, countRepeatedSubstrings(output.toString(), getTextMenu())));
     }
 
     @Test
     @DisplayName("Close menu after input 'exit'")
     void shouldStopWorkingAfterInputExit() throws InterruptedException {
-        executor.execute(() -> new BaseConsoleMenu().run());
+        executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("exit", "1", "2");
         String outputString= output.toString();
-        System.err.println(outputString);
         assertAll(
                 () -> assertNotEquals(0, outputString.length()),
                 () -> assertTrue(outputString.contains(getTextMenu())),
@@ -115,91 +109,77 @@ class BaseConsoleMenuTest {
     @Test
     @DisplayName("Menu should print 'Goodbye!' after input 'exit'")
     void shouldPrintGoodbyeAfterInputExit() throws InterruptedException {
-        executor.execute(() -> new BaseConsoleMenu().run());
+        executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("exit");
         String outputString = output.toString();
-        System.err.println(outputString);
         assertTrue(outputString.contains("Goodbye!"));
     }
 
-    private void inputWithSleep(String... data) throws InterruptedException{
-        for (String string : data ) {
-            System.setIn(new ByteArrayInputStream(string.getBytes()));
-            sleep(400);
-        }
-    }
 
     @Test
     @DisplayName("Menu should print list of option on startup")
-    void shouldPrintListOfOptionOnStartup() {
-        executor.execute(() -> new BaseConsoleMenu().run());
-        assertTrue(output.toString().contains(getTextMenu()));
+    void shouldPrintListOfOptionOnStartup() throws InterruptedException {
+        int previous = output.toString().length();
+        executor.execute(BaseConsoleMenuTest::run);
+        sleep(200);
+        assertTrue(cleanStringFromPreviousTests(previous, output.toString()).contains(getTextMenu()));
     }
 
     @Test
     @DisplayName("After any input should print menu except exit, after exit stop run menu")
-    void shouldPrintMenuAfterAnyInputExceptExit() throws InterruptedException {
-        executor.execute(() -> new BaseConsoleMenu().run());
-        inputWithSleep("1");
-        assertTrue(output.toString().contains(getTextMenu()));
-        System.err.println("1\n"  + output);
-        output.reset();
-        inputWithSleep("2");
-        System.err.println("2\n" + output);
-        assertTrue(output.toString().contains(getTextMenu()));
-        output.reset();
-        inputWithSleep("3\n" + "3");
-        System.err.println(output);
-        assertTrue(output.toString().contains(getTextMenu()));
-        output.reset();
-        inputWithSleep("exit");
-        assertTrue(executor.awaitTermination(2, TimeUnit.SECONDS), "Should stop running menu after exit");
-        assertTrue(executor.isTerminated());
+    void shouldPrintMenuAfterAnyInputExceptExit() throws InterruptedException {        
+        executor.execute(BaseConsoleMenuTest::run);
+        inputWithSleep("1", "2", "3", "exit");
+        assertEquals(4, countRepeatedSubstrings(output.toString(), getTextMenu()));
+        assertTrue(menu.isTerminated());
     }
 
     @Test
     @DisplayName("After input 1 doesn't print another option and 'Goodbye'")
     void shouldNotPrintReadersAndExitAfterInput_1() throws InterruptedException {
-        executor.execute(() -> new BaseConsoleMenu().run());
+        executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("1");
-        String outputString = output.toString();
-                    () -> assertFalse(outputString.contains("Clark Kent")),
-                    () -> assertFalse(outputString.contains("Goodbye")));
+        String lines = output.toString();
+        assertAll(() -> assertTrue(lines.contains("title")),
+                  () -> assertFalse(lines.contains("Clark Kent")),
+                  () -> assertFalse(lines.contains("Goodbye")));
     }
 
     @Test
     @DisplayName("After input 2 doesn't print 'Goodbye' ")
     void shouldNotPrintReadersAndExitAfterInput_2() throws InterruptedException {
-        executor.execute(() -> new BaseConsoleMenu().run());
+        executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("2");
         String outputString = output.toString();
-        assertFalse(outputString.contains("Goodbye"));
+        assertAll(() -> assertFalse(outputString.contains("Goodbye")),
+                  () -> assertTrue(outputString.contains("name")));
     }
-
 
     @Test
     @DisplayName("Books print from new line like: ID = **, author = **, title = **")
     void shouldPrintBooksInFormatFromNewLine() throws InterruptedException {
-        executor.execute(() -> new BaseConsoleMenu().run());
-        output.reset();
+        executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("1");
-        String[] split = Arrays.copyOf(output.toString().split("\n"), 3);
-        assertAll( () -> assertTrue(Stream.of(split).allMatch(s -> s.contains("ID"))),
-                   () -> assertTrue(Stream.of(split).allMatch(s -> s.contains("author"))),
-                   () -> assertTrue(Stream.of(split).allMatch(s -> s.contains("title")))
-                );
+        String lines= output.toString();
+        assertAll( () -> assertEquals(3, countRepeatedSubstrings(lines, "ID")),
+            () -> assertEquals(3,  countRepeatedSubstrings(lines, "title")),
+            () -> assertEquals(3,  countRepeatedSubstrings(lines, "author")));
     }
 
     @Test
     @DisplayName("Readers print from new line like: ID = **, name = **")
     void shouldPrintReaderInFormatFromNewLine() throws InterruptedException {
-        executor.execute(() -> new BaseConsoleMenu().run());
-        output.reset();
-        inputWithSleep("1");
-        String[] split = Arrays.copyOf(output.toString().split("\n"), 3);
-        assertAll( () -> assertTrue(Stream.of(split).allMatch(s -> s.contains("ID"))),
-            () -> assertTrue(Stream.of(split).allMatch(s -> s.contains("name")))
-        );
+        executor.execute(BaseConsoleMenuTest::run);
+        inputWithSleep("2");
+        String lines = output.toString();
+        assertAll( () -> assertEquals(3, countRepeatedSubstrings(lines, "ID")),
+                   () -> assertEquals(3,  countRepeatedSubstrings(lines, "name")));
+    }
+
+    private void inputWithSleep(String... data) throws InterruptedException {
+        String join = String.join("\n", data);
+        System.setIn(new ByteArrayInputStream(join.getBytes()));
+        sleep(300);
     }
 
     private String getTextMenu() {
@@ -210,4 +190,12 @@ class BaseConsoleMenuTest {
                 """;
     }
 
+    private static int countRepeatedSubstrings(String str, String target) {
+        return (str.length() - str.replace(target, "").length()) / target.length();
+    }
+
+    private String cleanStringFromPreviousTests(int previous, String current) {
+        if (previous == 0 ) return current;
+        return current.substring(previous);
+    }
 }
