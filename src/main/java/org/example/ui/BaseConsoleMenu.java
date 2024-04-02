@@ -24,7 +24,7 @@ public class BaseConsoleMenu {
     System.out.println(welcomeMessage + getTextMenu());
     while (!terminate) {
       if (scanner.hasNextLine()){
-        String line = scanner.nextLine();
+        String line = scanner.nextLine().toLowerCase();
         switch (line) {
           case "1" -> printBooks();
           case "2" -> printReaders();
