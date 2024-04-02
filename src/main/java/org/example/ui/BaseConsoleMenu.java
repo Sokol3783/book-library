@@ -9,7 +9,7 @@ import org.example.entity.Reader;
 public class BaseConsoleMenu {
 
   private static boolean terminate = false;
-  private static final String welcomeMessage = "WELCOME TO THE LIBRARY!";
+  private static final String WELCOME_MESSAGE = "WELCOME TO THE LIBRARY!";
 
   private final Scanner scanner = new Scanner(System.in);
 
@@ -18,7 +18,7 @@ public class BaseConsoleMenu {
   }
 
   public void run() {
-    System.out.println(welcomeMessage + getTextMenu());
+    System.out.println(WELCOME_MESSAGE + getTextMenu());
     while (!terminate) {
       if (scanner.hasNextLine()){
         String line = scanner.nextLine().toLowerCase();
