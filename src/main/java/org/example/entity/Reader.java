@@ -29,4 +29,8 @@ public class Reader {
         this.name = name;
     }
 
+    @Override
+    public String toString() {
+        return "ID = " + id + "| name = " + name;
+    }
 }

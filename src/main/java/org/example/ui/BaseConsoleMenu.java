@@ -8,7 +8,7 @@ import org.example.entity.Reader;
 
 public class BaseConsoleMenu {
 
-  private static boolean terminate = false;
+  private boolean terminate = false;
   private static final String WELCOME_MESSAGE = "WELCOME TO THE LIBRARY!";
 
   private final Scanner scanner = new Scanner(System.in);
@@ -52,13 +52,12 @@ public class BaseConsoleMenu {
 
   private void printReaders() {
     getReaders().stream().sorted(Comparator.comparing(Reader::getId)).
-        forEach(s -> System.out.println("ID = " + s.getId() + " name = " + s.getName()));
+        forEach(System.out::println);
   }
 
   private void printBooks() {
     getBooks().stream().sorted(Comparator.comparing(Book::getId)).
-        forEach(s -> System.out.println(
-            "ID = " + s.getId() + " author = " + s.getAuthor() + " title = " + s.getName()));
+        forEach(System.out::println);
   }
 
   private List<Book> getBooks() {
