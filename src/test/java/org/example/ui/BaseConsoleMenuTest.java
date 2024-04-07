@@ -39,7 +39,6 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu should print welcome message only once")
-    @Disabled
     void shouldPrintWelcomeMessageOnlyOnce() throws InterruptedException{
         executor.execute(BaseConsoleMenuTest::run);
         String welcomeMessage = "WELCOME TO THE LIBRARY!";
@@ -87,7 +86,6 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Close menu after input 'exit'")
-    @Disabled
     void shouldStopWorkingAfterInputExit() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("exit", "1", "2");
@@ -103,7 +101,6 @@ class BaseConsoleMenuTest {
     }
 
     @Test
-    @Disabled
     @DisplayName("Menu should print 'Goodbye!' after input 'exit'")
     void shouldPrintGoodbyeAfterInputExit() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
@@ -123,7 +120,6 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("After any input should print menu except exit, after exit stop run menu")
-    @Disabled
     void shouldPrintMenuAfterAnyInputExceptExit() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("1", "2", "3", "exit");
