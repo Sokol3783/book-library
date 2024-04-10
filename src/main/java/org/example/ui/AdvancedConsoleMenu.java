@@ -1,14 +1,13 @@
 package org.example.ui;
 
-public class AdvancedConsoleMenu extends BaseConsoleMenu {
+public class AdvancedConsoleMenu implements ConsoleMenu {
 
   @Override
   public void run() {
-    super.run();
   }
 
   @Override
   public boolean isTerminated() {
-    return super.isTerminated();
+    return false;
   }
 }

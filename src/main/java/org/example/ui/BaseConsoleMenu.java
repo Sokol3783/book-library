@@ -6,7 +6,7 @@ import java.util.Scanner;
 import org.example.entity.Book;
 import org.example.entity.Reader;
 
-public class BaseConsoleMenu {
+public class BaseConsoleMenu implements ConsoleMenu {
 
   private boolean terminate = false;
   private static final String WELCOME_MESSAGE = "WELCOME TO THE LIBRARY!";
