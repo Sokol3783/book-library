@@ -14,7 +14,7 @@ public class ReaderRepository {
     return List.of();
   }
 
- public Reader saveReader(Reader reader){
+ public Reader save(Reader reader){
     return null;
  }
 

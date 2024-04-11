@@ -6,15 +6,15 @@ import org.example.entity.Book;
 
 public class BookRepository {
 
-  public Optional<Book> findById(Long id){
+  public Optional<Book> findById(Long id) {
     return Optional.empty();
   }
 
-  public List<Book> findAllBooks(){
+  public List<Book> findAll(){
     return List.of();
   }
 
-  public Book saveBook(Book book) {
+  public Book save(Book book) {
     return null;
   }
 
