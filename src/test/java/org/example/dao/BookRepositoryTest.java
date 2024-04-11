@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.Optional;
 import org.example.entity.Book;
+import org.example.util.Util.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +36,8 @@ class BookRepositoryTest {
     assertAll(() -> assertTrue(repository.findById(5L).isEmpty()),
         () -> assertTrue(repository.findById(250L).isEmpty()),
         () -> assertTrue(repository.findById(1000L).isEmpty()),
-        () -> assertTrue(repository.findById(12631231L).isEmpty()));
+        () -> assertTrue(repository.findById(12631231L).isEmpty()),
+        () -> assertTrue(repository.findById(1L).isPresent()));
   }
 
   @Test
@@ -45,15 +47,14 @@ class BookRepositoryTest {
     saveToRepository();
     IdGenerator generator = new IdGenerator();
     List<Book> testBooks = getTestBooks();
-    testBooks.stream().forEach(s -> s.setId(generator.getNextId()));
+    testBooks.forEach(s -> s.setId(generator.getNextId()));
     List<Book> allAfterSave = repository.findAll();
-    assertAll(() -> assertFalse(allAfterSave.isEmpty(), "After saving test data repository shouldn't be empty"),
-              () ->  assertTrue(allAfterSave.containsAll(testBooks), "After saving repository should contain all test data"),
+    assertAll(() -> assertFalse(allAfterSave.isEmpty(), "After saving test data repository shouldn't be empty"), () ->  assertTrue(allAfterSave.containsAll(testBooks), "After saving repository should contain all test data"),
               () -> assertEquals(3, allAfterSave.size()));
   }
 
   @Test
-  void saveBook() {
+  void shouldSaveBook() {
     Book save = repository.save(new Book(0, "title", "name"));
     Book save1 = repository.save(new Book(0, "title2", "name2" ));
     Book save2 = repository.save(new Book(0,"title4","name"));
@@ -73,15 +74,6 @@ class BookRepositoryTest {
     for(Book book : getTestBooks()) {
      repository.save(book);
     }
-  }
-
-  class IdGenerator {
-    private long id = 0;
-
-    long getNextId() {
-      return ++id;
-    };
-
   }
 
 }
