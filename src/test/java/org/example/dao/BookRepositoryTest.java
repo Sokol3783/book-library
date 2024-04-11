@@ -24,7 +24,7 @@ class BookRepositoryTest {
     Optional<Book> firstBook = repository.findById(1L);
     Book book = firstBook.orElse(new Book(5120L, "dasd", "DASDAS"));
     assertAll( () -> assertEquals(1L, book.getId()),
-        () -> assertEquals("Tittle 1", book.getName()),
+        () -> assertEquals("Title 1", book.getName()),
         () -> assertEquals("Test 1", book.getAuthor()));
   }
 
@@ -43,7 +43,9 @@ class BookRepositoryTest {
     List<Book> all = repository.findAll();
     assertTrue(all.isEmpty());
     saveToRepository();
+    IdGenerator generator = new IdGenerator();
     List<Book> testBooks = getTestBooks();
+    testBooks.stream().forEach(s -> s.setId(generator.getNextId()));
     List<Book> allAfterSave = repository.findAll();
     assertAll(() -> assertFalse(allAfterSave.isEmpty(), "After saving test data repository shouldn't be empty"),
               () ->  assertTrue(allAfterSave.containsAll(testBooks), "After saving repository should contain all test data"),
@@ -52,9 +54,9 @@ class BookRepositoryTest {
 
   @Test
   void saveBook() {
-    Book save = repository.save(new Book(0, "name", "title"));
-    Book save1 = repository.save(new Book(0, "name2", "title2"));
-    Book save2 = repository.save(new Book(0,"name", "title4"));
+    Book save = repository.save(new Book(0, "title", "name"));
+    Book save1 = repository.save(new Book(0, "title2", "name2" ));
+    Book save2 = repository.save(new Book(0,"title4","name"));
 
     assertAll(() -> assertEquals(1L,save.getId()),
         () -> assertEquals(2L, save1.getId()),
@@ -71,6 +73,15 @@ class BookRepositoryTest {
     for(Book book : getTestBooks()) {
      repository.save(book);
     }
+  }
+
+  class IdGenerator {
+    private long id = 0;
+
+    long getNextId() {
+      return ++id;
+    };
+
   }
 
 }
