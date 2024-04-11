@@ -6,7 +6,7 @@ import org.example.entity.Reader;
 
 public class ReaderRepository {
 
-  public Optional<Reader> findById(){
+  public Optional<Reader> findById(long id){
     return Optional.empty();
   }
 
