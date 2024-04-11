@@ -7,13 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
+import java.util.Optional;
 import org.example.entity.Book;
 import org.example.entity.Reader;
 import org.example.exception.RegistryRepositoryException;
-import org.example.util.Util;
+import org.example.util.Util.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +36,7 @@ class RegistryRepositoryTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenReaderReturnsSomeonesBook(){
+  void shouldThrowExceptionWhenReaderReturnsSomeonesElseBook(){
     Reader reader = new Reader(1L, "reader1");
     Book book = new Book(1L, "book1", "book1");
     Book book2 = new Book(2L, "book2", "book2");
@@ -68,9 +68,9 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldReturnEmptyListIfReaderDoesntBorrowBook() {
-    Reader reader = new Reader(1L, "reader");
+    Reader reader = getReader();
     List<Book> emptyList = repository.getListBorrowedBooksOfReader(reader);
-    borrowThreeBooks(reader);
+    borrowTestThreeBooks(reader);
     List<Book> borrowedBooks = repository.getListBorrowedBooksOfReader(reader);
     assertAll(() -> assertTrue(emptyList.isEmpty()),
     () -> assertFalse(borrowedBooks.isEmpty()),
@@ -80,47 +80,78 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldReturnListOfBorrowedBooksOfReader(){
-    Reader reader = new Reader(1L, "reader");
-    borrowThreeBooks(reader);
+    Reader reader = getReader();
+    borrowTestThreeBooks(reader);
     List<Book> books  = repository.getListBorrowedBooksOfReader(reader);
     assertAll(() -> assertFalse(books.isEmpty()),
             () -> assertEquals(3, books.size()),
             () -> assertTrue(books.containsAll(getTestBooks())));
   }
 
+
   @Test
   void shouldReturnListOfTwoBorrowedBooksOfReaderAfterReturningBook(){
-    Reader reader = new Reader(1L, "reader");
-    borrowThreeBooks(reader);
-    List<Book> testBooks = getTestBooks();
+    Reader reader = getReader();
+    borrowTestThreeBooks(reader);
+    List<Book> testBooks = setIdForTestBooks(getTestBooks());
     List<Book> books  = repository.getListBorrowedBooksOfReader(reader);
     assertAll(() -> assertFalse(books.isEmpty()),
               () -> assertEquals(3, books.size()));
 
-    repository.returnBook(getTestBooks().get(0), reader);
+    repository.returnBook(testBooks.get(0), reader);
 
-    Book remove = testBooks.remove(0);
+    Book remove = testBooks.get(0);
+
+    List<Book> finalTestBooks = testBooks.stream().filter(s -> s.equals(remove)).toList();
+
     List<Book> booksAfterReturnOne = repository.getListBorrowedBooksOfReader(reader);
     assertAll(() -> assertFalse(books.isEmpty()),
         () -> assertEquals(2, books.size()),
         () -> assertTrue(booksAfterReturnOne.stream().noneMatch(s -> s.equals(remove))),
-        () -> assertTrue(booksAfterReturnOne.containsAll(testBooks)));
+        () -> assertTrue(booksAfterReturnOne.containsAll(finalTestBooks)));
 
   }
 
+
   @Test
   void shouldReturnReaderWhoBorrowBook(){
-    fail();
+    Reader reader = getReader();
+    borrowTestThreeBooks(reader);
+    Optional<Reader> firstReader = repository.getReaderOfBook(new Book(1L, "", ""));
+    Optional<Reader> secondReader = repository.getReaderOfBook(new Book(2L, "", ""));
+    Optional<Reader> thirdReader = repository.getReaderOfBook(new Book(3L, "", ""));
+
+    assertAll(() -> assertTrue(firstReader.isPresent()),
+        () -> assertTrue(secondReader.isPresent()),
+        () -> assertTrue(thirdReader.isPresent()),
+        () -> assertEquals(reader, firstReader.get()),
+        () -> assertEquals(reader, secondReader.get()),
+        () -> assertEquals(reader, thirdReader.get()));
+
   }
 
   @Test
   void shouldReturnEmptyOptionalIfNobodyBorrowBook() {
-    fail();
+      assertTrue(repository.getReaderOfBook(new Book(1L, "", "")).isEmpty());
+      assertTrue(repository.getReaderOfBook(new Book(5L, "", "")).isEmpty());
+      assertTrue(repository.getReaderOfBook(new Book(10L, "", "")).isEmpty());
   }
 
-  private void borrowThreeBooks(Reader reader) {
-    for (Book book : getTestBooks()){
+  private void borrowTestThreeBooks(Reader reader) {
+    List<Book> testBooks = setIdForTestBooks(getTestBooks());
+    for (Book book : testBooks){
       repository.borrowBook(book, reader);
     }
   }
+
+  private static Reader getReader() {
+    return new Reader(1L, "reader");
+  }
+
+  private List<Book> setIdForTestBooks(List<Book> testBooks) {
+    IdGenerator idGenerator = new IdGenerator();
+    testBooks.forEach(s -> s.setId(idGenerator.getNextId()));
+    return testBooks;
+  }
+
 }
