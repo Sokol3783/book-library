@@ -1,5 +1,7 @@
 package org.example.entity;
 
+import java.util.Objects;
+
 public class Reader {
 
     private long id;
@@ -32,5 +34,22 @@ public class Reader {
     @Override
     public String toString() {
         return "ID = " + id + "| name = " + name;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Reader reader)) {
+            return false;
+        }
+
+      return id == reader.id && Objects.equals(name, reader.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(id);
     }
 }
