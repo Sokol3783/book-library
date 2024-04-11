@@ -32,12 +32,35 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldThrowExceptionWhenReaderReturnsSomeonesBook(){
-      fail();
+    Reader reader = new Reader(1L, "reader1");
+    Book book = new Book(1L, "book1", "book1");
+    Book book2 = new Book(2L, "book2", "book2");
+    repository.borrowBook(book, new Reader());
+    repository.borrowBook(book2, new Reader());
+    assertAll(() -> assertThrows(RegistryRepositoryException.class, () -> repository.returnBook(book, reader)),
+              () -> assertThrows(RegistryRepositoryException.class, () -> repository.returnBook(book2, reader)));
   }
 
   @Test
   void shouldThrowExceptionWhenReaderReturnsNotTakenBook(){
-    fail();
+    Reader reader = new Reader(1L, "reader1");
+    Book book = new Book(1L, "book1", "book1");
+    Book book2 = new Book(2L, "book2", "book2");
+    assertAll(() -> assertThrows(RegistryRepositoryException.class, () -> repository.returnBook(book, reader)),
+              () -> assertThrows(RegistryRepositoryException.class, () -> repository.returnBook(book2, reader)));
+
+  }
+
+  @Test
+  void shouldThrowExceptionWhenSomeoneTryToBorrowBorrowedBook() {
+    Reader reader = new Reader(1L, "reader1");
+    Reader reader2 = new Reader(2L, "reader2");
+    Book book = new Book(1L, "book1", "book1");
+    repository.borrowBook(book, reader);
+    assertAll(() ->
+        assertThrows(RegistryRepositoryException.class, () -> repository.borrowBook(book, reader2)), () ->
+        assertTrue(repository.returnBook(book, reader)));
+
   }
 
   @Test
