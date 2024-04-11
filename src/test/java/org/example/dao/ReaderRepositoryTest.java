@@ -63,7 +63,7 @@ class ReaderRepositoryTest {
         () -> assertEquals(3L, save2.getId()),
         () -> assertEquals("name", save.getName()),
         () -> assertEquals("name2", save1.getName()),
-        () -> assertEquals("name", save2.getName()));
+        () -> assertEquals("name3", save2.getName()));
   }
 
   private void saveToRepository() {
