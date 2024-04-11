@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.List;
 import org.example.entity.Book;
 import org.example.entity.Reader;
 import org.example.exception.RegistryRepositoryException;
@@ -65,7 +66,9 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldReturnEmptyListIfReaderDoesntBorrowBook() {
-    fail();
+    Reader reader = new Reader(1L, "reader");
+    List<Book> listBorrowedBooksOfReader = repository.getListBorrowedBooksOfReader(reader);
+
   }
 
   @Test
