@@ -26,4 +26,11 @@ public class Util {
     }
   }
 
+  public static Reader getReader(){
+    return new Reader(1L, "reader");
+  }
+
+  public static Book getBook(){
+    return new Book(1L, "book", "book");
+  }
 }
