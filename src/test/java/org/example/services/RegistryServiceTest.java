@@ -34,6 +34,7 @@ class RegistryServiceTest {
   @BeforeEach
   void setUp() {
     output.reset();
+    service = new RegistryService(repository);
   }
 
   @AfterAll
