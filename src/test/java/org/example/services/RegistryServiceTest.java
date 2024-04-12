@@ -2,6 +2,8 @@ package org.example.services;
 
 import static org.example.util.Util.getBook;
 import static org.example.util.Util.getReader;
+import static org.example.util.Util.getTestBooks;
+import static org.example.util.Util.setIdForTestBooks;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -9,7 +11,9 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.example.dao.RegistryRepository;
 import org.example.entity.Book;
 import org.example.entity.Reader;
@@ -78,29 +82,53 @@ class RegistryServiceTest {
 
   @Test
   void shouldPrintThatReaderBorrowBookSuccessful(){
-    when(repository.returnBook(any(), any())).thenThrow(new RegistryRepositoryException());
-    service.borrowBook(Optional.of(getBook()), Optional.of(getReader()));
-    assertEquals("Book is already borrowed! You can't borrow it", output.toString());
+    when(repository.borrowBook(any(), any())).thenThrow(new RegistryRepositoryException());
+    Reader reader = getReader();
+    Book book = getBook();
+    service.borrowBook(Optional.of(book), Optional.of(reader));
+
+    String message = output.toString();
+    assertAll(
+        () -> assertTrue(message.contains(reader.getName())),
+        () -> assertTrue(message.contains(book.getName())),
+        () -> assertTrue(message.contains("borrow successful"))
+    );
   }
 
   @Test
   void shouldPrintMessageReaderDidNotBorrowBooksIfListEmpty(){
-    fail();
+    Reader reader = getReader();
+    when(repository.getListBorrowedBooksOfReader(reader)).thenReturn(List.of());
+
+    service.getAllBorrowedBooksByReader(Optional.of(reader));
+    assertTrue(output.toString().contains(reader + " didn't borrow book"));
   }
 
   @Test
-  void shouldPrintListOfReaderBorrowedBooks(){
-    fail();
+  void shouldReturnListOfReaderBorrowedBooks(){
+    Reader reader = getReader();
+    List<Book> books = setIdForTestBooks(getTestBooks());
+    when(repository.getListBorrowedBooksOfReader(reader)).thenReturn(books);
+    service.getAllBorrowedBooksByReader(Optional.of(reader));
+    String collect = books.stream().map(Book::toString).collect(Collectors.joining());
+    String message = output.toString();
+    assertAll(() -> assertTrue(message.contains("Reader " + reader.getName() + "borrow books:")),
+              () -> assertTrue(message.contains(collect)));
   }
 
   @Test
-  void shouldPrintCurrentReaderOfBook(){
-    fail();
+  void shouldReturnCurrentReaderOfBook(){
+    when(repository.getReaderOfBook(getBook())).thenReturn(Optional.of(getReader()));
+    Optional<Reader> reader = service.getCurrentReaderOfBook(Optional.of(getBook()));
+    assertAll(() -> assertTrue(reader.isPresent()),
+              () -> assertTrue(reader.get().getName().contentEquals("reader")));
   }
 
   @Test
-  void shouldPrintThatBookNobodyReads(){
-    fail();
+  void shouldReturnEmptyOptional(){
+      when(repository.getReaderOfBook(getBook())).thenReturn(Optional.empty());
+      Optional<Reader> currentReaderOfBook = service.getCurrentReaderOfBook(Optional.of(getBook()));
+      assertTrue(currentReaderOfBook.isEmpty());
   }
 
 }
