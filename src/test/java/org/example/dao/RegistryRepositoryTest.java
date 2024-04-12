@@ -32,7 +32,7 @@ class RegistryRepositoryTest {
     Reader reader = new Reader(1L, "reader1");
     assertAll(() -> assertTrue(repository.borrowBook(book, reader)),
               () -> assertTrue(repository.returnBook(book, reader)),
-              () -> assertThrows(RegistryRepositoryException.class, () -> repository.borrowBook(book, reader)));
+              () -> assertThrows(RegistryRepositoryException.class, () -> repository.returnBook(book, reader)));
   }
 
   @Test
