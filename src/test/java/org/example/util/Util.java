@@ -33,4 +33,10 @@ public class Util {
   public static Book getBook(){
     return new Book(1L, "book", "book");
   }
+
+  public static List<Book> setIdForTestBooks(List<Book> testBooks) {
+    IdGenerator idGenerator = new IdGenerator();
+    testBooks.forEach(s -> s.setId(idGenerator.getNextId()));
+    return testBooks;
+  }
 }

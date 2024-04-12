@@ -2,6 +2,7 @@ package org.example.dao;
 
 
 import static org.example.util.Util.getTestBooks;
+import static org.example.util.Util.setIdForTestBooks;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -143,10 +144,5 @@ class RegistryRepositoryTest {
     return new Reader(1L, "reader");
   }
 
-  private List<Book> setIdForTestBooks(List<Book> testBooks) {
-    IdGenerator idGenerator = new IdGenerator();
-    testBooks.forEach(s -> s.setId(idGenerator.getNextId()));
-    return testBooks;
-  }
 
 }
