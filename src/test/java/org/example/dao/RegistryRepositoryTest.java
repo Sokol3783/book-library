@@ -85,7 +85,7 @@ class RegistryRepositoryTest {
     List<Book> books  = repository.getListBorrowedBooksOfReader(reader);
     assertAll(() -> assertFalse(books.isEmpty()),
             () -> assertEquals(3, books.size()),
-            () -> assertTrue(books.containsAll(getTestBooks())));
+            () -> assertTrue(books.containsAll(setIdForTestBooks(getTestBooks()))));
   }
 
 
