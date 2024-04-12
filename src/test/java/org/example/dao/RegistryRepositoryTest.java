@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.example.entity.Book;
@@ -93,23 +94,17 @@ class RegistryRepositoryTest {
   void shouldReturnListOfTwoBorrowedBooksOfReaderAfterReturningBook(){
     Reader reader = getReader();
     borrowTestThreeBooks(reader);
-    List<Book> testBooks = setIdForTestBooks(getTestBooks());
+    List<Book> testBooks = new ArrayList<>(setIdForTestBooks(getTestBooks()));
     List<Book> books  = repository.getListBorrowedBooksOfReader(reader);
     assertAll(() -> assertFalse(books.isEmpty()),
               () -> assertEquals(3, books.size()));
-
-    repository.returnBook(testBooks.get(0), reader);
-
-    Book remove = testBooks.get(0);
-
-    List<Book> finalTestBooks = testBooks.stream().filter(s -> s.equals(remove)).toList();
+    Book remove = testBooks.remove(0);
+    repository.returnBook(remove, reader);
 
     List<Book> booksAfterReturnOne = repository.getListBorrowedBooksOfReader(reader);
-    assertAll(() -> assertFalse(books.isEmpty()),
-        () -> assertEquals(2, books.size()),
-        () -> assertTrue(booksAfterReturnOne.stream().noneMatch(s -> s.equals(remove))),
-        () -> assertTrue(booksAfterReturnOne.containsAll(finalTestBooks)));
-
+    assertAll(() -> assertFalse(booksAfterReturnOne.isEmpty()),
+        () -> assertEquals(2, booksAfterReturnOne.size()),
+        () -> assertEquals(testBooks, booksAfterReturnOne));
   }
 
 
@@ -117,10 +112,10 @@ class RegistryRepositoryTest {
   void shouldReturnReaderWhoBorrowBook(){
     Reader reader = getReader();
     borrowTestThreeBooks(reader);
-    Optional<Reader> firstReader = repository.getReaderOfBook(new Book(1L, "", ""));
-    Optional<Reader> secondReader = repository.getReaderOfBook(new Book(2L, "", ""));
-    Optional<Reader> thirdReader = repository.getReaderOfBook(new Book(3L, "", ""));
-
+    List<Book> books = setIdForTestBooks(getTestBooks());
+    Optional<Reader> firstReader = repository.getReaderOfBook(books.get(0));
+    Optional<Reader> secondReader = repository.getReaderOfBook(books.get(1));
+    Optional<Reader> thirdReader = repository.getReaderOfBook(books.get(2));
     assertAll(() -> assertTrue(firstReader.isPresent()),
         () -> assertTrue(secondReader.isPresent()),
         () -> assertTrue(thirdReader.isPresent()),
