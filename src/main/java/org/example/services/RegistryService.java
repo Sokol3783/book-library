@@ -2,23 +2,30 @@ package org.example.services;
 
 import java.util.List;
 import java.util.Optional;
+import org.example.dao.RegistryRepository;
 import org.example.entity.Book;
 import org.example.entity.Reader;
 
 public class RegistryService {
 
-  public void borrowBook(String bookId, String readerId){
+  private final RegistryRepository repository;
+
+  public RegistryService(RegistryRepository repository)  {
+      this.repository = repository;
   }
 
-  public void returnBook(String bookId, String readerId) {
+  public void borrowBook(Optional<Book> book, Optional<Reader> reader){
+  }
+
+  public void returnBook(Optional<Book> book, Optional<Reader> reader) {
 
   }
 
-  public List<Book> getAllBorrowedBooksByReader(String readerId){
+  public List<Book> getAllBorrowedBooksByReader(Optional<Reader> reader){
     return List.of();
   }
 
-  public Optional<Reader> getCurrentReaderOfBook(){
+  public Optional<Reader> getCurrentReaderOfBook(Optional<Book> book){
     return Optional.empty();
   }
 
