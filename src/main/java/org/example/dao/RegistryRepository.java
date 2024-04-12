@@ -36,7 +36,7 @@ public class RegistryRepository {
       if (v.remove(book)){
         return v;
       }
-      throw new RegistryRepositoryException(new StringBuffer("Reader " + reader.toString()).append(" didn't borrow ")
+      throw new RegistryRepositoryException(new StringBuffer("Reader ").append(reader.toString()).append(" didn't borrow ")
           .append(book.toString()).toString());
     });
 

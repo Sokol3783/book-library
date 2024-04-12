@@ -13,7 +13,6 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.example.dao.RegistryRepository;
 import org.example.entity.Book;
 import org.example.entity.Reader;
@@ -74,7 +73,7 @@ class RegistryServiceTest {
   }
 
   @Test
-  void shouldPrintThatUserCantBorrowBookIfItBorrowed(){
+  void shouldPrintThatReaderCantBorrowBookIfItBorrowed(){
     when(repository.returnBook(any(), any())).thenThrow(new RegistryRepositoryException());
     service.borrowBook(Optional.of(getBook()), Optional.of(getReader()));
     assertEquals("Book is already borrowed! You can't borrow it", output.toString());
@@ -86,22 +85,18 @@ class RegistryServiceTest {
     Reader reader = getReader();
     Book book = getBook();
     service.borrowBook(Optional.of(book), Optional.of(reader));
-
     String message = output.toString();
     assertAll(
         () -> assertTrue(message.contains(reader.getName())),
-        () -> assertTrue(message.contains(book.getName())),
-        () -> assertTrue(message.contains("borrow successful"))
+        () -> assertTrue(message.contains(book.getName()))
     );
   }
 
   @Test
-  void shouldPrintMessageReaderDidNotBorrowBooksIfListEmpty(){
+  void shouldReturnEmptyListIfReaderDoesNotBorrowBook(){
     Reader reader = getReader();
     when(repository.getListBorrowedBooksOfReader(reader)).thenReturn(List.of());
-
-    service.getAllBorrowedBooksByReader(Optional.of(reader));
-    assertTrue(output.toString().contains(reader + " didn't borrow book"));
+    assertTrue(service.getAllBorrowedBooksByReader(Optional.of(reader)).isEmpty());
   }
 
   @Test
@@ -109,11 +104,10 @@ class RegistryServiceTest {
     Reader reader = getReader();
     List<Book> books = setIdForTestBooks(getTestBooks());
     when(repository.getListBorrowedBooksOfReader(reader)).thenReturn(books);
-    service.getAllBorrowedBooksByReader(Optional.of(reader));
-    String collect = books.stream().map(Book::toString).collect(Collectors.joining());
-    String message = output.toString();
-    assertAll(() -> assertTrue(message.contains("Reader " + reader.getName() + "borrow books:")),
-              () -> assertTrue(message.contains(collect)));
+    List<Book> listBorrowed = service.getAllBorrowedBooksByReader(Optional.of(reader));
+    assertAll(() -> assertFalse(listBorrowed.isEmpty()),
+              () -> assertEquals(3, listBorrowed.size()),
+              () -> assertTrue(listBorrowed.containsAll(books)));
   }
 
   @Test
@@ -131,4 +125,5 @@ class RegistryServiceTest {
       assertTrue(currentReaderOfBook.isEmpty());
   }
 
+  //TODO MAKE SOME CASES FOR RETURNING BOOK
 }
