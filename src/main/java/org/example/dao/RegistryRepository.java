@@ -11,9 +11,13 @@ import org.example.exception.RegistryRepositoryException;
 
 public class RegistryRepository {
 
-  private final HashMap<Reader, Set<Book>> map = new HashMap<>();
+  private final HashMap<Reader, Set<Book>> map;
 
-  public boolean borrowBook(Book book, Reader reader) {
+  public RegistryRepository(){
+    map = new HashMap<>();
+  }
+
+  public boolean borrowBook(Book book, Reader reader) throws RegistryRepositoryException {
     if (isBorrowedBook(book)) throw new RegistryRepositoryException("Book is already borrowed! You can't borrow it");
 
     if (!map.computeIfAbsent(reader, k -> new HashSet<>()).add(book)) {
@@ -29,18 +33,23 @@ public class RegistryRepository {
      return map.entrySet().stream().anyMatch(s -> s.getValue().contains(book));
   }
 
-  public boolean returnBook(Book book, Reader reader) {
-    if (!map.containsKey(reader)) throw new RegistryRepositoryException("This reader doesn't borrow book!");
+  public boolean returnBook(Book book, Reader reader) throws RegistryRepositoryException {
 
-    map.computeIfPresent(reader, (k,v) -> {
-      if (v.remove(book)){
-        return v;
-      }
-      throw new RegistryRepositoryException(new StringBuffer("Reader ").append(reader.toString()).append(" didn't borrow ")
-          .append(book.toString()).toString());
-    });
+    if (map.containsKey(reader)){
+      boolean[] isReturn = {false};
+      map.computeIfPresent(reader, (k,v) ->  getBorrowedBooksBooks(book, v, isReturn));
 
-    return true;
+      if (isReturn[0]) return isReturn[0];
+
+      throw new RegistryRepositoryException("Reader " + reader.getName() + " didn't borrow "
+          + book.getName());
+    }
+    throw new RegistryRepositoryException("This reader doesn't borrow any book!");
+  }
+
+  private Set<Book> getBorrowedBooksBooks(Book book,Set<Book> v, boolean[] isReturn)      {
+      isReturn[0] = v.remove(book);
+      return v;
   }
 
   public Optional<Reader> getReaderOfBook(Book book){
