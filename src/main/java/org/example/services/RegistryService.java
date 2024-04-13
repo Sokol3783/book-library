@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.example.dao.RegistryRepository;
 import org.example.entity.Book;
 import org.example.entity.Reader;
+import org.example.exception.RegistryRepositoryException;
 
 public class RegistryService {
 
@@ -15,53 +16,56 @@ public class RegistryService {
   }
 
   public void borrowBook(Optional<Book> book, Optional<Reader> reader){
-    if (isWarningEmptyReader(reader) | isWarningEmptyBook(book)) return;
+    if (isPrintWarningEmptyReader(reader) | isPrintWarningEmptyBook(book)) return;
     try {
       if(repository.borrowBook(book.get(), reader.get())) {
-        System.out.println();
+        System.out.println(reader.get().getName() + "borrow book " + book.get().getName());
+      } else {
+        System.err.println(reader.get().getName() + "can't borrow book!");
       }
-    } catch (RuntimeException e){
-        System.out.println(e.getMessage());
+    } catch (RegistryRepositoryException e){
+        System.err.println(e.getMessage());
     }
   }
 
 
   public void returnBook(Optional<Book> book, Optional<Reader> reader) {
-    if (isWarningEmptyReader(reader) | isWarningEmptyBook(book)) return;
-    repository.returnBook(book.get(), reader.get());
+    if (isPrintWarningEmptyReader(reader) | isPrintWarningEmptyBook(book)) return;
     try {
-      if(repository.borrowBook(book.get(), reader.get())) {
-        System.out.println();
+      if(repository.returnBook(book.get(), reader.get())) {
+        System.out.println(reader.get().getName() + "return book " + book.get().getName());
+      } else {
+        System.err.println(reader.get().getName() + "can't return book!");
       }
-    } catch (RuntimeException e) {
-      System.out.println(e.getMessage());
+    } catch (RegistryRepositoryException e) {
+      System.err.println(e.getMessage());
     }
   }
 
   public List<Book> getAllBorrowedBooksByReader(Optional<Reader> reader){
-    if(isWarningEmptyReader(reader)) {
+    if(isPrintWarningEmptyReader(reader)) {
       return List.of();
     }
     return repository.getListBorrowedBooksOfReader(reader.get());
   }
 
   public Optional<Reader> getCurrentReaderOfBook(Optional<Book> book){
-    if(isWarningEmptyBook(book)){
+    if(isPrintWarningEmptyBook(book)){
       return Optional.empty();
     }
     return repository.getReaderOfBook(book.get());
   }
 
 
-  private boolean isWarningEmptyReader(Optional<Reader> optional) {
+  private boolean isPrintWarningEmptyReader(Optional<Reader> optional) {
     boolean empty = optional.isEmpty();
-    if (empty) System.out.println("There is no such reader!");
+    if (empty) System.err.println("There is no such reader!");
     return empty;
   }
 
-  private boolean isWarningEmptyBook(Optional<Book> optional) {
+  private boolean isPrintWarningEmptyBook(Optional<Book> optional) {
     boolean empty = optional.isEmpty();
-    if (empty) System.out.println("There is no such book!");
+    if (empty) System.err.println("There is no such book!");
     return empty;
   }
 }
