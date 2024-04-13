@@ -15,7 +15,6 @@ import java.util.Optional;
 import org.example.entity.Book;
 import org.example.entity.Reader;
 import org.example.exception.RegistryRepositoryException;
-import org.example.util.Util.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +37,7 @@ class RegistryRepositoryTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenReaderReturnsSomeonesElseBook(){
+  void shouldThrowExceptionWhenReaderReturnsSomeonesElseBook() throws RegistryRepositoryException {
     Reader reader = new Reader(1L, "reader1");
     Book book = new Book(1L, "book1", "book1");
     Book book2 = new Book(2L, "book2", "book2");
@@ -58,7 +57,7 @@ class RegistryRepositoryTest {
   }
 
   @Test
-  void shouldThrowExceptionWhenSomeoneTryToBorrowBorrowedBook() {
+  void shouldThrowExceptionWhenSomeoneTryToBorrowBorrowedBook() throws RegistryRepositoryException {
     Reader reader = new Reader(1L, "reader1");
     Reader reader2 = new Reader(2L, "reader2");
     Book book = new Book(1L, "book1", "book1");
@@ -92,7 +91,8 @@ class RegistryRepositoryTest {
 
 
   @Test
-  void shouldReturnListOfTwoBorrowedBooksOfReaderAfterReturningBook(){
+  void shouldReturnListOfTwoBorrowedBooksOfReaderAfterReturningBook()
+      throws RegistryRepositoryException {
     Reader reader = getReader();
     borrowTestThreeBooks(reader);
     List<Book> testBooks = new ArrayList<>(setIdForTestBooks(getTestBooks()));
@@ -110,7 +110,7 @@ class RegistryRepositoryTest {
 
 
   @Test
-  void shouldReturnReaderWhoBorrowBook(){
+  void shouldReturnReaderWhoBorrowBook() throws RegistryRepositoryException {
     Reader reader = getReader();
     borrowTestThreeBooks(reader);
     List<Book> books = setIdForTestBooks(getTestBooks());
@@ -136,7 +136,11 @@ class RegistryRepositoryTest {
   private void borrowTestThreeBooks(Reader reader) {
     List<Book> testBooks = setIdForTestBooks(getTestBooks());
     for (Book book : testBooks){
-      repository.borrowBook(book, reader);
+      try {
+        repository.borrowBook(book, reader);
+      } catch (RegistryRepositoryException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
