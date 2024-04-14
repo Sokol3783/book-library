@@ -146,31 +146,24 @@ class RegistryServiceTest {
   }
 
   @Test
-  void shouldPrintThatReaderDoesntBorrowAnyBooks() {
+  void shouldPrintThatReaderDoesntBorrowAnyBooks() throws RegistryRepositoryException {
     String message = "This reader doesn't borrow any book!";
     Reader reader = getReader();
     Book book = getBook();
-    try {
-      when(repository.returnBook(book,reader)).thenThrow(new RegistryRepositoryException(message));
-      service.returnBook(Optional.of(book), Optional.of(reader));
-
-    } catch (RegistryRepositoryException e) {
-
-    }
+    when(repository.returnBook(book,reader)).thenThrow(new RegistryRepositoryException(message));
+    service.returnBook(Optional.of(book), Optional.of(reader));
     assertTrue(err.toString().contains(message));
   }
 
   @Test
-  void shouldPrintReaderDoesntBorrowCurrentBook() throws InterruptedException {
+  void shouldPrintReaderDoesntBorrowCurrentBook()
+      throws RegistryRepositoryException {
     Reader reader = getReader();
     Book book = getBook();
     String message = "Reader " + reader.getName() + " didn't borrow " + book.getName();
-    try {
       when(repository.returnBook(book, reader)).thenThrow(new RegistryRepositoryException(message));
       service.returnBook(Optional.of(book), Optional.of(reader));
-    } catch (RegistryRepositoryException e) {
-    }
-    assertTrue(err.toString().contains(message));
+      assertTrue(err.toString().contains(message));
   }
 
 }
