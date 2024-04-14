@@ -1,6 +1,5 @@
 package org.example.services;
 
-import static java.lang.Thread.sleep;
 import static org.example.util.Util.getBook;
 import static org.example.util.Util.getReader;
 import static org.example.util.Util.getTestBooks;
