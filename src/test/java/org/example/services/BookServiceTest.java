@@ -79,22 +79,22 @@ class BookServiceTest {
 
   @Test
   void shouldPrintThatAuthorContainsInvalidSymbols(){
-    service.addNewBook("valid\\a$l#uthor");
+    service.addNewBook("valid/a$l#uthor");
     assertTrue(err.toString().contentEquals("Author contain invalid symbols"));
   }
 
   @Test
   void shouldPrintErrThatSizeAuthorNotValid(){
-    service.addNewBook("valid\\asd");
-    service.addNewBook("valid\\$l#uyyyyyyyyyyyyesssssssssssssggthor");
+    service.addNewBook("valid/asd");
+    service.addNewBook("valid/$l#uyyyyyyyyyyyyesssssssssssssggthor");
     assertEquals(2, countRepeatedSubstrings(err.toString(), "Invalid length of author"));
     assertEquals(2, countRepeatedSubstrings(err.toString(), "Name should contain more than 5 char and less than 30 ones"));
   }
 
   @Test
   void shoultPrintErrThatSizeTitleNotValid() {
-    service.addNewBook("valid\\asd");
-    service.addNewBook("valid\\$l#uyyyyyyyyyyyyesssssssssssssggthor");
+    service.addNewBook("valid/asd");
+    service.addNewBook("valid/$l#uyyyyyyyyyyyyesssssssssssssggthor");
     assertEquals(2, countRepeatedSubstrings(err.toString(), "Invalid length of author"));
     assertEquals(2, countRepeatedSubstrings(err.toString(),
         "Name should contain more than 5 char and less than 30 ones"));
@@ -104,7 +104,7 @@ class BookServiceTest {
   void shouldCreateNewBookWithValidFieldsAndPrintMessage() {
     Book book = new Book(1L, "Author 1", "Title 1");
     when(repository.save(book)).thenReturn(book);
-    service.addNewBook(book.getName() + "\\" + book.getAuthor());
+    service.addNewBook(book.getName() + "/" + book.getAuthor());
     String message = output.toString();
 
     assertAll(() -> assertTrue(message.contains("Book saved")),
@@ -113,19 +113,19 @@ class BookServiceTest {
 
   @Test
   void shouldPrintThatTitleNotValid(){
-    service.addNewBook("\\asisdas");
-    service.addNewBook("dsa\\a123sdas");
-    service.addNewBook("invailid#\\author");
-    service.addNewBook("bssssssssssssssssssssssssssssssssssssssssssssssssss555555555555555555555555555555555555555555555555555s\\sdfasdfas");
+    service.addNewBook("/asisdas");
+    service.addNewBook("dsa/a123sdas");
+    service.addNewBook("invailid#/author");
+    service.addNewBook("bssssssssssssssssssssssssssssssssssssssssssssssssss555555555555555555555555555555555555555555555555555s/sdfasdfas");
     assertEquals(4, countRepeatedSubstrings(err.toString(), "Title not valid"));
   }
 
   @Test
   void shouldPrintThatAuthorNotValid(){
-    service.addNewBook("validtitle\\");
-    service.addNewBook("validtitle\\asda");
-    service.addNewBook("validtitle\\adas3##$43");
-    service.addNewBook("validtitle\\iiiiiiiiiiiiiiiijjkk55555555555555551");
+    service.addNewBook("validtitle/");
+    service.addNewBook("validtitle/asda");
+    service.addNewBook("validtitle/adas3##$43");
+    service.addNewBook("validtitle/iiiiiiiiiiiiiiiijjkk55555555555555551");
     assertEquals(4, countRepeatedSubstrings(err.toString(), "Author not valid"));
   }
 
