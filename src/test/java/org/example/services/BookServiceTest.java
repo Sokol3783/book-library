@@ -51,19 +51,19 @@ class BookServiceTest {
 
   @Test
   void shouldCallRepositoryOnceWhenGetListOfEmptyBooksAndPrintHead() {
-    verify(repository, times(1)).findAll();
     when(repository.findAll()).thenReturn(List.of());
     service.printAllBooks();
+    verify(repository, times(1)).findAll();
     assertTrue(output.toString().contains("Books in library:"));
   }
 
   @Test
   void shouldCallRepositoryOnceWhenGetListOfBooksPrintEvery(){
-    verify(repository, times(1)).findAll();
     List<Book> testBooks = getTestBooks();
     when(repository.findAll()).thenReturn(testBooks);
     service.printAllBooks();
     String message = output.toString();
+    verify(repository, times(1)).findAll();
     assertAll(() -> assertTrue(message.contains("Books in library:")),
         () -> assertTrue(message.contains(testBooks.get(0).toString())),
         () -> assertTrue(message.contains(testBooks.get(1).toString())),
