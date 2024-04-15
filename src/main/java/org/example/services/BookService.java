@@ -12,11 +12,13 @@ public class BookService {
     this.repository = repository;
   }
 
-  public List<Book> getAllBooks() {
-    return List.of();
+  public void printAllBooks() {
+    System.out.println("\n Books in library:");
+    repository.findAll().forEach(Book::toString);
   }
 
   public void addNewBook(String input) {
   }
+
 
 }
