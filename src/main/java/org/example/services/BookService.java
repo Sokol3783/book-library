@@ -14,7 +14,7 @@ public class BookService {
 
   public void printAllBooks() {
     System.out.println("\n Books in library:");
-    repository.findAll().forEach(Book::toString);
+    repository.findAll().forEach(System.out::println);
   }
 
   public void addNewBook(String input) {
