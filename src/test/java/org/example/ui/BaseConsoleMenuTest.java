@@ -7,6 +7,7 @@ import org.junit.jupiter.api.*;
 import java.io.*;
 
 import static java.lang.Thread.sleep;
+import static org.example.util.Util.countRepeatedSubstrings;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BaseConsoleMenuTest {
@@ -183,7 +184,4 @@ class BaseConsoleMenuTest {
                 """;
     }
 
-    private static int countRepeatedSubstrings(String str, String target) {
-        return (str.length() - str.replace(target, "").length()) / target.length();
-    }
 }
