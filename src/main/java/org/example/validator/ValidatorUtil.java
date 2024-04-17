@@ -22,4 +22,8 @@ public class ValidatorUtil {
     return true;
   }
 
+  public static boolean inRange(int current, int min, int max){
+    if ((current < min) || (current > max)) return false;
+    return true;
+  }
 }
