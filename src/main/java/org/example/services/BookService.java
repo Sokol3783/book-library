@@ -1,5 +1,6 @@
 package org.example.services;
 
+import static org.example.validator.ValidatorUtil.inRange;
 import static org.example.validator.ValidatorUtil.invalidName;
 import static org.example.validator.ValidatorUtil.invalidTitle;
 
@@ -36,9 +37,8 @@ public class BookService {
   }
 
   private boolean alertNotValidAuthor(String author) {
-    int length = author.length();
     String alert = "";
-    if (length < 5 || length > 30) {
+    if (inRange(author.length(), 5, 30)) {
       alert = "Invalid length of author\nName should contain more than 5 char and less than 30 ones";
     }
 
@@ -53,9 +53,8 @@ public class BookService {
   }
 
   private boolean alertNotValidTitle(String title) {
-    int length = title.length();
     String alert = "";
-    if (length < 5 || length > 100) {
+    if (!inRange(title.length(), 5, 100)){
       alert = "Invalid length of title\nTitle should contain more than 5 char and less than 100 ones";
     }
 
