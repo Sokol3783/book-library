@@ -1,8 +1,8 @@
 package org.example.services;
 
-import java.util.List;
 import org.example.dao.ReaderRepository;
 import org.example.entity.Reader;
+import org.example.validator.ValidatorUtil;
 
 public class ReaderService {
 
@@ -13,9 +13,26 @@ public class ReaderService {
   }
 
   public void printReaders() {
+      System.out.println("Readers registered in library");
+      repository.findAll().forEach(System.out::println);
   }
 
   public void addNewReader(String input){
+
+    if (!ValidatorUtil.inRange(input.length(), 5, 30)) {
+      System.err.println("Invalid length of name\nTitle should contain more than 5 char and less than 30 ones");
+      return;
+    }
+
+    if (ValidatorUtil.invalidName(input)) {
+      System.err.println("Author must contain only letters, spaces, dashes, apostrophes!");
+      return;
+    }
+
+    Reader save = repository.save(new Reader(0l, input));
+    System.out.println("Reader is registered in library:");
+    System.out.println(save.toString());
+
   }
 
 }
