@@ -42,7 +42,7 @@ public class BookService {
       alert = "Invalid length of author\nName should contain more than 5 char and less than 30 ones";
     }
 
-    if (!invalidName(author)) {
+    if (invalidName(author)) {
       alert += "Author must contain only letters, spaces, dashes, apostrophes!";
     }
 

@@ -10,9 +10,9 @@ public class ValidatorUtil {
 
   public static boolean invalidName(String name){
     if (NAME_PATTERN.matcher(name).find()) {
-      return false;
+      return true;
     }
-    return true;
+    return false;
   }
 
   public static boolean invalidTitle(String title){
