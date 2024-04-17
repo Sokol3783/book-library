@@ -38,7 +38,7 @@ public class BookService {
 
   private boolean alertNotValidAuthor(String author) {
     String alert = "";
-    if (inRange(author.length(), 5, 30)) {
+    if (!inRange(author.length(), 5, 30)) {
       alert = "Invalid length of author\nName should contain more than 5 char and less than 30 ones";
     }
 
