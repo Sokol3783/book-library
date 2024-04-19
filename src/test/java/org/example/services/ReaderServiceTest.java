@@ -51,7 +51,7 @@ class ReaderServiceTest {
   void shouldPrintListOfReadersAndHeader() {
     List<Reader> testReaders = getTestReaders();
     when(repository.findAll()).thenReturn(testReaders);
-    service.printReaders();
+    service.printAllReaders();
     verify(repository, times(1)).findAll();
     String message =output.toString();
     assertAll(() -> assertTrue(message.contains("Readers registered in library:")),

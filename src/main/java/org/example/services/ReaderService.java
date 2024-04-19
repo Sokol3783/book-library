@@ -14,7 +14,7 @@ public class ReaderService {
     this.repository = repository;
   }
 
-  public void printReaders() {
+  public void printAllReaders() {
       System.out.println("Readers registered in library:");
       repository.findAll().forEach(System.out::println);
   }
