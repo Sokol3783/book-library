@@ -1,6 +1,7 @@
 package org.example.ui;
 
 import static java.lang.Thread.sleep;
+import static org.example.util.Util.inputWithSleep;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayInputStream;
@@ -8,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.example.util.Util;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,7 @@ class AdvancedConsoleMenuTest {
 
 
   private static final ByteArrayOutputStream output = new ByteArrayOutputStream();
+  private static final ByteArrayOutputStream err = new ByteArrayOutputStream();
   private static ExecutorService executor = Executors.newSingleThreadExecutor();
 
   private static AdvancedConsoleMenu menu;
@@ -28,7 +31,7 @@ class AdvancedConsoleMenuTest {
   }
 
   private static void run() {
-    menu = new AdvancedConsoleMenu();
+    menu = new AdvancedConsoleMenu(null, null, null);
     menu.run();
   }
 
@@ -40,12 +43,12 @@ class AdvancedConsoleMenuTest {
   @AfterEach
   void setInExitToMenu() {
     output.reset();
+    err.reset();
     executor.shutdownNow();
   }
-
-  @DisplayName("Create new reader successful after input '1'")
+  @DisplayName("List all books with all new one after input '1'")
   @Test
-  void shouldCreateNewReaderSuccessfulAfterInput_1(){
+  void shouldPrintAllBooksAfterInput_1(){
     fail();
   }
 
@@ -55,19 +58,19 @@ class AdvancedConsoleMenuTest {
     fail();
   }
 
-  @DisplayName("Create new book successful after input 3")
+  @DisplayName("Read input and save new reader after input '3'")
   @Test
-  void shouldCreateNewBookSuccessfulAfterInput_3(){
-      fail();
-  }
-
-  @DisplayName("List all books with all new one after input '4'")
-  @Test
-  void shouldPrintAllBooksAfterInput_4(){
+  void shouldCreateNewReaderSuccessfulAfterInput_3(){
     fail();
   }
 
-  @DisplayName("Borrow book for a specific reader after input '5")
+  @DisplayName("Read input and save book after input '4'")
+  @Test
+  void shouldCreateNewBookSuccessfulAfterInput_4(){
+      fail();
+  }
+
+  @DisplayName("Borrow book for a specific reader after input '5'" )
   @Test
   void shouldBorrowBookForASpecificReader(){
     fail();
@@ -96,28 +99,10 @@ class AdvancedConsoleMenuTest {
   void shouldPrintWelcomeMessageOnlyOnce() throws InterruptedException{
     executor.execute(AdvancedConsoleMenuTest::run);
     String welcomeMessage = "WELCOME TO THE LIBRARY!";
-    inputWithSleep("1", "2", "exit");
+    inputWithSleep("1", "2", "dasdgdfhjsa", "5", "exit");
     String outputString = output.toString();
     assertAll( () -> assertTrue(outputString.contains(welcomeMessage)),
         () -> assertEquals(1,countRepeatedSubstrings(outputString, welcomeMessage)));
-  }
-
-  @Test
-  @DisplayName("Menu should print three books after input '2' after start")
-  void shouldPrintThreeBooksAfterInputOption_1() throws InterruptedException {
-    executor.execute(AdvancedConsoleMenuTest::run);
-    inputWithSleep("2");
-  }
-
-  @Test
-  @DisplayName("Menu should print three readers after input '4' after start")
-  void shouldPrintThreeReadersAfterInputOption_2() throws InterruptedException {
-    executor.execute(AdvancedConsoleMenuTest::run);
-    inputWithSleep( "4");
-    String outputString = output.toString();
-    assertAll(() -> assertTrue(outputString.contains("Kent Back")),
-        () -> assertTrue(outputString.contains("Clark Kent")),
-        () ->assertTrue(outputString.contains("Bruce Wayne")));
   }
 
   @Test
@@ -174,52 +159,16 @@ class AdvancedConsoleMenuTest {
   }
 
   @Test
-  @DisplayName("After input 1 doesn't print another option and 'Goodbye'")
-  void shouldNotPrintReadersAndExitAfterInput_1() throws InterruptedException {
-    executor.execute(AdvancedConsoleMenuTest::run);
-    inputWithSleep("1");
-    String lines = output.toString();
-    assertAll(() -> assertTrue(lines.contains("title")),
-        () -> assertFalse(lines.contains("Clark Kent")),
-        () -> assertFalse(lines.contains("Goodbye")));
-  }
-
-  @Test
-  @DisplayName("After input 2 doesn't print 'Goodbye' ")
+  @DisplayName("After option or invalid option doesn't print 'Goodbye'")
   void shouldNotPrintReadersAndExitAfterInput_2() throws InterruptedException {
     executor.execute(AdvancedConsoleMenuTest::run);
-    inputWithSleep("2");
+    inputWithSleep("2", "3", "10", "asdasdfhasjkdfhdaskd");
     String outputString = output.toString();
     assertAll(() -> assertFalse(outputString.contains("Goodbye")),
         () -> assertTrue(outputString.contains("name")));
   }
 
-  @Test
-  @DisplayName("Books print from new line like: ID = **, author = **, title = **")
-  void shouldPrintBooksInFormatFromNewLine() throws InterruptedException {
-    executor.execute(AdvancedConsoleMenuTest::run);
-    inputWithSleep("1");
-    String lines= output.toString();
-    assertAll( () -> assertEquals(3, countRepeatedSubstrings(lines, "ID")),
-        () -> assertEquals(3,  countRepeatedSubstrings(lines, "title")),
-        () -> assertEquals(3,  countRepeatedSubstrings(lines, "author")));
-  }
 
-  @Test
-  @DisplayName("Readers print from new line like: ID = **, name = **")
-  void shouldPrintReaderInFormatFromNewLine() throws InterruptedException {
-    executor.execute(AdvancedConsoleMenuTest::run);
-    inputWithSleep("2");
-    String lines = output.toString();
-    assertAll( () -> assertEquals(3, countRepeatedSubstrings(lines, "ID")),
-        () -> assertEquals(3,  countRepeatedSubstrings(lines, "name")));
-  }
-
-  private void inputWithSleep(String... data) throws InterruptedException {
-    String join = String.join("\n", data);
-    System.setIn(new ByteArrayInputStream(join.getBytes()));
-    sleep(200);
-  }
 
   private String getTextMenu() {
     return """

@@ -8,6 +8,7 @@ import java.io.*;
 
 import static java.lang.Thread.sleep;
 import static org.example.util.Util.countRepeatedSubstrings;
+import static org.example.util.Util.inputWithSleep;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BaseConsoleMenuTest {
@@ -168,12 +169,6 @@ class BaseConsoleMenuTest {
         String lines = output.toString();
         assertAll( () -> assertEquals(3, countRepeatedSubstrings(lines, "ID")),
                    () -> assertEquals(3,  countRepeatedSubstrings(lines, "name")));
-    }
-
-    private void inputWithSleep(String... data) throws InterruptedException {
-        String join = String.join("\n", data);
-        System.setIn(new ByteArrayInputStream(join.getBytes()));
-        sleep(200);
     }
 
     private String getTextMenu() {

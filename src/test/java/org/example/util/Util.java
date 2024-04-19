@@ -1,5 +1,8 @@
 package org.example.util;
 
+import static java.lang.Thread.sleep;
+
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import org.example.entity.Book;
 import org.example.entity.Reader;
@@ -42,5 +45,11 @@ public class Util {
 
   public static int countRepeatedSubstrings(String str, String target) {
     return (str.length() - str.replace(target, "").length()) / target.length();
+  }
+
+  public static void inputWithSleep(String... data) throws InterruptedException {
+    String join = String.join("\n", data);
+    System.setIn(new ByteArrayInputStream(join.getBytes()));
+    sleep(200);
   }
 }
