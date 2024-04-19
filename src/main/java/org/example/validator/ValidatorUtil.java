@@ -7,6 +7,7 @@ public class ValidatorUtil {
   private static final String REG_EXP_NAME_VALIDATION= "[^\\w' -]";
   private static final Pattern TITLE_PATTERN = Pattern.compile(REG_EXP_TITLE_VALIDATION);
   private static final Pattern NAME_PATTERN = Pattern.compile(REG_EXP_NAME_VALIDATION);
+  private static final Pattern NON_DIGIT_PATTERN = Pattern.compile("\\D");
 
   public static boolean invalidName(String name){
     if (NAME_PATTERN.matcher(name).find()) {
@@ -23,7 +24,10 @@ public class ValidatorUtil {
   }
 
   public static boolean inRange(int current, int min, int max){
-    if ((current < min) || (current > max)) return false;
-    return true;
+    return current >= min && current <= max;
+  }
+
+  public static boolean hasNonDigitChar(String input){
+    return NON_DIGIT_PATTERN.matcher(input).find();
   }
 }
