@@ -3,6 +3,7 @@ package org.example.dao;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import org.example.entity.Book;
@@ -33,27 +34,18 @@ public class RegistryRepository {
      return map.entrySet().stream().anyMatch(s -> s.getValue().contains(book));
   }
 
-  public boolean returnBook(Book book, Reader reader) throws RegistryRepositoryException {
-
-    if (map.containsKey(reader)){
-      boolean[] isReturn = {false};
-      map.computeIfPresent(reader, (k,v) ->  getBorrowedBooksBooks(book, v, isReturn));
-
-      if (isReturn[0]) return isReturn[0];
-
-      throw new RegistryRepositoryException("Reader " + reader.getName() + " didn't borrow "
-          + book.getName());
+  public boolean returnBook(Book book) throws RegistryRepositoryException {
+    Optional<Boolean> first = map.values().stream().filter(s -> s.contains(book))
+        .map(s -> s.remove(book)).findFirst();
+    if (first.isPresent()) {
+      return first.get();
     }
-    throw new RegistryRepositoryException("This reader doesn't borrow any book!");
-  }
 
-  private Set<Book> getBorrowedBooksBooks(Book book,Set<Book> v, boolean[] isReturn)      {
-      isReturn[0] = v.remove(book);
-      return v;
+    throw new RegistryRepositoryException("This book anybody doesn't borrow!");
   }
 
   public Optional<Reader> getReaderOfBook(Book book){
-    return map.entrySet().stream().filter(s -> s.getValue().contains(book)).map(s -> s.getKey()).findFirst();
+    return map.entrySet().stream().filter(s -> s.getValue().contains(book)).map(Entry::getKey).findFirst();
   }
 
   public List<Book> getListBorrowedBooksOfReader(Reader reader){

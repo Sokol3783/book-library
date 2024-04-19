@@ -29,27 +29,31 @@ public class RegistryService {
   }
 
 
-  public void returnBook(Optional<Book> book, Optional<Reader> reader) {
-    if (isPrintWarningEmptyReader(reader) | isPrintWarningEmptyBook(book)) return;
+  public void returnBook(Optional<Book> book) {
+    if (isPrintWarningEmptyBook(book)) return;
     try {
-      if(repository.returnBook(book.get(), reader.get())) {
-        System.out.println(reader.get().getName() + "return book " + book.get().getName());
+      if(repository.returnBook(book.get())) {
+        System.out.println("Book " + book.get().getName() + "is returned!");
       } else {
-        System.err.println(reader.get().getName() + "can't return book!");
+        System.out.println("Book " + book.get().getName() + "is returned!");
       }
     } catch (RegistryRepositoryException e) {
       System.err.println(e.getMessage());
     }
   }
 
-  public List<Book> getAllBorrowedBooksByReader(Optional<Reader> reader){
-    if(isPrintWarningEmptyReader(reader)) {
-      return List.of();
+  public void printBorrowedBooksByReader(Optional<Reader> reader){
+    if(isPrintWarningEmptyReader(reader)) return;
+    List<Book> borrowedBooks = repository.getListBorrowedBooksOfReader(reader.get());
+    if (borrowedBooks.isEmpty()) {
+      System.out.println("Reader doesn't borrow book!");
+    } else {
+      System.out.println("Borrowed books:");
+      borrowedBooks.forEach(System.out::println);
     }
-    return repository.getListBorrowedBooksOfReader(reader.get());
   }
 
-  public Optional<Reader> getCurrentReaderOfBook(Optional<Book> book){
+  public Optional<Reader> printCurrentReaderOfBook(Optional<Book> book){
     if(isPrintWarningEmptyBook(book)){
       return Optional.empty();
     }

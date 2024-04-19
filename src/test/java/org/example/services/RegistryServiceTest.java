@@ -56,8 +56,8 @@ class RegistryServiceTest {
     Optional<Book> book = Optional.of(getBook());
 
     service.borrowBook(book, reader);
-    service.returnBook(book, reader);
-    service.getAllBorrowedBooksByReader(reader);
+    service.returnBook(book);
+    service.printBorrowedBooksByReader(reader);
 
     String[] messages = err.toString().split("\n");
     assertTrue(Arrays.stream(messages).allMatch(s -> s.contentEquals("There is no such reader!")));
@@ -70,8 +70,8 @@ class RegistryServiceTest {
     Optional<Book> book = Optional.empty();
 
     service.borrowBook(book, reader);
-    service.returnBook(book, reader);
-    service.getCurrentReaderOfBook(book);
+    service.returnBook(book);
+    service.printCurrentReaderOfBook(book);
 
     String[] messages = err.toString().split("\n");
     assertTrue(Arrays.stream(messages).allMatch(s -> s.contentEquals("There is no such book!")));
@@ -99,27 +99,22 @@ class RegistryServiceTest {
   }
 
   @Test
-  void shouldReturnEmptyListIfReaderDoesNotBorrowBook(){
-    Reader reader = getReader();
-    when(repository.getListBorrowedBooksOfReader(reader)).thenReturn(List.of());
-    assertTrue(service.getAllBorrowedBooksByReader(Optional.of(reader)).isEmpty());
-  }
-
-  @Test
-  void shouldReturnListOfReaderBorrowedBooks(){
+  void shouldPrintListOfReaderBorrowedBooks(){
     Reader reader = getReader();
     List<Book> books = setIdForTestBooks(getTestBooks());
     when(repository.getListBorrowedBooksOfReader(reader)).thenReturn(books);
-    List<Book> listBorrowed = service.getAllBorrowedBooksByReader(Optional.of(reader));
-    assertAll(() -> assertFalse(listBorrowed.isEmpty()),
-              () -> assertEquals(3, listBorrowed.size()),
-              () -> assertTrue(listBorrowed.containsAll(books)));
+    service.printBorrowedBooksByReader(Optional.of(reader));
+    String message = output.toString();
+    assertAll(() -> assertTrue(message.contains("Borrowed books:")),
+              () -> assertTrue(message.contains(books.get(0).toString())),
+              () -> assertTrue(message.contains(books.get(1).toString())),
+              () -> assertTrue(message.contains(books.get(2).toString())));
   }
 
   @Test
   void shouldReturnCurrentReaderOfBook(){
     when(repository.getReaderOfBook(getBook())).thenReturn(Optional.of(getReader()));
-    Optional<Reader> reader = service.getCurrentReaderOfBook(Optional.of(getBook()));
+    Optional<Reader> reader = service.printCurrentReaderOfBook(Optional.of(getBook()));
     assertAll(() -> assertTrue(reader.isPresent()),
               () -> assertTrue(reader.get().getName().contentEquals("reader")));
   }
@@ -127,42 +122,40 @@ class RegistryServiceTest {
   @Test
   void shouldReturnEmptyOptional(){
       when(repository.getReaderOfBook(getBook())).thenReturn(Optional.empty());
-      Optional<Reader> currentReaderOfBook = service.getCurrentReaderOfBook(Optional.of(getBook()));
+      Optional<Reader> currentReaderOfBook = service.printCurrentReaderOfBook(Optional.of(getBook()));
       assertTrue(currentReaderOfBook.isEmpty());
   }
 
   @Test
-  void shouldPrintThatReaderReturnBook() throws RegistryRepositoryException {
-    when(repository.returnBook(any(), any())).thenReturn(true);
-    Reader reader = getReader();
+  void shouldPrintThatBookReturned() throws RegistryRepositoryException {
+    when(repository.returnBook(any())).thenReturn(true);
     Book book = getBook();
-    service.returnBook(Optional.of(book), Optional.of(reader));
+    service.returnBook(Optional.of(book));
     String message = output.toString();
     assertAll(
-        () -> assertTrue(message.contains(reader.getName())),
         () -> assertTrue(message.contains(book.getName())),
-        () -> assertTrue(message.contains("return book"))
+        () -> assertTrue(message.contains("is returned"))
     );
   }
 
   @Test
-  void shouldPrintThatReaderDoesntBorrowAnyBooks() throws RegistryRepositoryException {
+  void shouldPrintThatReaderDoesNotBorrowAnyBooks() throws RegistryRepositoryException {
     String message = "This reader doesn't borrow any book!";
     Reader reader = getReader();
     Book book = getBook();
-    when(repository.returnBook(book,reader)).thenThrow(new RegistryRepositoryException(message));
-    service.returnBook(Optional.of(book), Optional.of(reader));
+    when(repository.returnBook(book)).thenThrow(new RegistryRepositoryException(message));
+    service.returnBook(Optional.of(book));
     assertTrue(err.toString().contains(message));
   }
 
   @Test
-  void shouldPrintReaderDoesntBorrowCurrentBook()
+  void shouldPrintReaderDoesNotBorrowCurrentBook()
       throws RegistryRepositoryException {
     Reader reader = getReader();
     Book book = getBook();
     String message = "Reader " + reader.getName() + " didn't borrow " + book.getName();
-      when(repository.returnBook(book, reader)).thenThrow(new RegistryRepositoryException(message));
-      service.returnBook(Optional.of(book), Optional.of(reader));
+      when(repository.returnBook(book)).thenThrow(new RegistryRepositoryException(message));
+      service.returnBook(Optional.of(book));
       assertTrue(err.toString().contains(message));
   }
 
