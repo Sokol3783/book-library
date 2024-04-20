@@ -33,7 +33,7 @@ public class Reader {
 
     @Override
     public String toString() {
-        return "ID = " + id + "| name = " + name;
+        return "ID = " + id + " | name = " + name;
     }
 
     @Override

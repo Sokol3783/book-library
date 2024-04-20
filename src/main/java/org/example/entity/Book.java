@@ -42,7 +42,7 @@ public class Book {
 
     @Override
     public String toString() {
-        return "ID =" + id +"| author = " + author  + "| title = " + name;
+        return "ID =" + id +" | author = " + author  + " | title = " + name;
     }
 
     @Override
