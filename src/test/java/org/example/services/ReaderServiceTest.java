@@ -2,8 +2,12 @@ package org.example.services;
 
 import static org.example.util.Util.countRepeatedSubstrings;
 import static org.example.util.Util.getReader;
+import static org.example.util.Util.getTestBooks;
 import static org.example.util.Util.getTestReaders;
+import static org.example.util.Util.setIdForTestBooks;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,8 +16,11 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Optional;
 import org.example.dao.ReaderRepository;
 import org.example.entity.Reader;
+import org.example.exception.ConsoleValidationExceptionClass;
+import org.example.util.Util.IdGenerator;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,5 +96,30 @@ class ReaderServiceTest {
     assertAll(() -> assertTrue(message.contains("Reader registered in library")),
         () -> assertTrue(message.contains(reader.toString())));
   }
+  @Test
+  void shouldReturnBookIfValidInput(){
+    List<Reader> readers = setIdForTestReaders(getTestReaders());
+    for (Reader reader : readers) {
+      when(repository.findById(reader.getId())).thenReturn(Optional.of(reader));
+    }
+    assertAll(() -> assertTrue(service.findById("1").isPresent()),
+        () -> assertTrue(service.findById("2").isPresent()),
+        () -> assertTrue(service.findById("3").isPresent()));
+  }
 
+  private List<Reader> setIdForTestReaders(List<Reader> testReaders) {
+    IdGenerator idGenerator = new IdGenerator();
+    for (Reader reader : testReaders) {
+      reader.setId(idGenerator.getNextId());
+    }
+    return testReaders;
+  }
+
+  @Test
+  void shouldThrowValidationExceptionIfNotValidInput() {
+    when(repository.findById(anyLong())).thenReturn(Optional.empty());
+    assertAll( () -> assertThrows(ConsoleValidationExceptionClass.class, () -> service.findById("asdasda")),
+        () -> assertTrue(service.findById("1").isEmpty()));
+
+  }
 }

@@ -3,9 +3,13 @@ package org.example.services;
 
 import static org.example.util.Util.countRepeatedSubstrings;
 import static org.example.util.Util.getTestBooks;
+import static org.example.util.Util.setIdForTestBooks;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,8 +18,10 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Optional;
 import org.example.dao.BookRepository;
 import org.example.entity.Book;
+import org.example.exception.ConsoleValidationExceptionClass;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -129,6 +135,24 @@ class BookServiceTest {
     service.addNewBook("validtitle/adas3##$43");
     service.addNewBook("validtitle/iiiiiiiiiiiiiiiijjkk55555555555555551");
     assertEquals(4, countRepeatedSubstrings(err.toString(), "Author is not valid"));
+  }
+
+  @Test
+  void shouldReturnBookIfValidInput(){
+    List<Book> books = setIdForTestBooks(getTestBooks());
+    for (Book book : books) {
+      when(repository.findById(book.getId())).thenReturn(Optional.of(book));
+    }
+    assertAll(() -> assertTrue(service.findById("1").isPresent()),
+              () -> assertTrue(service.findById("2").isPresent()),
+              () -> assertTrue(service.findById("3").isPresent()));
+  }
+
+  @Test
+  void shouldThrowRepositoryExceptionIfNotValidInput() {
+     when(repository.findById(anyLong())).thenReturn(Optional.empty());
+     assertAll(() -> assertThrows(ConsoleValidationExceptionClass.class, () -> service.findById("asdasda")),
+               () -> assertTrue(service.findById("1").isEmpty()));
   }
 
 }
