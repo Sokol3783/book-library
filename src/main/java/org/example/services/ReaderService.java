@@ -1,9 +1,13 @@
 package org.example.services;
 
+import static org.example.validator.ValidatorUtil.hasNonDigitChar;
 import static org.example.validator.ValidatorUtil.invalidName;
 
+import java.util.Optional;
 import org.example.dao.ReaderRepository;
+import org.example.entity.Book;
 import org.example.entity.Reader;
+import org.example.exception.ConsoleValidationExceptionClass;
 import org.example.validator.ValidatorUtil;
 
 public class ReaderService {
@@ -36,5 +40,8 @@ public class ReaderService {
     System.out.println(save.toString());
 
   }
-
+  public Optional<Reader> findById(String input) {
+    if (hasNonDigitChar(input)) throw  new ConsoleValidationExceptionClass("Line contains non digit symbols! Please enter only digit!");
+    return repository.findById(Long.parseLong(input));
+  }
 }
