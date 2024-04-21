@@ -112,18 +112,19 @@ class RegistryServiceTest {
   }
 
   @Test
-  void shouldReturnCurrentReaderOfBook(){
+  void shouldPrintCurrentReaderOfBook(){
     when(repository.getReaderOfBook(getBook())).thenReturn(Optional.of(getReader()));
-    Optional<Reader> reader = service.printCurrentReaderOfBook(Optional.of(getBook()));
-    assertAll(() -> assertTrue(reader.isPresent()),
-              () -> assertTrue(reader.get().getName().contentEquals("reader")));
+    service.printCurrentReaderOfBook(Optional.of(getBook()));
+    String message = output.toString();
+    assertTrue(message.contains("Book book read reader"));
   }
 
   @Test
-  void shouldReturnEmptyOptional(){
+  void shouldPrintThtNobody(){
       when(repository.getReaderOfBook(getBook())).thenReturn(Optional.empty());
-      Optional<Reader> currentReaderOfBook = service.printCurrentReaderOfBook(Optional.of(getBook()));
-      assertTrue(currentReaderOfBook.isEmpty());
+      service.printCurrentReaderOfBook(Optional.of(getBook()));
+      String message = output.toString();
+      assertTrue(message.contains("Nobody reads book!"));
   }
 
   @Test

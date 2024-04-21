@@ -53,11 +53,16 @@ public class RegistryService {
     }
   }
 
-  public Optional<Reader> printCurrentReaderOfBook(Optional<Book> book){
+  public void printCurrentReaderOfBook(Optional<Book> book){
     if(isPrintWarningEmptyBook(book)){
-      return Optional.empty();
+       return;
     }
-    return repository.getReaderOfBook(book.get());
+    Optional<Reader> readerOfBook = repository.getReaderOfBook(book.get());
+    if (readerOfBook.isPresent()){
+      System.out.println("Book " + book.get().getName() + " read " + readerOfBook.get().getName());
+    } else {
+      System.out.println("Nobody reads book!");
+    }
   }
 
 
