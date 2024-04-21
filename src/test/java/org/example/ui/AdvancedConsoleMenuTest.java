@@ -48,7 +48,7 @@ class AdvancedConsoleMenuTest {
     books = mock(BookService.class);
     registry = mock(RegistryService.class);
     executor = Executors.newSingleThreadExecutor();
-//    System.setErr(err);
+    System.setErr(err);
   }
 
   @AfterEach
@@ -84,7 +84,7 @@ class AdvancedConsoleMenuTest {
   @Test
   void shouldPrintMessageHowToDoInputAndCallCreateReaderAfterInput_3() throws InterruptedException {
     doNothing().when(reader).addNewReader(any());
-    setInputAndRunMenu("3");
+    setInputAndRunMenu("3", "ASDAS");
     String message = output.toString();
     assertAll(() -> verify(reader, times(1)).addNewReader(any()),
               () -> assertTrue(message.contains("Please enter new reader full name!"))
@@ -139,6 +139,7 @@ class AdvancedConsoleMenuTest {
   void shouldPrintCurrentReaderWithBookIdAfterInput_8() throws InterruptedException {
     doNothing().when(registry).printCurrentReaderOfBook(any());
     setInputAndRunMenu("8", "30");
+    sleep(400);
     verify(registry, times(1)).printCurrentReaderOfBook(any());
   }
 
@@ -206,6 +207,15 @@ class AdvancedConsoleMenuTest {
     setInputAndRunMenu("2", "1", "10", "asdasdfhasjkdfhdaskd");
     String outputString = output.toString();
     assertFalse(outputString.contains("Goodbye"));
+  }
+
+  @Test
+  @DisplayName("After invalid option print err to System.err")
+  void shouldPrintInvalidOptionToSystemErr() throws InterruptedException {
+    setInputAndRunMenu("200", "300", "599");
+    String errorMessage = errArr.toString();
+    assertAll(() -> assertFalse(errorMessage.isEmpty()),
+              () -> assertEquals(3, countRepeatedSubstrings(errorMessage,"Invalid option")));
   }
 
   private String getTextMenu() {

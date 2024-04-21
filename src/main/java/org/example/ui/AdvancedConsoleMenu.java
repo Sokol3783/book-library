@@ -29,7 +29,6 @@ public class AdvancedConsoleMenu implements ConsoleMenu {
     System.out.println(WELCOME_MESSAGE);
     while (!terminated) {
       try {
-        System.err.println("HANDLE! !!!");
         handleOption(messageThanReadInput(getTextMenu()));
       } catch (RuntimeException e) {
         System.err.println(e.getMessage());
@@ -41,9 +40,7 @@ public class AdvancedConsoleMenu implements ConsoleMenu {
     System.out.println(message);
     while (!terminated) {
       if (scanner.hasNextLine()) {
-        String lowerCase = scanner.nextLine().toLowerCase();
-        System.err.println("INPUT " + lowerCase);
-        return lowerCase;
+        return scanner.nextLine().toLowerCase();
       }
     }
     return "";
