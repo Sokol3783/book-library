@@ -41,7 +41,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu should print welcome message only once")
-    void shouldPrintWelcomeMessageOnlyOnce() {
+    void shouldPrintWelcomeMessageOnlyOnce() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
         String welcomeMessage = "WELCOME TO THE LIBRARY!";
         inputWithSleep("1", "2", "exit");
@@ -53,7 +53,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu should print three books after input '1'")
-    void shouldPrintThreeBooksAfterInputOption_1()  {
+    void shouldPrintThreeBooksAfterInputOption_1() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("1");
         String outputString = output.toString();
@@ -67,7 +67,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu should print three readers after input '2'")
-    void shouldPrintThreeReadersAfterInputOption_2()  {
+    void shouldPrintThreeReadersAfterInputOption_2() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep( "2");
         String outputString = output.toString();
@@ -78,7 +78,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu shouldn't crash after incorrect input")
-    void shouldNotFallDownAfterIncorrectInput()  {
+    void shouldNotFallDownAfterIncorrectInput() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("200", "fdasdfhadjs", "asdasdfasdfasd");
         assertAll(() -> assertNotEquals(0,output.size()),
@@ -88,7 +88,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Close menu after input 'exit'")
-    void shouldStopWorkingAfterInputExit()  {
+    void shouldStopWorkingAfterInputExit() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("exit", "1", "2");
         String outputString= output.toString();
@@ -104,7 +104,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Menu should print 'Goodbye!' after input 'exit'")
-    void shouldPrintGoodbyeAfterInputExit()  {
+    void shouldPrintGoodbyeAfterInputExit() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("exit");
         String outputString = output.toString();
@@ -122,7 +122,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("After any input should print menu except exit, after exit stop run menu")
-    void shouldPrintMenuAfterAnyInputExceptExit()  {
+    void shouldPrintMenuAfterAnyInputExceptExit() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("1", "2", "3", "exit");
         assertEquals(4, countRepeatedSubstrings(output.toString(), getTextMenu()));
@@ -131,7 +131,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("After input 1 doesn't print another option and 'Goodbye'")
-    void shouldNotPrintReadersAndExitAfterInput_1()  {
+    void shouldNotPrintReadersAndExitAfterInput_1() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("1");
         String lines = output.toString();
@@ -142,7 +142,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("After input 2 doesn't print 'Goodbye' ")
-    void shouldNotPrintReadersAndExitAfterInput_2()  {
+    void shouldNotPrintReadersAndExitAfterInput_2() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("2");
         String outputString = output.toString();
@@ -152,7 +152,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Books print from new line like: ID = **, author = **, title = **")
-    void shouldPrintBooksInFormatFromNewLine()  {
+    void shouldPrintBooksInFormatFromNewLine() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("1");
         String lines= output.toString();
@@ -163,7 +163,7 @@ class BaseConsoleMenuTest {
 
     @Test
     @DisplayName("Readers print from new line like: ID = **, name = **")
-    void shouldPrintReaderInFormatFromNewLine()  {
+    void shouldPrintReaderInFormatFromNewLine() throws InterruptedException {
         executor.execute(BaseConsoleMenuTest::run);
         inputWithSleep("2");
         String lines = output.toString();

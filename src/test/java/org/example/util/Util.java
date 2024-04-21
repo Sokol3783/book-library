@@ -47,12 +47,9 @@ public class Util {
     return (str.length() - str.replace(target, "").length()) / target.length();
   }
 
-  public static void inputWithSleep(String... data) {
+  public static void inputWithSleep(String... data) throws InterruptedException {
     String join = String.join("\n", data);
     System.setIn(new ByteArrayInputStream(join.getBytes()));
-    try {
-      sleep(200);
-    } catch (InterruptedException e) {
-    }
+    sleep(200);
   }
 }
