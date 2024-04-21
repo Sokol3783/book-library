@@ -48,7 +48,7 @@ class AdvancedConsoleMenuTest {
     books = mock(BookService.class);
     registry = mock(RegistryService.class);
     executor = Executors.newSingleThreadExecutor();
-    System.setErr(err);
+//    System.setErr(err);
   }
 
   @AfterEach
@@ -161,7 +161,7 @@ class AdvancedConsoleMenuTest {
     setInputAndRunMenu("200", "3", "asfhasdjf", "4", "dafhdasdjfhasjdf", "7", "dsafhgasjdkfhajskdfjasghdfas");
     assertAll(() -> assertNotEquals(0,output.size()),
         () -> assertFalse(menu.isTerminated()),
-        () -> assertEquals(4, countRepeatedSubstrings(output.toString(), getTextMenu())));
+        () -> assertEquals(5, countRepeatedSubstrings(output.toString(), getTextMenu())));
   }
 
   @Test
@@ -205,7 +205,7 @@ class AdvancedConsoleMenuTest {
   void shouldPrintReadersAndNotExitAfterAnyInputExceptExit() throws Exception {
     setInputAndRunMenu("2", "1", "10", "asdasdfhasjkdfhdaskd");
     String outputString = output.toString();
-    assertTrue(outputString.contains("Goodbye"));
+    assertFalse(outputString.contains("Goodbye"));
   }
 
   private String getTextMenu() {
