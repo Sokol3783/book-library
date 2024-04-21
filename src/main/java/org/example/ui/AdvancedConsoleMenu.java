@@ -80,7 +80,7 @@ public class AdvancedConsoleMenu implements ConsoleMenu {
   }
 
   private void borrowBook() {
-    String[] id = messageThanReadInput("Please enter book ID and reader ID. Like this: 15 / 15").split("/");
+    String[] id = messageThanReadInput("Please enter book ID and reader ID. Like this: 15/15").split("/");
     if (id.length != 2) {
       System.err.println("Invalid input! Line should contain two ID separated by '/' ");
     }

@@ -17,14 +17,14 @@ public class App {
     BookRepository bookRepository = new BookRepository();
     ReaderRepository readerRepository = new ReaderRepository();
     generateInitialBooksList(bookRepository);
-    generateInitilReaderList(readerRepository);
+    generateInitialReaderList(readerRepository);
     ConsoleMenu menu = new AdvancedConsoleMenu(new BookService(bookRepository)
                                               ,new ReaderService(readerRepository)
                                               ,new RegistryService(new RegistryRepository()));
       menu.run();
   }
 
-  private static void generateInitilReaderList(ReaderRepository readerRepository) {
+  private static void generateInitialReaderList(ReaderRepository readerRepository) {
       readerRepository.save(new Reader(0, "Mike Douglas"));
       readerRepository.save(new Reader(0, "Fedor Trybeckoi"));
       readerRepository.save(new Reader(0, "Ivan Mazepa"));

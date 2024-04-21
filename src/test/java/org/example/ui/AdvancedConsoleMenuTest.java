@@ -110,7 +110,7 @@ class AdvancedConsoleMenuTest {
     setInputAndRunMenu("5", "13 / 14");
     String message = output.toString();
     assertAll(() -> verify(registry, times(1)).borrowBook(any(), any()),
-              () -> assertTrue(message.contains("Please enter book ID and reader ID. Like this: 15 / 15"))
+              () -> assertTrue(message.contains("Please enter book ID and reader ID. Like this: 15/15"))
     );
   }
 
