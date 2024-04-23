@@ -49,11 +49,9 @@ public class RegistryRepository {
   }
 
   public List<Book> getListBorrowedBooksOfReader(Reader reader){
-    Optional<Set<Book>> books = Optional.ofNullable(map.get(reader));
-    if (books.isPresent()) {
-      return List.copyOf(books.get());
-    }
-    return List.of();
+return Optional.ofNullable(map.get(reader))
+                   .map(List::copyOf)
+                   .orElse(Collections.emptyList());
   }
 
 
