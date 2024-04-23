@@ -8,7 +8,6 @@ import org.example.entity.Reader;
 import org.example.services.BookService;
 import org.example.services.ReaderService;
 import org.example.services.RegistryService;
-import org.example.ui.AdvancedConsoleMenu;
 import org.example.ui.ConsoleMenu;
 
 public class App {
@@ -18,7 +17,7 @@ public class App {
     ReaderRepository readerRepository = new ReaderRepository();
     generateInitialBooksList(bookRepository);
     generateInitialReaderList(readerRepository);
-    ConsoleMenu menu = new AdvancedConsoleMenu(new BookService(bookRepository)
+    ConsoleMenu menu = new ConsoleMenu(new BookService(bookRepository)
                                               ,new ReaderService(readerRepository)
                                               ,new RegistryService(new RegistryRepository()));
       menu.run();

@@ -24,13 +24,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class AdvancedConsoleMenuTest {
+class ConsoleMenuTest {
 
   private static final ByteArrayOutputStream output = new ByteArrayOutputStream();
   private static final ByteArrayOutputStream errArr = new ByteArrayOutputStream();
   private static final PrintStream err = new PrintStream(errArr);
   private static ExecutorService executor = Executors.newSingleThreadExecutor();
-  private static AdvancedConsoleMenu menu;
+  private static ConsoleMenu menu;
 
   private ReaderService reader;
   private RegistryService registry;
@@ -60,7 +60,7 @@ class AdvancedConsoleMenuTest {
   }
 
   private void run() {
-    menu = new AdvancedConsoleMenu(this.books, this.reader, this.registry);
+    menu = new ConsoleMenu(this.books, this.reader, this.registry);
     menu.run();
   }
 
