@@ -37,12 +37,7 @@ public class ConsoleMenu {
 
   private String messageThanReadInput(String message) {
     System.out.println(message);
-    while (!terminated) {
-      if (scanner.hasNextLine()) {
-        return scanner.nextLine().toLowerCase();
-      }
-    }
-    return "";
+    return scanner.nextLine().toLowerCase();
   }
 
   public boolean isTerminated() {
