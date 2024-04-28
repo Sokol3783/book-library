@@ -37,11 +37,9 @@ public class RegistryRepository {
   public boolean returnBook(Book book) throws RegistryRepositoryException {
     Optional<Boolean> first = map.values().stream().filter(s -> s.contains(book))
         .map(s -> s.remove(book)).findFirst();
-    if (first.isPresent()) {
-      return first.get();
-    }
-
-    throw new RegistryRepositoryException("This book anybody doesn't borrow!");
+return first.orElseThrow(
+            () -> new RegistryRepositoryException("This book anybody doesn't borrow!")
+    );
   }
 
   public Optional<Reader> getReaderOfBook(Book book){
