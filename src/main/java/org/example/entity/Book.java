@@ -54,8 +54,7 @@ public class Book {
             return false;
         }
 
-      return id == book.id && Objects.equals(name, book.name) && Objects.equals(
-            author, book.author);
+      return id == book.id;
     }
 
     @Override

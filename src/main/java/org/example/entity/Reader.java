@@ -45,7 +45,8 @@ public class Reader {
             return false;
         }
 
-      return id == reader.id && Objects.equals(name, reader.name);
+      return id == reader.id;
+
     }
 
     @Override
