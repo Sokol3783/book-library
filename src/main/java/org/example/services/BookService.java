@@ -1,14 +1,12 @@
 package org.example.services;
 
-import static org.example.validator.ValidatorUtil.hasNonDigitChar;
-import static org.example.validator.ValidatorUtil.inRange;
-import static org.example.validator.ValidatorUtil.invalidName;
-import static org.example.validator.ValidatorUtil.invalidTitle;
+import static org.example.validator.ValidatorUtil.containNonDigitChar;
+import static org.example.validator.ValidatorUtil.validateInputOfNewBook;
 
 import java.util.Optional;
 import org.example.dao.BookRepository;
 import org.example.entity.Book;
-import org.example.exception.ConsoleValidationExceptionClass;
+import org.example.exception.ConsoleValidationException;
 
 public class BookService {
 
@@ -24,55 +22,16 @@ public class BookService {
   }
 
   public void addNewBook(String input) {
-    String[] arr = input.split("/");
-    if (isValidInput(arr)) {
-      Book save = repository.save(new Book(0l, arr[0], arr[1]));
-      System.out.println("Book saved:\n" + save.toString());
-    }
+    validateInputOfNewBook(input.strip());
+    String[] titleAndAuthor= input.split("/");
+    Book save = repository.books(new Book(0l, titleAndAuthor[0], titleAndAuthor[1]));
+    System.out.println(save.toString());
   }
 
-  private boolean isValidInput(String[] titleAndAuthor) {
-    if (titleAndAuthor.length != 2) {
-      System.out.println("Invalid input! There is no / or to many / ");
-      return false;
-    }
-    return alertNotValidTitle(titleAndAuthor[0]) && alertNotValidAuthor(titleAndAuthor[1]);
-  }
 
-  private boolean alertNotValidAuthor(String author) {
-    String alert = "";
-    if (!inRange(author.length(), 5, 30)) {
-      alert = "Invalid length of author\nName should contain more than 5 char and less than 30 ones";
-    }
-
-    if (invalidName(author)) {
-      alert += "Author must contain only letters, spaces, dashes, apostrophes!";
-    }
-
-    if (alert.isEmpty()) return true;
-
-    System.err.println("Author is not valid\n" + alert);
-    return false;
-  }
-
-  private boolean alertNotValidTitle(String title) {
-    String alert = "";
-    if (!inRange(title.length(), 5, 100)){
-      alert = "Invalid length of title\nTitle should contain more than 5 char and less than 100 ones";
-    }
-
-    if (!invalidTitle(title)) {
-      alert += "Title contains invalid symbols: |/\\#%=+*_><]";
-    }
-
-    if (alert.isEmpty()) return true;
-
-    System.err.println("Title is not valid\n" + alert);
-    return false;
-  }
 
   public Optional<Book> findById(String input) {
-    if (hasNonDigitChar(input)) throw  new ConsoleValidationExceptionClass("Line contains non digit symbols! Please enter only digit!");
+    if (containNonDigitChar(input.strip())) throw  new ConsoleValidationException("Line contains non digit symbols! Please enter only digit!");
     return repository.findById(Long.parseLong(input));
   }
 }
