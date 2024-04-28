@@ -11,25 +11,15 @@ public class ValidatorUtil {
   private static final Pattern NON_DIGIT_PATTERN = Pattern.compile("\\D");
 
   public static boolean invalidName(String name){
-    if (NAME_PATTERN.matcher(name).find()) {
-      return true;
-    }
-    return false;
+    return NAME_PATTERN.matcher(name).find();
   }
 
   public static boolean invalidTitle(String title){
-    if (TITLE_PATTERN.matcher(title).find()) {
-      return false;
-    }
-    return true;
+    return !TITLE_PATTERN.matcher(title).find();
   }
 
   public static boolean inRange(int current, int min, int max){
     return current >= min && current <= max;
-  }
-
-  public static boolean containNonDigitChar(String input){
-    return NON_DIGIT_PATTERN.matcher(input).find();
   }
 
   public static void validateInputOfNewBook(String input) {
@@ -50,13 +40,15 @@ public class ValidatorUtil {
 
   public static void validateInputOfNewReader(String input) {
     StringBuilder message = new StringBuilder();
-    validateNameOrAuthor("", "Author", message);
+    validateNameOrAuthor(input, "Name", message);
     if(!message.isEmpty()) throw new ConsoleValidationException(message.toString().strip());
   }
 
   private static void validateNameOrAuthor(String input, String fieldName, StringBuilder message) {
-    if (!inRange(input.length(), 5, 30)) message.append("Invalid length! " + fieldName + " should contain more than 5 char and less than 30 ones");
-    if (invalidName(input)) message.append(fieldName + " must contain only letters, spaces, dashes, apostrophes!");
+    if (!inRange(input.length(), 5, 30)) message.append("Invalid length! ").append(fieldName)
+        .append(" should contain more than 5 char and less than 30 ones");
+    if (invalidName(input)) message.append(fieldName)
+        .append(" must contain only letters, spaces, dashes, apostrophes!");
   }
 
   private static void validateTitle(String title, StringBuilder message) {
@@ -65,8 +57,13 @@ public class ValidatorUtil {
   }
 
   private static boolean inputContainsSingleSlash(String input) {
-    return input.chars().filter(s -> s == Character.valueOf('\\')).count() != 1;
+    return input.chars().filter(s -> s == '\\').count() != 1;
   }
 
+  public static void validateInputOfId(String input) {
+    if (NON_DIGIT_PATTERN.matcher(input).find()) {
+      throw new ConsoleValidationException("Line contains non digit symbols! Please enter only digits!");
+    }
+  }
 
 }
