@@ -5,76 +5,85 @@ import java.util.Optional;
 import org.example.dao.RegistryRepository;
 import org.example.entity.Book;
 import org.example.entity.Reader;
-import org.example.exception.RegistryRepositoryException;
+import org.example.validator.ValidatorUtil;
 
 public class RegistryService {
 
   private final RegistryRepository repository;
+  private final BookService bookService;
+  private final ReaderService readerService;
 
-  public RegistryService(RegistryRepository repository)  {
+  public RegistryService(RegistryRepository repository, BookService bookService, ReaderService readerService)  {
       this.repository = repository;
+      this.bookService = bookService;
+      this.readerService = readerService;
   }
 
-  public void borrowBook(Optional<Book> book, Optional<Reader> reader){
-    if (isPrintWarningEmptyReader(reader) | isPrintWarningEmptyBook(book)) return;
-    try {
-      if(repository.borrowBook(book.get(), reader.get())) {
-        System.out.println(reader.get().getName() + "borrow book " + book.get().getName());
-      } else {
-        System.err.println(reader.get().getName() + "can't borrow book!");
-      }
-    } catch (RegistryRepositoryException e){
-        System.err.println(e.getMessage());
+  public void borrowBook(String input) {
+    StringBuilder message = new StringBuilder();
+    Book book; Reader reader;
+
+    if (ValidatorUtil.inputContainsSingleSlash(input)) {
+      String[] bookAndReaderId = input.split("/");
+      book = findBook(bookAndReaderId[0], message);
+      reader = findReader(bookAndReaderId[1], message);
+    } else {
+      message.append("\nInput should contain single dash!");
+      book = findBook(input, message);
+      reader = findReader("", message);
     }
-  }
-
+    
+    if (!message.isEmpty()) {
+      throw new RuntimeException(message.toString());
+    }
+    
+     repository.borrowBook(book, reader);
+     System.out.println(reader.getName() + "borrow book " + book.getName());
+}
 
   public void returnBook(Optional<Book> book) {
     if (isPrintWarningEmptyBook(book)) return;
     try {
-      if(repository.returnBook(book.get())) {
-        System.out.println("Book " + book.get().getName() + "is returned!");
-      } else {
-        System.out.println("Book " + book.get().getName() + "is returned!");
-      }
-    } catch (RegistryRepositoryException e) {
-      System.err.println(e.getMessage());
+      return readerService.findById(input).orElseThrow(() -> new RuntimeException("Reader not found"));
+    } catch (Exception e){
+      message.append("\n").append(e);
+      return null;
     }
   }
 
-  public void printBorrowedBooksByReader(Optional<Reader> reader){
-    if(isPrintWarningEmptyReader(reader)) return;
-    List<Book> borrowedBooks = repository.getListBorrowedBooksOfReader(reader.get());
+  private Book findBook(String input, StringBuilder message){
+    try {
+      return bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
+    } catch (Exception e){
+      message.append("\n").append(e.getMessage());
+      return null;
+    }
+  }
+
+  public void returnBook(String input) {
+    StringBuilder message = new StringBuilder();
+    Book find = findBook(input, message);
+
+    if (!message.isEmpty()) throw  new RuntimeException(message.toString());
+
+    repository.returnBook(find);
+  }
+
+  public void printBorrowedBooksByReader(String input){
+    Reader reader = readerService.findById(input).orElseThrow(() -> new RuntimeException("Reader nod found!"));
+    List<Book> borrowedBooks = repository.getListBorrowedBooksOfReader(reader);
     if (borrowedBooks.isEmpty()) {
-      System.out.println("Reader doesn't borrow book!");
+      System.out.println("Reader doesn't borrow books!");
     } else {
       System.out.println("Borrowed books:");
       borrowedBooks.forEach(System.out::println);
     }
   }
 
-  public void printCurrentReaderOfBook(Optional<Book> book){
-    if(isPrintWarningEmptyBook(book)){
-       return;
-    }
-    Optional<Reader> readerOfBook = repository.getReaderOfBook(book.get());
-    if (readerOfBook.isPresent()){
-      System.out.println("Book " + book.get().getName() + " read " + readerOfBook.get().getName());
-    } else {
-      System.out.println("Nobody reads book!");
-    }
-  }
+  public void printCurrentReaderOfBook(String input){
+    Book book = bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
+    Optional<Reader> readerOfBook = repository.getReaderOfBook(book);
+    readerOfBook.ifPresentOrElse(System.out::println, () -> System.out.println("Nobody reads this book"));
+ }
 
-
-  private boolean isPrintWarningEmptyReader(Optional<Reader> optional) {
-    boolean empty = optional.isEmpty();
-    if (empty) System.err.println("There is no such reader!");
-    return empty;
-  }
-
-  private boolean isPrintWarningEmptyBook(Optional<Book> optional) {
-    boolean empty = optional.isEmpty();
-    if (empty) System.err.println("There is no such book!");
-    return empty;
-  }
 }
