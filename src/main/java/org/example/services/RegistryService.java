@@ -25,12 +25,12 @@ public class RegistryService {
 
     if (ValidatorUtil.inputContainsSingleSlash(input)) {
       String[] bookAndReaderId = input.split("/");
-      book = findBook(bookAndReaderId[0].strip(), message);
-      reader = findReader(bookAndReaderId[1].strip(), message);
+      book = findBookOrGetErrorMessages(bookAndReaderId[0].strip(), message);
+      reader = findReaderOrGetExceptionMessage(bookAndReaderId[1].strip(), message);
     } else {
       message.append("\nInput should contain single dash!");
-      book = findBook(input.strip(), message);
-      reader = findReader("", message);
+      book = findBookOrGetErrorMessages(input.strip(), message);
+      reader = findReaderOrGetExceptionMessage("", message);
     }
     
     if (!message.isEmpty()) {
@@ -51,7 +51,7 @@ public class RegistryService {
     }
   }
 
-  private Book findBook(String input, StringBuilder message){
+  private Book findBookOrGetErrorMessages(String input, StringBuilder message){
     try {
       return bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
     } catch (Exception e){
@@ -61,23 +61,15 @@ public class RegistryService {
   }
 
   public void returnBook(String input) {
-    StringBuilder message = new StringBuilder();
-    Book find = findBook(input, message);
-
-    if (!message.isEmpty()) throw  new RuntimeException(message.toString());
-
-    repository.returnBook(find);
+    Book book = bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
+    repository.returnBook(book);
   }
 
   public void printBorrowedBooksByReader(String input){
     Reader reader = readerService.findById(input.strip()).orElseThrow(() -> new RuntimeException("Reader nod found!"));
     List<Book> borrowedBooks = repository.getListBorrowedBooksOfReader(reader);
-    if (borrowedBooks.isEmpty()) {
-      System.out.println("Reader doesn't borrow books!");
-    } else {
-      System.out.println("Borrowed books:");
-      borrowedBooks.forEach(System.out::println);
-    }
+    System.out.println("Borrowed books:");
+    borrowedBooks.forEach(System.out::println);
   }
 
   public void printCurrentReaderOfBook(String input){
