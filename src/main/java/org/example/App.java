@@ -11,9 +11,10 @@ import org.example.ui.ConsoleMenu;
 public class App {
 
   public static void main(String[] args) {
-    ConsoleMenu menu = new ConsoleMenu(new BookService(new BookRepository())
-        , new ReaderService(new ReaderRepository())
-        , new RegistryService(new RegistryRepository()));
+    BookService bookService = new BookService(new BookRepository());
+    ReaderService readerService = new ReaderService(new ReaderRepository());
+    ConsoleMenu menu = new ConsoleMenu(bookService, readerService,
+        new RegistryService(new RegistryRepository(), bookService, readerService));
     menu.run();
   }
 
