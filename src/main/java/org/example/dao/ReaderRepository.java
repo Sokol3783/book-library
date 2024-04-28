@@ -5,12 +5,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicLong;
 import org.example.entity.Reader;
 
 public class ReaderRepository {
 
-  private long lastId = 0;
+  private static final AtomicLong ID_GENERATOR = new AtomicLong(0);
   private final Set<Reader> readers= new TreeSet<>(Comparator.comparingLong(Reader::getId));
+
+  public ReaderRepository() {
+    readers.add(new Reader(ID_GENERATOR.incrementAndGet(), "Mike Douglas"));
+    readers.add(new Reader(ID_GENERATOR.incrementAndGet(), "Fedor Trybeckoi"));
+    readers.add(new Reader(ID_GENERATOR.incrementAndGet(), "Ivan Mazepa"));
+  }
 
   public Optional<Reader> findById(long id){
     return readers.stream().filter(s -> s.getId() == id).findFirst();
@@ -21,15 +28,9 @@ public class ReaderRepository {
   }
 
  public Reader save(Reader reader){
-    if (reader.getId() == 0){
-      reader.setId(getNextId());
-    }
+    reader.setId(ID_GENERATOR.incrementAndGet());
     readers.add(reader);
     return reader;
  }
-
-  private long getNextId() {
-    return ++lastId;
-  }
 
 }
