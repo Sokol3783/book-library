@@ -25,11 +25,11 @@ public class RegistryService {
 
     if (ValidatorUtil.inputContainsSingleSlash(input)) {
       String[] bookAndReaderId = input.split("/");
-      book = findBook(bookAndReaderId[0], message);
-      reader = findReader(bookAndReaderId[1], message);
+      book = findBook(bookAndReaderId[0].strip(), message);
+      reader = findReader(bookAndReaderId[1].strip(), message);
     } else {
       message.append("\nInput should contain single dash!");
-      book = findBook(input, message);
+      book = findBook(input.strip(), message);
       reader = findReader("", message);
     }
     
@@ -70,7 +70,7 @@ public class RegistryService {
   }
 
   public void printBorrowedBooksByReader(String input){
-    Reader reader = readerService.findById(input).orElseThrow(() -> new RuntimeException("Reader nod found!"));
+    Reader reader = readerService.findById(input.strip()).orElseThrow(() -> new RuntimeException("Reader nod found!"));
     List<Book> borrowedBooks = repository.getListBorrowedBooksOfReader(reader);
     if (borrowedBooks.isEmpty()) {
       System.out.println("Reader doesn't borrow books!");

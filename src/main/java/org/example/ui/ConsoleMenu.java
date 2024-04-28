@@ -60,38 +60,33 @@ public class ConsoleMenu {
   }
 
   private void addNewBook() {
-    books.addNewBook(
-        messageThanReadInput(
-            "Please, enter new book name and author separated by “/”. Like this: name / author")
-    );
+    System.out.println("Please, enter new book name and author separated by “/”. Like this: name / author")
+    books.addNewBook(scanner.nextLine());
   }
 
   private void addNewReader() {
-    readers.addNewReader(
-        messageThanReadInput("Please enter new reader full name!")
-    );
+    System.out.println("Please enter new reader full name!");
+    readers.addNewReader(scanner.nextLine());
   }
 
   private void borrowBook() {
-    String[] id = messageThanReadInput("Please enter book ID and reader ID. Like this: 15/15").split("/");
-    if (id.length != 2) {
-      System.err.println("Invalid input! Line should contain two ID separated by '/' ");
-    }
-    registry.borrowBook(books.findById(id[0]),
-                readers.findById(id[1]));
+    System.out.println("Please enter book ID and reader ID. Like this: 15 / 15");
+    registry.borrowBook(scanner.nextLine());
   }
 
   private void returnBook() {
-    registry.returnBook(books.findById(messageThanReadInput(ENTER_BOOK_ID_MESSAGE)));
+    System.out.println(ENTER_BOOK_ID_MESSAGE);
+    registry.returnBook(scanner.nextLine());
   }
 
   private void showAllBorrowedByUser() {
-    registry.printBorrowedBooksByReader(readers.findById(messageThanReadInput(
-        ENTER_READER_ID_MESSAGE)));
+    System.out.println(ENTER_READER_ID_MESSAGE);
+    registry.printBorrowedBooksByReader(scanner.nextLine());
   }
 
   private void showCurrentReaderOfBook() {
-    registry.printCurrentReaderOfBook(books.findById(messageThanReadInput(ENTER_BOOK_ID_MESSAGE)));
+    System.out.println(ENTER_BOOK_ID_MESSAGE);
+    registry.printCurrentReaderOfBook(scanner.nextLine());
   }
 
   private void exit() {
