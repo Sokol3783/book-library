@@ -23,13 +23,12 @@ public class BookService {
   public void addNewBook(String input) {
     validateInputOfNewBook(input.strip());
     String[] titleAndAuthor= input.split("/");
-    Book save = repository.books(new Book(0l, titleAndAuthor[0], titleAndAuthor[1]));
-    System.out.println(save.toString());
+    Book saved = repository.save(new Book(0l, titleAndAuthor[0], titleAndAuthor[1]));
+    System.out.println(saved.toString());
   }
 
   public Optional<Book> findById(String input) {
-    input = input.strip();
-    validateInputOfId(input);
+    validateInputOfId(input.strip());
     return repository.findById(Long.parseLong(input));
   }
 

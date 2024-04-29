@@ -143,11 +143,20 @@ class BookServiceTest {
   }
 
   @Test
-  void shouldPrintAllMistakesInInput(){
+  void shouldPrintAllMistakesInInput() {
     ConsoleValidationException exception = assertThrows(ConsoleValidationException.class,
-        () -> service.addNewBook("i@# / sadjfhasjkdfhsjadhfjkshdfk jasdhfksad #12@%2132 valid author"));
+        () -> service.addNewBook(
+            "i@# / sadjfhasjkdfhsjadhfjkshdfk jasdhfksad #12@%2132 valid author"));
 
-    assertAll();
+    assertAll(() -> assertTrue(exception.getMessage()
+            .contains("Title should contain more than 5 char and less than 100 ones")),
+        () -> assertTrue(exception.getMessage()
+            .contains("Author should contain more than 5 char and less than 30 ones")),
+        () -> assertTrue(exception.getMessage()
+            .contains("Author must contain only letters, spaces, dashes, apostrophes!")),
+        () -> assertTrue(
+            exception.getMessage().contains("Title contains invalid symbols: |/\\\\#%=+*_><]"))
+    );
 
   }
 
