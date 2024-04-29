@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 import org.example.exception.ConsoleValidationException;
 
 public class ValidatorUtil {
-  private static final String REG_EXP_TITLE_VALIDATION= "[|/\\#%=+*_><]";
+  private static final String REG_EXP_TITLE_VALIDATION= "[|/#%=+*_><\\\\]";
   private static final String REG_EXP_NAME_VALIDATION= "[^\\w' -]";
   private static final Pattern TITLE_PATTERN = Pattern.compile(REG_EXP_TITLE_VALIDATION);
   private static final Pattern NAME_PATTERN = Pattern.compile(REG_EXP_NAME_VALIDATION);
@@ -15,7 +15,7 @@ public class ValidatorUtil {
   }
 
   public static boolean invalidTitle(String title){
-    return !TITLE_PATTERN.matcher(title).find();
+    return TITLE_PATTERN.matcher(title).find();
   }
 
   public static boolean inRange(int current, int min, int max){
@@ -26,8 +26,8 @@ public class ValidatorUtil {
     StringBuilder message = new StringBuilder();
     if (inputContainsSingleSlash(input)){
       String[] titleAndAuthor = input.split("/");
-      validateTitle(titleAndAuthor[0], message);
-      validateNameOrAuthor(titleAndAuthor[1], "Author", message);
+      validateTitle(titleAndAuthor[0].strip(), message);
+      validateNameOrAuthor(titleAndAuthor[1].strip(), "Author", message);
     } else {
       message.append("\nLine should contain singe dash");
       validateTitle(input, message);
