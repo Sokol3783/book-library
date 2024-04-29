@@ -1,12 +1,12 @@
 package org.example.dao;
 
-import static org.example.util.Util.getTestReaders;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
 import org.example.entity.Reader;
-import org.example.util.Util.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,17 +21,15 @@ class ReaderRepositoryTest {
 
   @Test
   void shouldFindById() {
-    saveToRepository();
     Optional<Reader> firstReader = repository.findById(1L);
     Reader reader = firstReader.orElse(new Reader(5120L, "dasd"));
-    assertAll( () -> assertEquals(1L, reader.getId()),
-        () -> assertEquals("Test 1", reader.getName()));
+    assertAll(() -> assertEquals(1L, reader.getId()),
+        () -> assertEquals("Mike Douglas", reader.getName()));
   }
 
 
   @Test
-  void shouldNotFindById(){
-    saveToRepository();
+  void shouldNotFindById() {
     assertAll(() -> assertTrue(repository.findById(5L).isEmpty()),
         () -> assertTrue(repository.findById(250L).isEmpty()),
         () -> assertTrue(repository.findById(1000L).isEmpty()),
@@ -41,34 +39,28 @@ class ReaderRepositoryTest {
 
   @Test
   void shouldFindAllReaders() {
+    List<Reader> afterStartup = repository.findAll();
+    assertEquals(3, afterStartup.size());
+    repository.save(new Reader(1L, "New Reader"));
+    repository.save(new Reader(2L, "Second new"));
     List<Reader> all = repository.findAll();
-    assertTrue(all.isEmpty());
-    saveToRepository();
-    IdGenerator generator = new IdGenerator();
-    List<Reader> testReaders = getTestReaders();
-    testReaders.forEach(s -> s.setId(generator.getNextId()));
-    List<Reader> allAfterSave = repository.findAll();
-    assertAll(() -> assertFalse(allAfterSave.isEmpty(), "After saving test data repository shouldn't be empty"), () ->  assertTrue(allAfterSave.containsAll(testReaders), "After saving repository should contain all test data"),
-        () -> assertEquals(3, allAfterSave.size()));
+    assertAll(() -> assertEquals(5, all.size()),
+        () -> assertTrue(all.stream().anyMatch(s -> s.getId() == 4L)),
+        () -> assertTrue(all.stream().anyMatch(s -> s.getId() == 5L)));
   }
 
   @Test
-  void shouldSaveReaders() {
-    Reader save = repository.save(new Reader(0, "name"));
-    Reader save1 = repository.save(new Reader(0, "name2" ));
-    Reader save2 = repository.save(new Reader(0,"name3"));
-
-    assertAll(() -> assertEquals(1L,save.getId()),
+  void shouldHaveThreeReadersOnStartup() {
+    List<Reader> afterStart = repository.findAll();
+    Reader save = afterStart.get(0);
+    Reader save1 = afterStart.get(1);
+    Reader save2 = afterStart.get(2);
+    assertAll(() -> assertEquals(1L, save.getId()),
         () -> assertEquals(2L, save1.getId()),
         () -> assertEquals(3L, save2.getId()),
-        () -> assertEquals("name", save.getName()),
-        () -> assertEquals("name2", save1.getName()),
-        () -> assertEquals("name3", save2.getName()));
+        () -> assertEquals("Mike Douglas", save.getName()),
+        () -> assertEquals("Fedor Trybeckoi", save1.getName()),
+        () -> assertEquals("Ivan Mazepa", save2.getName()));
   }
 
-  private void saveToRepository() {
-    for(Reader reader : getTestReaders()) {
-      repository.save(reader);
-    }
-  }
 }

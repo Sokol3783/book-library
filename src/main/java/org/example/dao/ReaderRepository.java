@@ -10,7 +10,7 @@ import org.example.entity.Reader;
 
 public class ReaderRepository {
 
-  private static final AtomicLong ID_GENERATOR = new AtomicLong(0);
+  private final AtomicLong ID_GENERATOR = new AtomicLong(0);
   private final Set<Reader> readers= new TreeSet<>(Comparator.comparingLong(Reader::getId));
 
   public ReaderRepository() {
