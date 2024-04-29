@@ -30,8 +30,7 @@ public class ReaderService {
   }
 
   public Optional<Reader> findById(String input) {
-    input = input.strip();
-    validateInputOfId(input);
+    validateInputOfId(input.strip());
     return repository.findById(Long.parseLong(input));
   }
 

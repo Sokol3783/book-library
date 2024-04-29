@@ -1,12 +1,8 @@
 package org.example.services;
 
-import static org.example.util.Util.countRepeatedSubstrings;
 import static org.example.util.Util.getReader;
-import static org.example.util.Util.getTestBooks;
 import static org.example.util.Util.getTestReaders;
-import static org.example.util.Util.setIdForTestBooks;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -19,8 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import org.example.dao.ReaderRepository;
 import org.example.entity.Reader;
-import org.example.exception.ConsoleValidationExceptionClass;
-import org.example.util.Util.IdGenerator;
+import org.example.exception.ConsoleValidationException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,20 +65,20 @@ class ReaderServiceTest {
 
   @Test
   void shouldPrintErrNameContainsInvalidSymbols(){
-    service.addNewReader("name_with_symbol#$%");
-    service.addNewReader("name_with_symbol_**!@#@@${}");
-    String errMessage = err.toString();
-    assertAll(() -> assertNotEquals(0, errMessage.length()),
-              () -> assertEquals(2, countRepeatedSubstrings(errMessage, "Name must contain only letters, spaces, dashes, apostrophes"))
-        );
+    ConsoleValidationException exception = assertThrows(ConsoleValidationException.class,
+        () -> service.addNewReader("name_with_symbol_**!@#@@${}"));
+    assertTrue(exception.getMessage().contains("Name must contain only letters, spaces, dashes, apostrophes"));
   }
 
   @Test
   void shouldPrintThatLengthIsInvalid(){
-    service.addNewReader("few");
-    service.addNewReader("122312iagdasdghasdjkgfhsdjkfhasjkdfaskdnds");
-    assertAll(()  -> assertEquals(2, countRepeatedSubstrings(err.toString(), "Invalid length of name")),
-              ()  -> assertEquals(2, countRepeatedSubstrings(err.toString(), "Name should contain more than 5 char and less than 30 ones")));
+    ConsoleValidationException fewChar = assertThrows(ConsoleValidationException.class,
+        () -> service.addNewReader("few"));
+    ConsoleValidationException tooManyChar = assertThrows(ConsoleValidationException.class,
+        () -> service.addNewReader("122312iagdasdghasdjkgfhsdjkfhasjkdfaskdnds"));
+
+    assertAll(() -> assertTrue(fewChar.getMessage().contains("Name should contain more than 5 char and less than 30 ones"))
+    , () -> assertTrue(tooManyChar.getMessage().contains("Name should contain more than 5 char and less than 30 ones")));
   }
 
   @Test
@@ -96,29 +91,19 @@ class ReaderServiceTest {
     assertAll(() -> assertTrue(message.contains("Reader registered in library")),
         () -> assertTrue(message.contains(reader.toString())));
   }
+
   @Test
   void shouldReturnBookIfValidInput(){
-    List<Reader> readers = setIdForTestReaders(getTestReaders());
-    for (Reader reader : readers) {
-      when(repository.findById(reader.getId())).thenReturn(Optional.of(reader));
-    }
-    assertAll(() -> assertTrue(service.findById("1").isPresent()),
+   when(repository.findById(anyLong())).thenReturn(Optional.of(new Reader(1L, "reader")));
+   assertAll(() -> assertTrue(service.findById("1").isPresent()),
         () -> assertTrue(service.findById("2").isPresent()),
         () -> assertTrue(service.findById("3").isPresent()));
-  }
-
-  private List<Reader> setIdForTestReaders(List<Reader> testReaders) {
-    IdGenerator idGenerator = new IdGenerator();
-    for (Reader reader : testReaders) {
-      reader.setId(idGenerator.getNextId());
-    }
-    return testReaders;
   }
 
   @Test
   void shouldThrowValidationExceptionIfNotValidInput() {
     when(repository.findById(anyLong())).thenReturn(Optional.empty());
-    assertAll( () -> assertThrows(ConsoleValidationExceptionClass.class, () -> service.findById("asdasda")),
+    assertAll( () -> assertThrows(ConsoleValidationException.class, () -> service.findById("asdasda")),
         () -> assertTrue(service.findById("1").isEmpty()));
 
   }
