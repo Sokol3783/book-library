@@ -77,6 +77,8 @@ class RegistryServiceTest {
 
   @Test
   void shouldPrintThatReaderCantBorrowBookIfItBorrowed() throws RegistryRepositoryException {
+    when(readerService.findById(anyString())).thenReturn(Optional.of(getReader()));
+    when(bookService.findById(anyString())).thenReturn(Optional.of(getBook()));
     when(repository.borrowBook(any(), any())).thenThrow(
         new RegistryRepositoryException("Book is already borrowed! You can't borrow it"));
 
@@ -90,8 +92,8 @@ class RegistryServiceTest {
     when(repository.borrowBook(any(), any())).thenReturn(true);
     when(bookService.findById(anyString())).thenReturn(Optional.of(book));
     when(readerService.findById(anyString())).thenReturn(Optional.of(reader));
-    String message = output.toString();
     service.borrowBook("1 / 1");
+    String message = output.toString();
     assertAll(
         () -> assertTrue(message.contains(reader.getName())),
         () -> assertTrue(message.contains(book.getName())),
@@ -126,11 +128,12 @@ class RegistryServiceTest {
   }
 
   @Test
-  void shouldPrintThtNobody() {
+  void shouldPrintThatNobodyBorrowThisBook() {
+    when(bookService.findById("1")).thenReturn(Optional.of(getBook()));
     when(repository.getReaderOfBook(getBook())).thenReturn(Optional.empty());
-    service.printCurrentReaderOfBook(" 1");
+    service.printCurrentReaderOfBook("1");
     String message = output.toString();
-    assertTrue(message.contains("Nobody reads book!"));
+    assertTrue(message.contains("Nobody reads this book"));
   }
 
   @Test
@@ -138,6 +141,7 @@ class RegistryServiceTest {
     Book book = getBook();
     when(repository.returnBook(any())).thenReturn(true);
     when(bookService.findById(any())).thenReturn(Optional.of(book));
+    service.returnBook("1");
     String message = output.toString();
     assertAll(
         () -> assertTrue(message.contains(book.getName())),
@@ -153,7 +157,7 @@ class RegistryServiceTest {
     when(bookService.findById(anyString())).thenReturn(Optional.of(book));
     RegistryRepositoryException exception = assertThrows(
         RegistryRepositoryException.class, () -> service.returnBook("1"));
-   assertTrue(exception.getMessage().contains(message));
+    assertTrue(exception.getMessage().contains(message));
   }
 
 }

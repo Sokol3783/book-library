@@ -62,6 +62,7 @@ public class RegistryService {
   public void returnBook(String input) {
     Book book = bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
     repository.returnBook(book);
+    System.out.println("Book " + book.getName() + " is returned");
   }
 
   public void printBorrowedBooksByReader(String input){
