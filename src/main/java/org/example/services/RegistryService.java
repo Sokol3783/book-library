@@ -37,8 +37,8 @@ public class RegistryService {
       throw new RuntimeException(message.toString());
     }
     
-     repository.borrowBook(book, reader);
-     System.out.println(reader.getName() + "borrow book " + book.getName());
+    repository.borrowBook(book, reader);
+    System.out.println(reader.getName() + "borrow book " + book.getName());
 }
 
   private Reader findReaderOrGetExceptionMessage(String input, StringBuilder message) {

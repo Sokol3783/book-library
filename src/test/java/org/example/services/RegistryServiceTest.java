@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
@@ -79,9 +81,7 @@ class RegistryServiceTest {
   void shouldPrintThatReaderCantBorrowBookIfItBorrowed() throws RegistryRepositoryException {
     when(readerService.findById(anyString())).thenReturn(Optional.of(getReader()));
     when(bookService.findById(anyString())).thenReturn(Optional.of(getBook()));
-    when(repository.borrowBook(any(), any())).thenThrow(
-        new RegistryRepositoryException("Book is already borrowed! You can't borrow it"));
-
+    doThrow(new RegistryRepositoryException("Book is already borrowed! You can't borrow it")).when(repository).borrowBook(any(), any());
     assertThrows(RegistryRepositoryException.class, () -> service.borrowBook("1 / 1"));
   }
 
@@ -89,7 +89,7 @@ class RegistryServiceTest {
   void shouldPrintThatReaderBorrowBookSuccessful() throws RegistryRepositoryException {
     Reader reader = getReader();
     Book book = getBook();
-    when(repository.borrowBook(any(), any())).thenReturn(true);
+    doNothing().when(repository).borrowBook(any(),any());
     when(bookService.findById(anyString())).thenReturn(Optional.of(book));
     when(readerService.findById(anyString())).thenReturn(Optional.of(reader));
     service.borrowBook("1 / 1");
@@ -139,7 +139,7 @@ class RegistryServiceTest {
   @Test
   void shouldPrintThatBookReturned() throws RegistryRepositoryException {
     Book book = getBook();
-    when(repository.returnBook(any())).thenReturn(true);
+    doNothing().when(repository).returnBook(any());
     when(bookService.findById(any())).thenReturn(Optional.of(book));
     service.returnBook("1");
     String message = output.toString();
@@ -153,7 +153,7 @@ class RegistryServiceTest {
   void shouldPrintThatAnybodyDoesNotBorrowAnyBooks() throws RegistryRepositoryException {
     String message = "Anybody doesn't borrow this book!";
     Book book = getBook();
-    when(repository.returnBook(book)).thenThrow(new RegistryRepositoryException(message));
+    doThrow(new RegistryRepositoryException(message)).when(repository).returnBook(book);
     when(bookService.findById(anyString())).thenReturn(Optional.of(book));
     RegistryRepositoryException exception = assertThrows(
         RegistryRepositoryException.class, () -> service.returnBook("1"));

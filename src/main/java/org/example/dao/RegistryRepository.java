@@ -20,7 +20,7 @@ public class RegistryRepository {
     map = new HashMap<>();
   }
 
-  public boolean borrowBook(Book book, Reader reader) {
+  public void borrowBook(Book book, Reader reader) {
     if (isBorrowedBook(book)) throw new RegistryRepositoryException("Book is already borrowed! You can't borrow it");
 
     if (!map.computeIfAbsent(reader, k -> new HashSet<>()).add(book)) {
@@ -29,17 +29,16 @@ public class RegistryRepository {
         return v;
       });
     }
-    return true;
   }
 
   private boolean isBorrowedBook(Book book) {
     return map.entrySet().stream().anyMatch(s -> s.getValue().contains(book));
   }
 
-  public boolean returnBook(Book book) throws RegistryRepositoryException {
-    return map.values().stream().filter(s -> s.contains(book))
-        .map(s -> s.remove(book)).findAny().
-        orElseThrow(() -> new RegistryRepositoryException("This book anybody doesn't borrow!"));
+  public void returnBook(Book book) {
+    Optional<Boolean> isReturn = map.values().stream().filter(s -> s.contains(book))
+        .map(s -> s.remove(book)).findAny();
+    isReturn.orElseThrow(() -> new RegistryRepositoryException("This book anybody doesn't borrow!"));
   }
 
   public Optional<Reader> getReaderOfBook(Book book){
