@@ -41,12 +41,11 @@ public class RegistryService {
      System.out.println(reader.getName() + "borrow book " + book.getName());
 }
 
-  public void returnBook(Optional<Book> book) {
-    if (isPrintWarningEmptyBook(book)) return;
+  private Reader findReaderOrGetExceptionMessage(String input, StringBuilder message) {
     try {
       return readerService.findById(input).orElseThrow(() -> new RuntimeException("Reader not found"));
     } catch (Exception e){
-      message.append("\n").append(e);
+      message.append("\n").append(e.getMessage());
       return null;
     }
   }
@@ -75,7 +74,7 @@ public class RegistryService {
   public void printCurrentReaderOfBook(String input){
     Book book = bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
     Optional<Reader> readerOfBook = repository.getReaderOfBook(book);
-    readerOfBook.ifPresentOrElse(System.out::println, () -> System.out.println("Nobody reads this book"));
+    readerOfBook.ifPresentOrElse((s -> System.out.println("Book " + book.getName() + " read " + s.getName())), () -> System.out.println("Nobody reads this book"));
  }
 
 }
