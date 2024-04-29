@@ -1,12 +1,11 @@
 package org.example.dao;
 
-import static org.example.util.Util.getTestBooks;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import java.util.Optional;
 import org.example.entity.Book;
-import org.example.util.Util.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,18 +20,19 @@ class BookRepositoryTest {
 
   @Test
   void shouldFindById() {
-    saveToRepository();
-    Optional<Book> firstBook = repository.findById(1L);
-    Book book = firstBook.orElse(new Book(5120L, "dasd", "DASDAS"));
-    assertAll( () -> assertEquals(1L, book.getId()),
-        () -> assertEquals("Title 1", book.getName()),
-        () -> assertEquals("Test 1", book.getAuthor()));
+    Book bookID_1 = repository.findById(1L).get();
+    Book bookID_3 = repository.findById(3L).get();
+    assertAll(() -> assertEquals(1L, bookID_1.getId()),
+        () -> assertEquals("The Dark Tower", bookID_1.getName()),
+        () -> assertEquals("Steven King", bookID_1.getAuthor()),
+        () -> assertEquals(3L, bookID_3.getId()),
+        () -> assertEquals("A Game of Thrones", bookID_3.getName()),
+        () -> assertEquals("George Martin", bookID_3.getAuthor()));
   }
 
 
   @Test
-  void shouldNotFindById(){
-    saveToRepository();
+  void shouldNotFindById() {
     assertAll(() -> assertTrue(repository.findById(5L).isEmpty()),
         () -> assertTrue(repository.findById(250L).isEmpty()),
         () -> assertTrue(repository.findById(1000L).isEmpty()),
@@ -42,38 +42,34 @@ class BookRepositoryTest {
 
   @Test
   void shouldFindAllBooks() {
-    List<Book> all = repository.findAll();
-    assertTrue(all.isEmpty());
-    saveToRepository();
-    IdGenerator generator = new IdGenerator();
-    List<Book> testBooks = getTestBooks();
-    testBooks.forEach(s -> s.setId(generator.getNextId()));
-    List<Book> allAfterSave = repository.findAll();
-    assertAll(() -> assertFalse(allAfterSave.isEmpty(), "After saving test data repository shouldn't be empty"), () ->  assertTrue(allAfterSave.containsAll(testBooks), "After saving repository should contain all test data"),
-              () -> assertEquals(3, allAfterSave.size()));
+    List<Book> allOnStartup = repository.findAll();
+    assertEquals(3, allOnStartup.size());
+    repository.save(new Book(1L, "Book", "Book"));
+    repository.save(new Book(1L, "Book2", "Book4"));
+
+    List<Book> allAfterChanges = repository.findAll();
+    assertAll(() -> assertEquals(5, allAfterChanges.size()),
+        () -> assertTrue(allAfterChanges.stream().anyMatch( s ->s.getId() == 4L)),
+        () -> assertTrue(allAfterChanges.stream().anyMatch( s ->s.getId() == 5L)));
+
   }
 
   @Test
-  void shouldSaveBook() {
-    Book save = repository.save(new Book(0, "title", "name"));
-    Book save1 = repository.save(new Book(0, "title2", "name2" ));
-    Book save2 = repository.save(new Book(0,"title4","name"));
+  void shouldHaveThreeBooksOnStartup() {
+    List<Book> afterStartup = repository.findAll();
+    Book save = afterStartup.get(0);
+    Book save1 = afterStartup.get(1);
+    Book save2 = afterStartup.get(2);
 
-    assertAll(() -> assertEquals(1L,save.getId()),
+    assertAll(() -> assertEquals(1L, save.getId()),
         () -> assertEquals(2L, save1.getId()),
         () -> assertEquals(3L, save2.getId()),
-        () -> assertEquals("name", save.getAuthor()),
-        () -> assertEquals("name2", save1.getAuthor()),
-        () -> assertEquals("name", save2.getAuthor()),
-        () -> assertEquals("title", save.getName()),
-        () -> assertEquals("title2", save1.getName()),
-        () -> assertEquals("title4", save2.getName()));
-  }
-
-  private void saveToRepository() {
-    for(Book book : getTestBooks()) {
-     repository.save(book);
-    }
+        () -> assertEquals("Steven King", save.getAuthor()),
+        () -> assertEquals("Patric Rotfuss", save1.getAuthor()),
+        () -> assertEquals("George Martin", save2.getAuthor()),
+        () -> assertEquals("The Dark Tower", save.getName()),
+        () -> assertEquals("The name of the Wind", save1.getName()),
+        () -> assertEquals("A Game of Thrones", save2.getName()));
   }
 
 }
