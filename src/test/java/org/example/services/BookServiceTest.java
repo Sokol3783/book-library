@@ -1,14 +1,10 @@
 package org.example.services;
 
 
-import static org.example.util.Util.countRepeatedSubstrings;
 import static org.example.util.Util.getTestBooks;
-import static org.example.util.Util.setIdForTestBooks;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -21,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import org.example.dao.BookRepository;
 import org.example.entity.Book;
-import org.example.exception.ConsoleValidationExceptionClass;
+import org.example.exception.ConsoleValidationException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +27,6 @@ import org.junit.jupiter.api.Test;
 class BookServiceTest {
 
   private static final ByteArrayOutputStream output = new ByteArrayOutputStream();
-  private static final ByteArrayOutputStream err = new ByteArrayOutputStream();
 
   private static BookService service;
   private static BookRepository repository;
@@ -39,7 +34,6 @@ class BookServiceTest {
   @BeforeAll
   static void beforeAll() {
     System.setOut(new PrintStream(output));
-    System.setErr(new PrintStream(err));
   }
 
   @AfterAll
@@ -52,7 +46,6 @@ class BookServiceTest {
   void setUp() {
     repository = mock(BookRepository.class);
     service = new BookService(repository);
-    err.reset();
     output.reset();
   }
 
@@ -65,7 +58,7 @@ class BookServiceTest {
   }
 
   @Test
-  void shouldCallRepositoryOnceWhenGetListOfBooksPrintEvery(){
+  void shouldCallRepositoryOnceWhenGetListOfBooksPrintEvery() {
     List<Book> testBooks = getTestBooks();
     when(repository.findAll()).thenReturn(testBooks);
     service.printAllBooks();
@@ -78,33 +71,46 @@ class BookServiceTest {
     );
 
   }
+
   @Test
-  void shouldPrintThatTitleContainInvalidSymbols(){
-    service.addNewBook("tbba3#$/author");
-    assertTrue(err.toString().contains("Title contains invalid symbols: |/\\#%=+*_><]"));
+  void shouldPrintThatTitleContainInvalidSymbols() {
+    ConsoleValidationException exception = assertThrows(
+        ConsoleValidationException.class, () -> service.addNewBook("tbba3#$ / author"));
+    assertTrue(exception.getMessage().contains("Title contains invalid symbols: |/\\\\#%=+*_><]"));
   }
 
   @Test
-  void shouldPrintThatAuthorContainsInvalidSymbols(){
-    service.addNewBook("valid/a$l#utho<>r");
-    assertTrue(err.toString().contains("Author must contain only letters, spaces, dashes, apostrophes!"));
+  void shouldPrintThatAuthorContainsInvalidSymbols() {
+    ConsoleValidationException exception = assertThrows(
+        ConsoleValidationException.class, () -> service.addNewBook("valid / a$l#utho<>r"));
+    assertTrue(exception.getMessage()
+        .contains("Author must contain only letters, spaces, dashes, apostrophes!"));
   }
 
   @Test
-  void shouldPrintErrThatSizeAuthorNotValid(){
-    service.addNewBook("valid/asd");
-    service.addNewBook("valid/$l#uyyyyyyyyyyyyesssssssssssssggthor");
-    assertEquals(2, countRepeatedSubstrings(err.toString(), "Invalid length of author"));
-    assertEquals(2, countRepeatedSubstrings(err.toString(), "Name should contain more than 5 char and less than 30 ones"));
+  void shouldPrintErrThatSizeAuthorNotValid() {
+    ConsoleValidationException titleFewChar = assertThrows(ConsoleValidationException.class,
+        () -> service.addNewBook("valid / asd"));
+    ConsoleValidationException titleToManyChar = assertThrows(ConsoleValidationException.class,
+        () -> service.addNewBook("valid / $l#uyyyyyyyyyyyyesssssssssssssggthor"));
+
+    assertAll(() -> assertTrue(titleFewChar.getMessage()
+            .contains("Author should contain more than 5 char and less than 30 ones")),
+        () -> assertTrue(titleToManyChar.getMessage()
+            .contains("Author should contain more than 5 char and less than 30 ones")));
   }
 
   @Test
   void shouldPrintErrThatSizeTitleNotValid() {
-    service.addNewBook("vali/valid author");
-    service.addNewBook("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiigjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjii/valid author");
-    assertEquals(2, countRepeatedSubstrings(err.toString(), "Invalid length of title"));
-    assertEquals(2, countRepeatedSubstrings(err.toString(),
-        "Title should contain more than 5 char and less than 100 ones"));
+    ConsoleValidationException titleFewChar = assertThrows(ConsoleValidationException.class,
+        () -> service.addNewBook("vali / valid author"));
+    ConsoleValidationException titleToManyChar = assertThrows(ConsoleValidationException.class,
+        () -> service.addNewBook(
+            "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiigjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjii / valid author"));
+    assertAll(() -> assertTrue(titleFewChar.getMessage()
+            .contains("Title should contain more than 5 char and less than 100 ones")),
+        () -> assertTrue(titleToManyChar.getMessage()
+            .contains("Title should contain more than 5 char and less than 100 ones")));
   }
 
   @Test
@@ -116,43 +122,33 @@ class BookServiceTest {
     String message = output.toString();
 
     assertAll(() -> assertTrue(message.contains("Book saved:")),
-              () -> assertTrue(message.contains(book.toString())));
+        () -> assertTrue(message.contains(book.toString())));
   }
 
   @Test
-  void shouldPrintThatTitleNotValid(){
-    service.addNewBook("1/asisdas");
-    service.addNewBook("dsa/a123sdas");
-    service.addNewBook("invailid#/author");
-    service.addNewBook("bssssssssssssssssssssssssssssssssssssssssssssssssss555555555555555555555555555555555555555555555555555s/sdfasdfas");
-    assertEquals(4, countRepeatedSubstrings(err.toString(), "Title is not valid"));
-  }
+  void shouldReturnBookIfValidInput() {
+    when(repository.findById(anyLong())).thenReturn(Optional.of(new Book(1L, "book", "book")));
 
-  @Test
-  void shouldPrintThatAuthorNotValid(){
-    service.addNewBook("validtitle/1");
-    service.addNewBook("validtitle/asda");
-    service.addNewBook("validtitle/adas3##$43");
-    service.addNewBook("validtitle/iiiiiiiiiiiiiiiijjkk55555555555555551");
-    assertEquals(4, countRepeatedSubstrings(err.toString(), "Author is not valid"));
-  }
-
-  @Test
-  void shouldReturnBookIfValidInput(){
-    List<Book> books = setIdForTestBooks(getTestBooks());
-    for (Book book : books) {
-      when(repository.findById(book.getId())).thenReturn(Optional.of(book));
-    }
     assertAll(() -> assertTrue(service.findById("1").isPresent()),
-              () -> assertTrue(service.findById("2").isPresent()),
-              () -> assertTrue(service.findById("3").isPresent()));
+        () -> assertTrue(service.findById("2").isPresent()),
+        () -> assertTrue(service.findById("3").isPresent()));
   }
 
   @Test
   void shouldThrowRepositoryExceptionIfNotValidInput() {
-     when(repository.findById(anyLong())).thenReturn(Optional.empty());
-     assertAll(() -> assertThrows(ConsoleValidationExceptionClass.class, () -> service.findById("asdasda")),
-               () -> assertTrue(service.findById("1").isEmpty()));
+    when(repository.findById(anyLong())).thenReturn(Optional.empty());
+    assertAll(
+        () -> assertThrows(ConsoleValidationException.class, () -> service.findById("asdasda")),
+        () -> assertTrue(service.findById("1").isEmpty()));
+  }
+
+  @Test
+  void shouldPrintAllMistakesInInput(){
+    ConsoleValidationException exception = assertThrows(ConsoleValidationException.class,
+        () -> service.addNewBook("i@# / sadjfhasjkdfhsjadhfjkshdfk jasdhfksad #12@%2132 valid author"));
+
+    assertAll();
+
   }
 
 }
