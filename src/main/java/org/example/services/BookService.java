@@ -3,6 +3,7 @@ package org.example.services;
 import static org.example.validator.ValidatorUtil.validateInputOfId;
 import static org.example.validator.ValidatorUtil.validateInputOfNewBook;
 
+import java.util.List;
 import java.util.Optional;
 import org.example.dao.BookRepository;
 import org.example.entity.Book;
@@ -15,16 +16,14 @@ public class BookService {
     this.repository = repository;
   }
 
-  public void printAllBooks() {
-    System.out.println("\n Books in library:");
-    repository.findAll().forEach(System.out::println);
+  public List<Book> findAllBooks() {
+    return repository.findAll();
   }
 
-  public void addNewBook(String input) {
+  public Book addNewBook(String input) {
     validateInputOfNewBook(input.strip());
     String[] titleAndAuthor= input.split("/");
-    Book saved = repository.save(new Book(0l, titleAndAuthor[0], titleAndAuthor[1]));
-    System.out.println(saved.toString());
+    return repository.save(new Book(0l, titleAndAuthor[0], titleAndAuthor[1]));
   }
 
   public Optional<Book> findById(String input) {

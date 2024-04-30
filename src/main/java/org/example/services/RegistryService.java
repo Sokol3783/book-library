@@ -19,7 +19,7 @@ public class RegistryService {
       this.readerService = readerService;
   }
 
-  public void borrowBook(String input) {
+  public Book borrowBook(String input) {
     StringBuilder message = new StringBuilder();
     Book book; Reader reader;
 
@@ -38,7 +38,7 @@ public class RegistryService {
     }
     
     repository.borrowBook(book, reader);
-    System.out.println(reader.getName() + "borrow book " + book.getName());
+    return book;
 }
 
   private Reader findReaderOrGetExceptionMessage(String input, StringBuilder message) {
@@ -59,23 +59,21 @@ public class RegistryService {
     }
   }
 
-  public void returnBook(String input) {
+  public Book returnBook(String input) {
     Book book = bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
     repository.returnBook(book);
-    System.out.println("Book " + book.getName() + " is returned");
+    return book;
   }
 
-  public void printBorrowedBooksByReader(String input){
+  public List<Book> findBorrowedBooksByReader(String input){
     Reader reader = readerService.findById(input.strip()).orElseThrow(() -> new RuntimeException("Reader nod found!"));
-    List<Book> borrowedBooks = repository.getListBorrowedBooksOfReader(reader);
-    System.out.println("Borrowed books:");
-    borrowedBooks.forEach(System.out::println);
+    return repository.getListBorrowedBooksOfReader(reader);
   }
 
-  public void printCurrentReaderOfBook(String input){
+  public Reader findCurrentReaderOfBook(String input){
     Book book = bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
     Optional<Reader> readerOfBook = repository.getReaderOfBook(book);
-    readerOfBook.ifPresentOrElse((s -> System.out.println("Book " + book.getName() + " read " + s.getName())), () -> System.out.println("Nobody reads this book"));
+    return readerOfBook.orElseThrow(() -> new RuntimeException("Nobody reads this book"));
  }
 
 }

@@ -2,6 +2,7 @@ package org.example.services;
 
 import static org.example.validator.ValidatorUtil.validateInputOfId;
 
+import java.util.List;
 import java.util.Optional;
 import org.example.dao.ReaderRepository;
 import org.example.entity.Reader;
@@ -15,18 +16,13 @@ public class ReaderService {
     this.repository = repository;
   }
 
-  public void printAllReaders() {
-      System.out.println("Readers registered in library:");
-      repository.findAll().forEach(System.out::println);
+  public List<Reader> findAllReaders() {
+      return repository.findAll();
   }
 
-  public void addNewReader(String input){
-
+  public Reader addNewReader(String input){
     ValidatorUtil.validateInputOfNewReader(input);
-    Reader save = repository.save(new Reader(0l, input));
-    System.out.println("Reader is registered in library:");
-    System.out.println(save.toString());
-
+    return repository.save(new Reader(0l, input));
   }
 
   public Optional<Reader> findById(String input) {
