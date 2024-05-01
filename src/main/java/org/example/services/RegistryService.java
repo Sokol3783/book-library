@@ -22,17 +22,18 @@ public class RegistryService {
   public Book borrowBook(String input) {
     StringBuilder message = new StringBuilder();
     Book book; Reader reader;
+    String[] bookAndReaderId;
 
     if (ValidatorUtil.inputContainsSingleSlash(input)) {
-      String[] bookAndReaderId = input.split("/");
-      book = findBookOrGetErrorMessages(bookAndReaderId[0].strip(), message);
-      reader = findReaderOrGetExceptionMessage(bookAndReaderId[1].strip(), message);
-    } else {
+       bookAndReaderId = input.split("/");
+   } else {
       message.append("\nInput should contain single dash!");
-      book = findBookOrGetErrorMessages(input.strip(), message);
-      reader = findReaderOrGetExceptionMessage("", message);
-    }
-    
+      bookAndReaderId = new String[]{input, "#"};
+   }
+
+    book = findBookOrGetErrorMessages(bookAndReaderId[0].strip(), message);
+    reader = findReaderOrGetExceptionMessage(bookAndReaderId[1].strip(), message);
+
     if (!message.isEmpty()) {
       throw new RuntimeException(message.toString());
     }
