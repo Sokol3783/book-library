@@ -1,6 +1,9 @@
 package org.example.ui;
 
+import java.util.List;
 import java.util.Scanner;
+import org.example.entity.Book;
+import org.example.entity.Reader;
 import org.example.services.BookService;
 import org.example.services.ReaderService;
 import org.example.services.RegistryService;
@@ -28,17 +31,14 @@ public class ConsoleMenu {
     System.out.println(WELCOME_MESSAGE);
     while (!terminated) {
       try {
-        handleOption(messageThanReadInput(getTextMenu()));
+        System.out.println(getTextMenu());
+        handleOption(scanner.nextLine());
       } catch (RuntimeException e) {
         System.err.println(e.getMessage());
       }
     }
   }
 
-  private String messageThanReadInput(String message) {
-    System.out.println(message);
-    return scanner.nextLine().toLowerCase();
-  }
 
   public boolean isTerminated() {
     return terminated;
@@ -46,8 +46,8 @@ public class ConsoleMenu {
 
   private void handleOption(String option) throws RuntimeException {
     switch (option) {
-      case "1" -> books.printAllBooks();
-      case "2" -> readers.printAllReaders();
+      case "1" -> printAllBooks();
+      case "2" -> printAllReaders();
       case "3" -> addNewReader();
       case "4" -> addNewBook();
       case "5" -> borrowBook();
@@ -59,34 +59,51 @@ public class ConsoleMenu {
     }
   }
 
+  private void printAllReaders() {
+    System.out.println("\nList of readers:");
+    readers.findAllReaders().forEach(System.out::println);
+  }
+
+  private void printAllBooks() {
+    System.out.println("\nList of books:");
+    books.findAllBooks().forEach(System.out::println);
+  }
+
   private void addNewBook() {
-    System.out.println("Please, enter new book name and author separated by “/”. Like this: name / author")
-    books.addNewBook(scanner.nextLine());
+    System.out.println("Please, enter new book name and author separated by “/”. Like this: name / author");
+    Book saved = books.addNewBook(scanner.nextLine());
+    System.out.println(saved);
   }
 
   private void addNewReader() {
     System.out.println("Please enter new reader full name!");
-    readers.addNewReader(scanner.nextLine());
+    Reader reader = readers.addNewReader(scanner.nextLine());
+    System.out.println(reader.toString());
   }
 
   private void borrowBook() {
     System.out.println("Please enter book ID and reader ID. Like this: 15 / 15");
-    registry.borrowBook(scanner.nextLine());
+    Book book= registry.borrowBook(scanner.nextLine());
+    System.out.println("Book " + book.getName() + "borrowed.");
   }
 
   private void returnBook() {
     System.out.println(ENTER_BOOK_ID_MESSAGE);
-    registry.returnBook(scanner.nextLine());
+    Book book = registry.returnBook(scanner.nextLine());
+    System.out.println("Book " + book.getName() + " is returned.");
   }
 
   private void showAllBorrowedByUser() {
     System.out.println(ENTER_READER_ID_MESSAGE);
-    registry.printBorrowedBooksByReader(scanner.nextLine());
+    List<Book> borrowedBooks = registry.findBorrowedBooksByReader(scanner.nextLine());
+    System.out.println("Borrowed books:");
+    borrowedBooks.forEach(System.out::println);
   }
 
   private void showCurrentReaderOfBook() {
     System.out.println(ENTER_BOOK_ID_MESSAGE);
-    registry.printCurrentReaderOfBook(scanner.nextLine());
+    Reader reader = registry.findCurrentReaderOfBook(scanner.nextLine());
+    System.out.println(reader);
   }
 
   private void exit() {

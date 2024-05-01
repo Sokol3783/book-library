@@ -2,19 +2,32 @@ package org.example.ui;
 
 import static java.lang.Thread.sleep;
 import static org.example.util.Util.countRepeatedSubstrings;
+import static org.example.util.Util.getBook;
+import static org.example.util.Util.getReader;
+import static org.example.util.Util.getTestBooks;
 import static org.example.util.Util.inputWithSleep;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.example.entity.Book;
+import org.example.entity.Reader;
+import org.example.exception.ConsoleValidationException;
 import org.example.services.BookService;
 import org.example.services.ReaderService;
 import org.example.services.RegistryService;
@@ -32,9 +45,9 @@ class ConsoleMenuTest {
   private static ExecutorService executor = Executors.newSingleThreadExecutor();
   private static ConsoleMenu menu;
 
-  private ReaderService reader;
-  private RegistryService registry;
-  private BookService books;
+  private ReaderService readerService;
+  private RegistryService registryService;
+  private BookService bookService;
 
   @BeforeAll
   static void setUp() {
@@ -44,9 +57,9 @@ class ConsoleMenuTest {
 
   @BeforeEach
   void terminateThreadExecutor() {
-    reader = mock(ReaderService.class);
-    books = mock(BookService.class);
-    registry = mock(RegistryService.class);
+    readerService = mock(ReaderService.class);
+    bookService = mock(BookService.class);
+    registryService = mock(RegistryService.class);
     executor = Executors.newSingleThreadExecutor();
     System.setErr(err);
   }
@@ -60,87 +73,110 @@ class ConsoleMenuTest {
   }
 
   private void run() {
-    menu = new ConsoleMenu(this.books, this.reader, this.registry);
+    menu = new ConsoleMenu(this.bookService, this.readerService, this.registryService);
     menu.run();
   }
 
   @DisplayName("Should call BookService.printAllBooks after input '1'")
   @Test
   void shouldPrintAllBooksAfterInput_1() throws InterruptedException {
-   doNothing().when(books).findAllBooks();
-   setInputAndRunMenu("1");
-   verify(books, times(1)).findAllBooks();
+    doNothing().when(bookService).findAllBooks();
+    setInputAndRunMenu("1");
+    String header = output.toString();
+    assertAll(() -> verify(bookService, times(1)).findAllBooks(),
+        () -> assertTrue(header.contains("List of books:")));
   }
 
   @DisplayName("Should call ReaderService.printAllReader after input '2'")
   @Test
   void shouldPrintAllReadersAfterInput_2() throws InterruptedException {
-    doNothing().when(reader).findAllReaders();
+    doNothing().when(readerService).findAllReaders();
     setInputAndRunMenu("2");
-    verify(reader, times(1)).findAllReaders();
+    String header = output.toString();
+    assertAll(() -> verify(readerService, times(1)).findAllReaders(),
+        () -> assertTrue(header.contains("List of readers:")));
   }
 
   @DisplayName("Should print message how create new reader and call ReaderService.addNewReader after input '3'")
   @Test
   void shouldPrintMessageHowToDoInputAndCallCreateReaderAfterInput_3() throws InterruptedException {
-    doNothing().when(reader).addNewReader(any());
+    Reader reader = getReader();
+    when(readerService.addNewReader(anyString())).thenReturn(reader);
     setInputAndRunMenu("3", "ASDAS");
     String message = output.toString();
-    assertAll(() -> verify(reader, times(1)).addNewReader(any()),
-              () -> assertTrue(message.contains("Please enter new reader full name!"))
+    assertAll(() -> verify(readerService, times(1)).addNewReader(any()),
+        () -> assertTrue(message.contains("Please enter new reader full name!")),
+        () -> assertTrue(message.contains(reader.toString()))
     );
-
   }
 
   @DisplayName("Read input and save book after input '4'")
   @Test
   void shouldPrintMessageHowToInputAndCallBookServiceAfter_input4() throws InterruptedException {
-    doNothing().when(books).addNewBook(any());
-    setInputAndRunMenu("4", "15");
+    Book book = getBook();
+    when(bookService.addNewBook(anyString())).thenReturn(book);
+    setInputAndRunMenu("4", "15 / 15");
     String message = output.toString();
-    assertAll(() -> verify(books, times(1)).addNewBook(any()),
-              () -> assertTrue(message.contains("Please, enter new book name and author separated by “/”. Like this: name / author"))
+    assertAll(() -> verify(bookService, times(1)).addNewBook(any()),
+        () -> assertTrue(message.contains(
+            "Please, enter new book name and author separated by “/”. Like this: name / author")),
+        () -> assertTrue(message.contains(book.toString()))
     );
   }
 
-  @DisplayName("Borrow book for a specific reader after input '5'" )
+  @DisplayName("Borrow book for a specific reader after input '5'")
   @Test
   void shouldPrintMessageBorrowBookForASpecificReader_5() throws InterruptedException {
-    doNothing().when(registry).borrowBook(any());
+    Book book = getBook();
+    when(registryService.borrowBook(anyString())).thenReturn(book);
     setInputAndRunMenu("5", "13 / 14");
     String message = output.toString();
-    assertAll(() -> verify(registry, times(1)).borrowBook(any()),
-              () -> assertTrue(message.contains("Please enter book ID and reader ID. Like this: 15 / 15"))
+    assertAll(() -> verify(registryService, times(1)).borrowBook(any()),
+        () -> assertTrue(
+            message.contains("Please enter book ID and reader ID. Like this: 15 / 15")),
+        () -> assertTrue(message.contains(book.toString()))
     );
   }
 
   @DisplayName("Should return a book to the library after input '6'")
   @Test
   void shouldCallMethodReturnBookToTheLibraryAfterInput_6() throws InterruptedException {
-    doNothing().when(registry).returnBook(any());
+    Book book = getBook();
+    when(registryService.returnBook(anyString())).thenReturn(book);
     setInputAndRunMenu("6", "15");
     String message = output.toString();
-    assertAll(() -> verify(registry, times(1)).returnBook(any()),
-              () -> assertTrue(message.contains("Please, enter book's ID:")));
+    assertAll(() -> verify(registryService, times(1)).returnBook(any()),
+        () -> assertTrue(message.contains("Please, enter book's ID:")),
+        () -> assertTrue(message.contains(book.toString())));
   }
 
   @DisplayName("List all borrowed books from specific reader after input '7'")
   @Test
   void shouldListAllBorrowedBooksByUserIDAfterInput_7() throws InterruptedException {
-    doNothing().when(registry).findBorrowedBooksByReader(any());
+    List<Book> testBooks = getTestBooks();
+    String firstBook = testBooks.get(0).toString();
+    String secondBook = testBooks.get(1).toString();
+    String thirdBook = testBooks.get(2).toString();
+    when(registryService.findBorrowedBooksByReader(anyString())).thenReturn(getTestBooks());
     setInputAndRunMenu("7", "15");
     String message = output.toString();
-    assertAll(() -> verify(registry, times(1)).findBorrowedBooksByReader(any()),
-              () -> assertTrue(message.contains("Please, enter reader's ID:")));
+    assertAll(() -> verify(registryService, times(1)).findBorrowedBooksByReader(any()),
+        () -> assertTrue(message.contains("Please, enter reader's ID:")),
+        () -> assertTrue(message.contains(firstBook)),
+        () -> assertTrue(message.contains(secondBook)),
+        () -> assertTrue(message.contains(thirdBook))
+    );
   }
 
   @DisplayName("Show current reader of a book with id after input '8' ")
   @Test
   void shouldPrintCurrentReaderWithBookIdAfterInput_8() throws InterruptedException {
-    doNothing().when(registry).findCurrentReaderOfBook(any());
+    Reader reader = getReader();
+    when(registryService.findCurrentReaderOfBook(anyString())).thenReturn(reader);
     setInputAndRunMenu("8", "30");
-    sleep(400);
-    verify(registry, times(1)).findCurrentReaderOfBook(any());
+    String message = output.toString();
+    assertAll(() -> verify(registryService, times(1)).findCurrentReaderOfBook(any()),
+        () -> assertTrue(message.contains(reader.toString())));
   }
 
   @Test
@@ -149,19 +185,24 @@ class ConsoleMenuTest {
     String welcomeMessage = "WELCOME TO THE LIBRARY!";
     setInputAndRunMenu("1", "2", "dasdgdfhjsa", "5", "exit");
     String outputString = output.toString();
-    assertAll( () -> assertTrue(outputString.contains(welcomeMessage)),
-        () -> assertEquals(1,countRepeatedSubstrings(outputString, welcomeMessage)));
+    assertAll(() -> assertTrue(outputString.contains(welcomeMessage)),
+        () -> assertEquals(1, countRepeatedSubstrings(outputString, welcomeMessage)));
   }
 
   @Test
   @DisplayName("Menu shouldn't crash after incorrect input")
   void shouldNotFallDownAfterIncorrectInput() throws InterruptedException {
-    doNothing().when(reader).addNewReader(any());
-    doNothing().when(books).addNewBook(any());
-    doNothing().when(registry).findBorrowedBooksByReader(any());
-    setInputAndRunMenu("200", "3", "asfhasdjf", "4", "dafhdasdjfhasjdf", "7", "dsafhgasjdkfhajskdfjasghdfas");
-    assertAll(() -> assertNotEquals(0,output.size()),
+    when(readerService.addNewReader(anyString())).thenThrow(new ConsoleValidationException("Invalid input reader"));
+    when(bookService.addNewBook(anyString())).thenThrow(new ConsoleValidationException("Invalid input book"));
+    when(registryService.findBorrowedBooksByReader(anyString())).thenThrow(new ConsoleValidationException("Invalid input registry"));
+    String errors = err.toString();
+    setInputAndRunMenu("200", "3", "asfhasdjf", "4", "dafhdasdjfhasjdf", "7",
+        "dsafhgasjdkfhajskdfjasghdfas");
+    assertAll(() -> assertNotEquals(0, output.size()),
         () -> assertFalse(menu.isTerminated()),
+        () -> assertTrue(errors.contains("Invalid input reader")),
+        () -> assertTrue(errors.contains("Invalid input book")),
+        () -> assertTrue(errors.contains("Invalid input registry")),
         () -> assertNotEquals(0, countRepeatedSubstrings(output.toString(), getTextMenu())));
   }
 
@@ -169,7 +210,7 @@ class ConsoleMenuTest {
   @DisplayName("Close menu after input 'exit'")
   void shouldStopWorkingAfterInputExit() throws InterruptedException {
     setInputAndRunMenu("exit", "1", "2");
-    String outputString= output.toString();
+    String outputString = output.toString();
     assertAll(
         () -> assertNotEquals(0, outputString.length()),
         () -> assertTrue(outputString.contains(getTextMenu())),
@@ -215,7 +256,7 @@ class ConsoleMenuTest {
     setInputAndRunMenu("200", "300", "599");
     String errorMessage = errArr.toString();
     assertAll(() -> assertFalse(errorMessage.isEmpty()),
-              () -> assertEquals(3, countRepeatedSubstrings(errorMessage,"Invalid option")));
+        () -> assertEquals(3, countRepeatedSubstrings(errorMessage, "Invalid option")));
   }
 
   private String getTextMenu() {
