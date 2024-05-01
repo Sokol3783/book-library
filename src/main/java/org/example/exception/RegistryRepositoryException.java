@@ -1,7 +1,7 @@
 package org.example.exception;
 
 
-public class RegistryRepositoryException extends Exception {
+public class RegistryRepositoryException extends RuntimeException {
 
   public RegistryRepositoryException() {
   }

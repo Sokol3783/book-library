@@ -56,7 +56,7 @@ public class ValidatorUtil {
     if (invalidTitle(title)) message.append("Title contains invalid symbols: |/\\\\#%=+*_><]");
   }
 
-  private static boolean inputContainsSingleSlash(String input) {
+  public static boolean inputContainsSingleSlash(String input) {
     return input.chars().filter(s -> s == '\\').count() != 1;
   }
 

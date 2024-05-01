@@ -1,8 +1,10 @@
 package org.example.dao;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
@@ -12,13 +14,13 @@ import org.example.exception.RegistryRepositoryException;
 
 public class RegistryRepository {
 
-  private final HashMap<Reader, Set<Book>> map;
+  private final Map<Reader, Set<Book>> map;
 
   public RegistryRepository(){
     map = new HashMap<>();
   }
 
-  public boolean borrowBook(Book book, Reader reader) throws RegistryRepositoryException {
+  public boolean borrowBook(Book book, Reader reader) {
     if (isBorrowedBook(book)) throw new RegistryRepositoryException("Book is already borrowed! You can't borrow it");
 
     if (!map.computeIfAbsent(reader, k -> new HashSet<>()).add(book)) {
@@ -31,15 +33,13 @@ public class RegistryRepository {
   }
 
   private boolean isBorrowedBook(Book book) {
-     return map.entrySet().stream().anyMatch(s -> s.getValue().contains(book));
+    return map.entrySet().stream().anyMatch(s -> s.getValue().contains(book));
   }
 
   public boolean returnBook(Book book) throws RegistryRepositoryException {
-    Optional<Boolean> first = map.values().stream().filter(s -> s.contains(book))
-        .map(s -> s.remove(book)).findFirst();
-return first.orElseThrow(
-            () -> new RegistryRepositoryException("This book anybody doesn't borrow!")
-    );
+    return map.values().stream().filter(s -> s.contains(book))
+        .map(s -> s.remove(book)).findAny().
+        orElseThrow(() -> new RegistryRepositoryException("This book anybody doesn't borrow!"));
   }
 
   public Optional<Reader> getReaderOfBook(Book book){
@@ -47,7 +47,7 @@ return first.orElseThrow(
   }
 
   public List<Book> getListBorrowedBooksOfReader(Reader reader){
-return Optional.ofNullable(map.get(reader))
+    return Optional.ofNullable(map.get(reader))
                    .map(List::copyOf)
                    .orElse(Collections.emptyList());
   }
