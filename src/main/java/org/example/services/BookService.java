@@ -23,7 +23,7 @@ public class BookService {
   public Book addNewBook(String input) {
     validateInputOfNewBook(input.strip());
     String[] titleAndAuthor= input.split("/");
-    return bookRepository.save(new Book(0l, titleAndAuthor[0], titleAndAuthor[1]));
+    return bookRepository.save(new Book(titleAndAuthor[0], titleAndAuthor[1]));
   }
 
   public Optional<Book> findById(String input) {

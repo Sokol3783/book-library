@@ -22,7 +22,7 @@ public class ReaderService {
 
   public Reader addNewReader(String input){
     ValidatorUtil.validateInputOfNewReader(input);
-    return readerRepository.save(new Reader(0l, input));
+    return readerRepository.save(new Reader(input));
   }
 
   public Optional<Reader> findById(String input) {
