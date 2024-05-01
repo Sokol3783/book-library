@@ -2,10 +2,9 @@ package org.example.ui;
 
 import static java.lang.Thread.sleep;
 import static org.example.util.Util.countRepeatedSubstrings;
-import static org.example.util.Util.getBook;
-import static org.example.util.Util.getReader;
+import static org.example.util.Util.getFirstBook;
+import static org.example.util.Util.getFistReader;
 import static org.example.util.Util.getTestBooks;
-import static org.example.util.Util.getTestReaders;
 import static org.example.util.Util.inputWithSleep;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,7 +21,6 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -102,7 +99,7 @@ class ConsoleMenuTest {
   @DisplayName("Should print message how create new reader and call ReaderService.addNewReader after input '3'")
   @Test
   void shouldPrintMessageHowToDoInputAndCallCreateReaderAfterInput_3() throws InterruptedException {
-    Reader reader = getReader();
+    Reader reader = getFistReader();
     when(readerService.addNewReader(anyString())).thenReturn(reader);
     setInputAndRunMenu("3", "ASDAS");
     String message = output.toString();
@@ -115,7 +112,7 @@ class ConsoleMenuTest {
   @DisplayName("Read input and save book after input '4'")
   @Test
   void shouldPrintMessageHowToInputAndCallBookServiceAfter_input4() throws InterruptedException {
-    Book book = getBook();
+    Book book = getFirstBook();
     when(bookService.addNewBook(anyString())).thenReturn(book);
     setInputAndRunMenu("4", "15 / 15");
     String message = output.toString();
@@ -129,7 +126,7 @@ class ConsoleMenuTest {
   @DisplayName("Borrow book for a specific reader after input '5'")
   @Test
   void shouldPrintMessageBorrowBookForASpecificReader_5() throws InterruptedException {
-    Book book = getBook();
+    Book book = getFirstBook();
     when(registryService.borrowBook(anyString())).thenReturn(book);
     setInputAndRunMenu("5", "13 / 14");
     String message = output.toString();
@@ -143,7 +140,7 @@ class ConsoleMenuTest {
   @DisplayName("Should return a book to the library after input '6'")
   @Test
   void shouldCallMethodReturnBookToTheLibraryAfterInput_6() throws InterruptedException {
-    Book book = getBook();
+    Book book = getFirstBook();
     when(registryService.returnBook(anyString())).thenReturn(book);
     setInputAndRunMenu("6", "15");
     String message = output.toString();
@@ -173,7 +170,7 @@ class ConsoleMenuTest {
   @DisplayName("Show current reader of a book with id after input '8' ")
   @Test
   void shouldPrintCurrentReaderWithBookIdAfterInput_8() throws InterruptedException {
-    Reader reader = getReader();
+    Reader reader = getFistReader();
     when(registryService.findCurrentReaderOfBook(anyString())).thenReturn(reader);
     setInputAndRunMenu("8", "30");
     String message = output.toString();

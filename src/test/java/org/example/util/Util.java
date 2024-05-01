@@ -10,15 +10,15 @@ import org.example.entity.Reader;
 public class Util {
 
   public static List<Book> getTestBooks() {
-    return List.of(new Book(0L,"Title 1", "Test 1" ),
-            new Book(0L,"Title 2", "Test 2" ),
-            new Book(0L,"Title 3", "Test 3" ));
+    return List.of(new Book("Title 1", "Test 1" ),
+            new Book("Title 2", "Test 2" ),
+            new Book("Title 3", "Test 3" ));
   }
 
   public static List<Reader> getTestReaders() {
-    return List.of(new Reader(0L,"Test 1" ),
-        new Reader(0L,"Test 2" ),
-        new Reader(0L,"Test 3" ));
+    return List.of(new Reader("Test 1" ),
+        new Reader("Test 2" ),
+        new Reader("Test 3" ));
   }
 
   public static class IdGenerator {
@@ -29,11 +29,11 @@ public class Util {
     }
   }
 
-  public static Reader getReader(){
+  public static Reader getFistReader(){
     return new Reader(1L, "reader");
   }
 
-  public static Book getBook(){
+  public static Book getFirstBook(){
     return new Book(1L, "book", "book");
   }
 

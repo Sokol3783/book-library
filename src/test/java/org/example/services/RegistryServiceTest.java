@@ -1,7 +1,7 @@
 package org.example.services;
 
-import static org.example.util.Util.getBook;
-import static org.example.util.Util.getReader;
+import static org.example.util.Util.getFirstBook;
+import static org.example.util.Util.getFistReader;
 import static org.example.util.Util.getTestBooks;
 import static org.example.util.Util.setIdForTestBooks;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -61,8 +61,8 @@ class RegistryServiceTest {
 
   @Test
   void shouldPrintThatReaderCantBorrowBookIfItBorrowed() throws RegistryRepositoryException {
-    when(readerService.findById(anyString())).thenReturn(Optional.of(getReader()));
-    when(bookService.findById(anyString())).thenReturn(Optional.of(getBook()));
+    when(readerService.findById(anyString())).thenReturn(Optional.of(getFistReader()));
+    when(bookService.findById(anyString())).thenReturn(Optional.of(getFirstBook()));
     doThrow(new RegistryRepositoryException("Book is already borrowed! You can't borrow it")).when(
         registryRepository).borrowBook(any(), any());
     assertThrows(RegistryRepositoryException.class, () -> registryService.borrowBook("1 / 1"));
@@ -70,8 +70,8 @@ class RegistryServiceTest {
 
   @Test
   void shouldPrintThatReaderBorrowBookSuccessful() throws RegistryRepositoryException {
-    Reader reader = getReader();
-    Book book = getBook();
+    Reader reader = getFistReader();
+    Book book = getFirstBook();
     doNothing().when(registryRepository).borrowBook(any(), any());
     when(bookService.findById(anyString())).thenReturn(Optional.of(book));
     when(readerService.findById(anyString())).thenReturn(Optional.of(reader));
@@ -84,7 +84,7 @@ class RegistryServiceTest {
 
   @Test
   void shouldPrintListOfReaderBorrowedBooks() {
-    Reader reader = getReader();
+    Reader reader = getFistReader();
     List<Book> books = setIdForTestBooks(getTestBooks());
 
     when(registryRepository.getListBorrowedBooksOfReader(reader)).thenReturn(books);
@@ -99,18 +99,18 @@ class RegistryServiceTest {
 
   @Test
   void shouldPrintCurrentReaderOfBook() {
-    Book book = getBook();
-    when(registryRepository.getReaderOfBook(any())).thenReturn(Optional.of(getReader()));
+    Book book = getFirstBook();
+    when(registryRepository.getReaderOfBook(any())).thenReturn(Optional.of(getFistReader()));
     when(bookService.findById(anyString())).thenReturn(Optional.of(book));
     Reader reader = registryService.findCurrentReaderOfBook("3");
-    assertAll(() -> assertEquals(reader, getReader()),
+    assertAll(() -> assertEquals(reader, getFistReader()),
         () -> assertEquals("reader", reader.getName()));
   }
 
   @Test
   void shouldPrintThatNobodyBorrowThisBook() {
-    when(bookService.findById("1")).thenReturn(Optional.of(getBook()));
-    when(registryRepository.getReaderOfBook(getBook())).thenReturn(Optional.empty());
+    when(bookService.findById("1")).thenReturn(Optional.of(getFirstBook()));
+    when(registryRepository.getReaderOfBook(getFirstBook())).thenReturn(Optional.empty());
     RuntimeException exception = assertThrows(RuntimeException.class,
         () -> registryService.findCurrentReaderOfBook("1"));
     assertTrue(exception.getMessage().contains("Nobody reads this book"));
@@ -118,7 +118,7 @@ class RegistryServiceTest {
 
   @Test
   void shouldPrintThatBookReturned() throws RegistryRepositoryException {
-    Book book = getBook();
+    Book book = getFirstBook();
     doNothing().when(registryRepository).returnBook(any());
     when(bookService.findById(any())).thenReturn(Optional.of(book));
     Book returnedBook = registryService.returnBook("1");
@@ -131,7 +131,7 @@ class RegistryServiceTest {
   @Test
   void shouldPrintThatAnybodyDoesNotBorrowAnyBooks() throws RegistryRepositoryException {
     String message = "Anybody doesn't borrow this book!";
-    Book book = getBook();
+    Book book = getFirstBook();
     doThrow(new RegistryRepositoryException(message)).when(registryRepository).returnBook(book);
     when(bookService.findById(anyString())).thenReturn(Optional.of(book));
     RegistryRepositoryException exception = assertThrows(

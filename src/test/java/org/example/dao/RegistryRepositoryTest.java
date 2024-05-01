@@ -1,7 +1,7 @@
 package org.example.dao;
 
 
-import static org.example.util.Util.getReader;
+import static org.example.util.Util.getFistReader;
 import static org.example.util.Util.getTestBooks;
 import static org.example.util.Util.setIdForTestBooks;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -60,7 +60,7 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldReturnEmptyListIfReaderDoesNotBorrowBook() {
-    Reader reader = getReader();
+    Reader reader = getFistReader();
     List<Book> emptyList = registryRepository.getListBorrowedBooksOfReader(reader);
     borrowTestThreeBooks(reader);
     List<Book> borrowedBooks = registryRepository.getListBorrowedBooksOfReader(reader);
@@ -72,7 +72,7 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldReturnListOfBorrowedBooksOfReader() {
-    Reader reader = getReader();
+    Reader reader = getFistReader();
     borrowTestThreeBooks(reader);
     List<Book> books = registryRepository.getListBorrowedBooksOfReader(reader);
     assertAll(() -> assertFalse(books.isEmpty()),
@@ -83,7 +83,7 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldReturnListOfTwoBorrowedBooksOfReaderAfterReturningBook() throws RegistryRepositoryException {
-    Reader reader = getReader();
+    Reader reader = getFistReader();
     borrowTestThreeBooks(reader);
     List<Book> testBooks = new ArrayList<>(setIdForTestBooks(getTestBooks()));
     List<Book> books = registryRepository.getListBorrowedBooksOfReader(reader);
@@ -101,7 +101,7 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldReturnReaderWhoBorrowBook() {
-    Reader reader = getReader();
+    Reader reader = getFistReader();
     borrowTestThreeBooks(reader);
     List<Book> books = setIdForTestBooks(getTestBooks());
     Optional<Reader> firstReader = registryRepository.getReaderOfBook(books.get(0));

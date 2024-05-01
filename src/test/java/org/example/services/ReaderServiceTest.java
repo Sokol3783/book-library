@@ -1,6 +1,6 @@
 package org.example.services;
 
-import static org.example.util.Util.getReader;
+import static org.example.util.Util.getFistReader;
 import static org.example.util.Util.getTestReaders;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -69,9 +69,9 @@ class ReaderServiceTest {
   @Test
   @Disabled("The same problem which in BookServiceTests")
   void shouldThrowThatReaderCreatedAndDataReader() {
-    Reader reader = getReader();
+    Reader reader = getFistReader();
     when(readerRepository.save(reader)).thenReturn(reader);
-    Reader saved = readerService.addNewReader(getReader().getName());
+    Reader saved = readerService.addNewReader(getFistReader().getName());
     assertAll(() -> assertEquals(reader, saved),
         () -> assertEquals("reader", saved.getName())
     );
