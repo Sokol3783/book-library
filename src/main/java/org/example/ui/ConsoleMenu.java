@@ -17,14 +17,14 @@ public class ConsoleMenu {
   private final Scanner scanner = new Scanner(System.in);
   private boolean terminated;
 
-  private final BookService books;
-  private final ReaderService readers;
-  private final RegistryService registry;
+  private final BookService bookService;
+  private final ReaderService readerService;
+  private final RegistryService registryService;
 
-  public ConsoleMenu(BookService books, ReaderService readers, RegistryService registry) {
-    this.books = books;
-    this.readers = readers;
-    this.registry = registry;
+  public ConsoleMenu(BookService bookService, ReaderService readers, RegistryService registryService) {
+    this.bookService = bookService;
+    this.readerService = readers;
+    this.registryService = registryService;
   }
 
   public void run() {
@@ -61,48 +61,48 @@ public class ConsoleMenu {
 
   private void printAllReaders() {
     System.out.println("\nList of readers:");
-    readers.findAllReaders().forEach(System.out::println);
+    readerService.findAllReaders().forEach(System.out::println);
   }
 
   private void printAllBooks() {
     System.out.println("\nList of books:");
-    books.findAllBooks().forEach(System.out::println);
+    bookService.findAllBooks().forEach(System.out::println);
   }
 
   private void addNewBook() {
     System.out.println("Please, enter new book name and author separated by “/”. Like this: name / author");
-    Book saved = books.addNewBook(scanner.nextLine());
+    Book saved = bookService.addNewBook(scanner.nextLine());
     System.out.println(saved);
   }
 
   private void addNewReader() {
     System.out.println("Please enter new reader full name!");
-    Reader reader = readers.addNewReader(scanner.nextLine());
+    Reader reader = readerService.addNewReader(scanner.nextLine());
     System.out.println(reader.toString());
   }
 
   private void borrowBook() {
     System.out.println("Please enter book ID and reader ID. Like this: 15 / 15");
-    Book book= registry.borrowBook(scanner.nextLine());
+    Book book= registryService.borrowBook(scanner.nextLine());
     System.out.println("Book " + book.getName() + "borrowed.");
   }
 
   private void returnBook() {
     System.out.println(ENTER_BOOK_ID_MESSAGE);
-    Book book = registry.returnBook(scanner.nextLine());
+    Book book = registryService.returnBook(scanner.nextLine());
     System.out.println("Book " + book.getName() + " is returned.");
   }
 
   private void showAllBorrowedByUser() {
     System.out.println(ENTER_READER_ID_MESSAGE);
-    List<Book> borrowedBooks = registry.findBorrowedBooksByReader(scanner.nextLine());
+    List<Book> borrowedBooks = registryService.findBorrowedBooksByReader(scanner.nextLine());
     System.out.println("Borrowed books:");
     borrowedBooks.forEach(System.out::println);
   }
 
   private void showCurrentReaderOfBook() {
     System.out.println(ENTER_BOOK_ID_MESSAGE);
-    Reader reader = registry.findCurrentReaderOfBook(scanner.nextLine());
+    Reader reader = registryService.findCurrentReaderOfBook(scanner.nextLine());
     System.out.println(reader);
   }
 

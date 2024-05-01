@@ -10,25 +10,25 @@ import org.example.entity.Book;
 
 public class BookService {
 
-  private final BookRepository repository;
+  private final BookRepository bookRepository;
 
-  public BookService(BookRepository repository) {
-    this.repository = repository;
+  public BookService(BookRepository bookRepository) {
+    this.bookRepository = bookRepository;
   }
 
   public List<Book> findAllBooks() {
-    return repository.findAll();
+    return bookRepository.findAll();
   }
 
   public Book addNewBook(String input) {
     validateInputOfNewBook(input.strip());
     String[] titleAndAuthor= input.split("/");
-    return repository.save(new Book(0l, titleAndAuthor[0], titleAndAuthor[1]));
+    return bookRepository.save(new Book(0l, titleAndAuthor[0], titleAndAuthor[1]));
   }
 
   public Optional<Book> findById(String input) {
     validateInputOfId(input.strip());
-    return repository.findById(Long.parseLong(input));
+    return bookRepository.findById(Long.parseLong(input));
   }
 
 }

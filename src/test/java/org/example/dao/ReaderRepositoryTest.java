@@ -12,16 +12,16 @@ import org.junit.jupiter.api.Test;
 
 class ReaderRepositoryTest {
 
-  private static ReaderRepository repository;
+  private static ReaderRepository readerRepository;
 
   @BeforeEach
   void setUp() {
-    repository = new ReaderRepository();
+    readerRepository = new ReaderRepository();
   }
 
   @Test
   void shouldFindById() {
-    Optional<Reader> firstReader = repository.findById(1L);
+    Optional<Reader> firstReader = readerRepository.findById(1L);
     Reader reader = firstReader.orElse(new Reader(5120L, "dasd"));
     assertAll(() -> assertEquals(1L, reader.getId()),
         () -> assertEquals("Mike Douglas", reader.getName()));
@@ -30,20 +30,20 @@ class ReaderRepositoryTest {
 
   @Test
   void shouldNotFindById() {
-    assertAll(() -> assertTrue(repository.findById(5L).isEmpty()),
-        () -> assertTrue(repository.findById(250L).isEmpty()),
-        () -> assertTrue(repository.findById(1000L).isEmpty()),
-        () -> assertTrue(repository.findById(12631231L).isEmpty()),
-        () -> assertTrue(repository.findById(1L).isPresent()));
+    assertAll(() -> assertTrue(readerRepository.findById(5L).isEmpty()),
+        () -> assertTrue(readerRepository.findById(250L).isEmpty()),
+        () -> assertTrue(readerRepository.findById(1000L).isEmpty()),
+        () -> assertTrue(readerRepository.findById(12631231L).isEmpty()),
+        () -> assertTrue(readerRepository.findById(1L).isPresent()));
   }
 
   @Test
   void shouldFindAllReaders() {
-    List<Reader> afterStartup = repository.findAll();
+    List<Reader> afterStartup = readerRepository.findAll();
     assertEquals(3, afterStartup.size());
-    repository.save(new Reader(1L, "New Reader"));
-    repository.save(new Reader(2L, "Second new"));
-    List<Reader> all = repository.findAll();
+    readerRepository.save(new Reader(1L, "New Reader"));
+    readerRepository.save(new Reader(2L, "Second new"));
+    List<Reader> all = readerRepository.findAll();
     assertAll(() -> assertEquals(5, all.size()),
         () -> assertTrue(all.stream().anyMatch(s -> s.getId() == 4L)),
         () -> assertTrue(all.stream().anyMatch(s -> s.getId() == 5L)));
@@ -51,7 +51,7 @@ class ReaderRepositoryTest {
 
   @Test
   void shouldHaveThreeReadersOnStartup() {
-    List<Reader> afterStart = repository.findAll();
+    List<Reader> afterStart = readerRepository.findAll();
     Reader save = afterStart.get(0);
     Reader save1 = afterStart.get(1);
     Reader save2 = afterStart.get(2);

@@ -22,20 +22,20 @@ import org.junit.jupiter.api.Test;
 
 class RegistryRepositoryTest {
 
-  private static RegistryRepository repository;
+  private static RegistryRepository registryRepository;
 
   @BeforeEach
   void setUp() {
-    repository = new RegistryRepository();
+    registryRepository = new RegistryRepository();
   }
 
   @Test
   void shouldReturnBookSuccessful() {
     Book book = new Book(1L, "book1", "author1");
     Reader reader = new Reader(1L, "reader1");
-    assertAll(() -> assertDoesNotThrow(() -> repository.borrowBook(book, reader)),
-        () -> assertDoesNotThrow(() -> repository.returnBook(book)),
-        () -> assertThrows(RegistryRepositoryException.class, () -> repository.returnBook(book)));
+    assertAll(() -> assertDoesNotThrow(() -> registryRepository.borrowBook(book, reader)),
+        () -> assertDoesNotThrow(() -> registryRepository.returnBook(book)),
+        () -> assertThrows(RegistryRepositoryException.class, () -> registryRepository.returnBook(book)));
   }
 
   @Test
@@ -43,8 +43,8 @@ class RegistryRepositoryTest {
     Book book = new Book(1L, "book1", "book1");
     Book book2 = new Book(2L, "book2", "book2");
     assertAll(
-        () -> assertThrows(RegistryRepositoryException.class, () -> repository.returnBook(book)),
-        () -> assertThrows(RegistryRepositoryException.class, () -> repository.returnBook(book2)));
+        () -> assertThrows(RegistryRepositoryException.class, () -> registryRepository.returnBook(book)),
+        () -> assertThrows(RegistryRepositoryException.class, () -> registryRepository.returnBook(book2)));
   }
 
   @Test
@@ -52,18 +52,18 @@ class RegistryRepositoryTest {
     Reader reader = new Reader(1L, "reader1");
     Reader reader2 = new Reader(2L, "reader2");
     Book book = new Book(1L, "book1", "book1");
-    repository.borrowBook(book, reader);
+    registryRepository.borrowBook(book, reader);
     assertAll(() -> assertThrows(RegistryRepositoryException.class,
-            () -> repository.borrowBook(book, reader2)),
-            () -> repository.returnBook(book));
+            () -> registryRepository.borrowBook(book, reader2)),
+            () -> registryRepository.returnBook(book));
   }
 
   @Test
   void shouldReturnEmptyListIfReaderDoesNotBorrowBook() {
     Reader reader = getReader();
-    List<Book> emptyList = repository.getListBorrowedBooksOfReader(reader);
+    List<Book> emptyList = registryRepository.getListBorrowedBooksOfReader(reader);
     borrowTestThreeBooks(reader);
-    List<Book> borrowedBooks = repository.getListBorrowedBooksOfReader(reader);
+    List<Book> borrowedBooks = registryRepository.getListBorrowedBooksOfReader(reader);
     assertAll(() -> assertTrue(emptyList.isEmpty()),
         () -> assertFalse(borrowedBooks.isEmpty()),
         () -> assertEquals(3, borrowedBooks.size()));
@@ -74,7 +74,7 @@ class RegistryRepositoryTest {
   void shouldReturnListOfBorrowedBooksOfReader() {
     Reader reader = getReader();
     borrowTestThreeBooks(reader);
-    List<Book> books = repository.getListBorrowedBooksOfReader(reader);
+    List<Book> books = registryRepository.getListBorrowedBooksOfReader(reader);
     assertAll(() -> assertFalse(books.isEmpty()),
         () -> assertEquals(3, books.size()),
         () -> assertTrue(books.containsAll(setIdForTestBooks(getTestBooks()))));
@@ -86,13 +86,13 @@ class RegistryRepositoryTest {
     Reader reader = getReader();
     borrowTestThreeBooks(reader);
     List<Book> testBooks = new ArrayList<>(setIdForTestBooks(getTestBooks()));
-    List<Book> books = repository.getListBorrowedBooksOfReader(reader);
+    List<Book> books = registryRepository.getListBorrowedBooksOfReader(reader);
     assertAll(() -> assertFalse(books.isEmpty()),
         () -> assertEquals(3, books.size()));
     Book remove = testBooks.remove(0);
-    repository.returnBook(remove);
+    registryRepository.returnBook(remove);
 
-    List<Book> booksAfterReturnOne = repository.getListBorrowedBooksOfReader(reader);
+    List<Book> booksAfterReturnOne = registryRepository.getListBorrowedBooksOfReader(reader);
     assertAll(() -> assertFalse(booksAfterReturnOne.isEmpty()),
         () -> assertEquals(2, booksAfterReturnOne.size()),
         () -> assertEquals(testBooks, booksAfterReturnOne));
@@ -104,9 +104,9 @@ class RegistryRepositoryTest {
     Reader reader = getReader();
     borrowTestThreeBooks(reader);
     List<Book> books = setIdForTestBooks(getTestBooks());
-    Optional<Reader> firstReader = repository.getReaderOfBook(books.get(0));
-    Optional<Reader> secondReader = repository.getReaderOfBook(books.get(1));
-    Optional<Reader> thirdReader = repository.getReaderOfBook(books.get(2));
+    Optional<Reader> firstReader = registryRepository.getReaderOfBook(books.get(0));
+    Optional<Reader> secondReader = registryRepository.getReaderOfBook(books.get(1));
+    Optional<Reader> thirdReader = registryRepository.getReaderOfBook(books.get(2));
     assertAll(() -> assertTrue(firstReader.isPresent()),
         () -> assertTrue(secondReader.isPresent()),
         () -> assertTrue(thirdReader.isPresent()),
@@ -118,16 +118,16 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldReturnEmptyOptionalIfNobodyBorrowBook() {
-    assertTrue(repository.getReaderOfBook(new Book(1L, "", "")).isEmpty());
-    assertTrue(repository.getReaderOfBook(new Book(5L, "", "")).isEmpty());
-    assertTrue(repository.getReaderOfBook(new Book(10L, "", "")).isEmpty());
+    assertTrue(registryRepository.getReaderOfBook(new Book(1L, "", "")).isEmpty());
+    assertTrue(registryRepository.getReaderOfBook(new Book(5L, "", "")).isEmpty());
+    assertTrue(registryRepository.getReaderOfBook(new Book(10L, "", "")).isEmpty());
   }
 
   private void borrowTestThreeBooks(Reader reader) {
     List<Book> testBooks = setIdForTestBooks(getTestBooks());
     for (Book book : testBooks) {
       try {
-        repository.borrowBook(book, reader);
+        registryRepository.borrowBook(book, reader);
       } catch (RegistryRepositoryException e) {
         throw new RuntimeException(e);
       }

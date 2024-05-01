@@ -11,17 +11,17 @@ import org.junit.jupiter.api.Test;
 
 class BookRepositoryTest {
 
-  private static BookRepository repository;
+  private static BookRepository bookRepository;
 
   @BeforeEach
   void setUp() {
-    repository = new BookRepository();
+    bookRepository = new BookRepository();
   }
 
   @Test
   void shouldFindById() {
-    Book bookID_1 = repository.findById(1L).get();
-    Book bookID_3 = repository.findById(3L).get();
+    Book bookID_1 = bookRepository.findById(1L).get();
+    Book bookID_3 = bookRepository.findById(3L).get();
     assertAll(() -> assertEquals(1L, bookID_1.getId()),
         () -> assertEquals("The Dark Tower", bookID_1.getName()),
         () -> assertEquals("Steven King", bookID_1.getAuthor()),
@@ -33,21 +33,21 @@ class BookRepositoryTest {
 
   @Test
   void shouldNotFindById() {
-    assertAll(() -> assertTrue(repository.findById(5L).isEmpty()),
-        () -> assertTrue(repository.findById(250L).isEmpty()),
-        () -> assertTrue(repository.findById(1000L).isEmpty()),
-        () -> assertTrue(repository.findById(12631231L).isEmpty()),
-        () -> assertTrue(repository.findById(1L).isPresent()));
+    assertAll(() -> assertTrue(bookRepository.findById(5L).isEmpty()),
+        () -> assertTrue(bookRepository.findById(250L).isEmpty()),
+        () -> assertTrue(bookRepository.findById(1000L).isEmpty()),
+        () -> assertTrue(bookRepository.findById(12631231L).isEmpty()),
+        () -> assertTrue(bookRepository.findById(1L).isPresent()));
   }
 
   @Test
   void shouldFindAllBooks() {
-    List<Book> allOnStartup = repository.findAll();
+    List<Book> allOnStartup = bookRepository.findAll();
     assertEquals(3, allOnStartup.size());
-    repository.save(new Book(1L, "Book", "Book"));
-    repository.save(new Book(1L, "Book2", "Book4"));
+    bookRepository.save(new Book(1L, "Book", "Book"));
+    bookRepository.save(new Book(1L, "Book2", "Book4"));
 
-    List<Book> allAfterChanges = repository.findAll();
+    List<Book> allAfterChanges = bookRepository.findAll();
     assertAll(() -> assertEquals(5, allAfterChanges.size()),
         () -> assertTrue(allAfterChanges.stream().anyMatch( s ->s.getId() == 4L)),
         () -> assertTrue(allAfterChanges.stream().anyMatch( s ->s.getId() == 5L)));
@@ -56,7 +56,7 @@ class BookRepositoryTest {
 
   @Test
   void shouldHaveThreeBooksOnStartup() {
-    List<Book> afterStartup = repository.findAll();
+    List<Book> afterStartup = bookRepository.findAll();
     Book save = afterStartup.get(0);
     Book save1 = afterStartup.get(1);
     Book save2 = afterStartup.get(2);

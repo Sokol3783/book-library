@@ -9,12 +9,12 @@ import org.example.validator.ValidatorUtil;
 
 public class RegistryService {
 
-  private final RegistryRepository repository;
+  private final RegistryRepository registryRepository;
   private final BookService bookService;
   private final ReaderService readerService;
 
-  public RegistryService(RegistryRepository repository, BookService bookService, ReaderService readerService)  {
-      this.repository = repository;
+  public RegistryService(RegistryRepository registryRepository, BookService bookService, ReaderService readerService)  {
+      this.registryRepository = registryRepository;
       this.bookService = bookService;
       this.readerService = readerService;
   }
@@ -37,7 +37,7 @@ public class RegistryService {
       throw new RuntimeException(message.toString());
     }
     
-    repository.borrowBook(book, reader);
+    registryRepository.borrowBook(book, reader);
     return book;
 }
 
@@ -61,18 +61,18 @@ public class RegistryService {
 
   public Book returnBook(String input) {
     Book book = bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
-    repository.returnBook(book);
+    registryRepository.returnBook(book);
     return book;
   }
 
   public List<Book> findBorrowedBooksByReader(String input){
     Reader reader = readerService.findById(input.strip()).orElseThrow(() -> new RuntimeException("Reader nod found!"));
-    return repository.getListBorrowedBooksOfReader(reader);
+    return registryRepository.getListBorrowedBooksOfReader(reader);
   }
 
   public Reader findCurrentReaderOfBook(String input){
     Book book = bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
-    Optional<Reader> readerOfBook = repository.getReaderOfBook(book);
+    Optional<Reader> readerOfBook = registryRepository.getReaderOfBook(book);
     return readerOfBook.orElseThrow(() -> new RuntimeException("Nobody reads this book"));
  }
 

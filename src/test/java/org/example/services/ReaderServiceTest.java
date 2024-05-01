@@ -23,22 +23,22 @@ import org.junit.jupiter.api.Test;
 
 class ReaderServiceTest {
 
-  private static ReaderService service;
-  private static ReaderRepository repository;
+  private static ReaderService readerService;
+  private static ReaderRepository readerRepository;
 
 
   @BeforeEach
   void setUp() {
-    repository = mock(ReaderRepository.class);
-    service = new ReaderService(repository);
+    readerRepository = mock(ReaderRepository.class);
+    readerService = new ReaderService(readerRepository);
   }
 
   @Test
   void shouldThrowListOfReadersAndHeader() {
     List<Reader> testReaders = getTestReaders();
-    when(repository.findAll()).thenReturn(testReaders);
-    List<Reader> allReaders = service.findAllReaders();
-    verify(repository, times(1)).findAll();
+    when(readerRepository.findAll()).thenReturn(testReaders);
+    List<Reader> allReaders = readerService.findAllReaders();
+    verify(readerRepository, times(1)).findAll();
     assertAll(
         () -> assertEquals(3, allReaders.size()),
         () -> assertTrue(testReaders.stream().allMatch(s -> s.getName().contains("Test")))
@@ -48,7 +48,7 @@ class ReaderServiceTest {
   @Test
   void shouldThrowErrNameContainsInvalidSymbols() {
     ConsoleValidationException exception = assertThrows(ConsoleValidationException.class,
-        () -> service.addNewReader("name_with_symbol_**!@#@@${}"));
+        () -> readerService.addNewReader("name_with_symbol_**!@#@@${}"));
     assertTrue(exception.getMessage()
         .contains("Name must contain only letters, spaces, dashes, apostrophes"));
   }
@@ -56,9 +56,9 @@ class ReaderServiceTest {
   @Test
   void shouldThrowThatLengthIsInvalid() {
     ConsoleValidationException fewChar = assertThrows(ConsoleValidationException.class,
-        () -> service.addNewReader("few"));
+        () -> readerService.addNewReader("few"));
     ConsoleValidationException tooManyChar = assertThrows(ConsoleValidationException.class,
-        () -> service.addNewReader("122312iagdasdghasdjkgfhsdjkfhasjkdfaskdnds"));
+        () -> readerService.addNewReader("122312iagdasdghasdjkgfhsdjkfhasjkdfaskdnds"));
 
     assertAll(() -> assertTrue(
             fewChar.getMessage().contains("Name should contain more than 5 char and less than 30 ones"))
@@ -70,8 +70,8 @@ class ReaderServiceTest {
   @Disabled("The same problem which in BookServiceTests")
   void shouldThrowThatReaderCreatedAndDataReader() {
     Reader reader = getReader();
-    when(repository.save(reader)).thenReturn(reader);
-    Reader saved = service.addNewReader(getReader().getName());
+    when(readerRepository.save(reader)).thenReturn(reader);
+    Reader saved = readerService.addNewReader(getReader().getName());
     assertAll(() -> assertEquals(reader, saved),
         () -> assertEquals("reader", saved.getName())
     );
@@ -79,18 +79,18 @@ class ReaderServiceTest {
 
   @Test
   void shouldReturnBookIfValidInput() {
-    when(repository.findById(anyLong())).thenReturn(Optional.of(new Reader(1L, "reader")));
-    assertAll(() -> assertTrue(service.findById("1").isPresent()),
-        () -> assertTrue(service.findById("2").isPresent()),
-        () -> assertTrue(service.findById("3").isPresent()));
+    when(readerRepository.findById(anyLong())).thenReturn(Optional.of(new Reader(1L, "reader")));
+    assertAll(() -> assertTrue(readerService.findById("1").isPresent()),
+        () -> assertTrue(readerService.findById("2").isPresent()),
+        () -> assertTrue(readerService.findById("3").isPresent()));
   }
 
   @Test
   void shouldThrowValidationExceptionIfNotValidInput() {
-    when(repository.findById(anyLong())).thenReturn(Optional.empty());
+    when(readerRepository.findById(anyLong())).thenReturn(Optional.empty());
     assertAll(
-        () -> assertThrows(ConsoleValidationException.class, () -> service.findById("asdasda")),
-        () -> assertTrue(service.findById("1").isEmpty()));
+        () -> assertThrows(ConsoleValidationException.class, () -> readerService.findById("asdasda")),
+        () -> assertTrue(readerService.findById("1").isEmpty()));
 
   }
 }

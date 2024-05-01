@@ -10,24 +10,24 @@ import org.example.validator.ValidatorUtil;
 
 public class ReaderService {
 
-  private final ReaderRepository repository;
+  private final ReaderRepository readerRepository;
 
-  public ReaderService(ReaderRepository repository) {
-    this.repository = repository;
+  public ReaderService(ReaderRepository readerRepository) {
+    this.readerRepository = readerRepository;
   }
 
   public List<Reader> findAllReaders() {
-      return repository.findAll();
+      return readerRepository.findAll();
   }
 
   public Reader addNewReader(String input){
     ValidatorUtil.validateInputOfNewReader(input);
-    return repository.save(new Reader(0l, input));
+    return readerRepository.save(new Reader(0l, input));
   }
 
   public Optional<Reader> findById(String input) {
     validateInputOfId(input.strip());
-    return repository.findById(Long.parseLong(input));
+    return readerRepository.findById(Long.parseLong(input));
   }
 
 }
