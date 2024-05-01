@@ -42,7 +42,10 @@ public class RegistryRepository {
   }
 
   public Optional<Reader> getReaderOfBook(Book book){
-    return map.entrySet().stream().filter(s -> s.getValue().contains(book)).map(Entry::getKey).findFirst();
+    return map.entrySet().stream().
+        filter(s -> s.getValue().contains(book)).
+        map(Entry::getKey).
+        findFirst();
   }
 
   public List<Book> getListBorrowedBooksOfReader(Reader reader){
