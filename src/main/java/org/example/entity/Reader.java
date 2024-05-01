@@ -1,7 +1,5 @@
 package org.example.entity;
 
-import java.util.Objects;
-
 public class Reader {
 
     private long id;
@@ -9,6 +7,10 @@ public class Reader {
 
     public Reader(long id, String name) {
         this.id = id;
+        this.name = name;
+    }
+
+    public Reader(String name){
         this.name = name;
     }
 
