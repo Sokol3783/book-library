@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.example.entity.Book;
-import org.example.entity.Reader;
 import org.example.exception.ConsoleValidationException;
 
 public class ValidatorUtil {
