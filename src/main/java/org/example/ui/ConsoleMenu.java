@@ -2,9 +2,6 @@ package org.example.ui;
 
 import java.util.List;
 import java.util.Scanner;
-import org.example.dao.BookRepository;
-import org.example.dao.ReaderRepository;
-import org.example.dao.RegistryRepository;
 import org.example.entity.Book;
 import org.example.entity.Reader;
 import org.example.services.BookService;
@@ -25,9 +22,9 @@ public class ConsoleMenu {
   private final RegistryService registryService;
 
   public ConsoleMenu(){
-    bookService = new BookService(new BookRepository());
-    readerService = new ReaderService(new ReaderRepository());
-    registryService = new RegistryService(new RegistryRepository(), bookService, readerService);
+    bookService = new BookService();
+    readerService = new ReaderService();
+    registryService = new RegistryService(bookService, readerService);
   }
 
   public ConsoleMenu(BookService bookService, ReaderService readers, RegistryService registryService) {

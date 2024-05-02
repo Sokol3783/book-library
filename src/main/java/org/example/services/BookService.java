@@ -12,6 +12,10 @@ public class BookService {
 
   private final BookRepository bookRepository;
 
+  public BookService(){
+    this.bookRepository = new BookRepository();
+  }
+
   public BookService(BookRepository bookRepository) {
     this.bookRepository = bookRepository;
   }

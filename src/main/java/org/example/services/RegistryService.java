@@ -13,6 +13,12 @@ public class RegistryService {
   private final BookService bookService;
   private final ReaderService readerService;
 
+  public RegistryService(BookService bookService, ReaderService readerService) {
+    this.registryRepository = new RegistryRepository();
+    this.bookService = bookService;
+    this.readerService = readerService;
+  }
+
   public RegistryService(RegistryRepository registryRepository, BookService bookService, ReaderService readerService)  {
       this.registryRepository = registryRepository;
       this.bookService = bookService;
