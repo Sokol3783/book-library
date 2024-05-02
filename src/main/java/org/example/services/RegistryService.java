@@ -1,11 +1,12 @@
 package org.example.services;
 
+import static org.example.validator.ValidatorUtil.validateInputOfTwoId;
+
 import java.util.List;
 import java.util.Optional;
 import org.example.dao.RegistryRepository;
 import org.example.entity.Book;
 import org.example.entity.Reader;
-import org.example.validator.ValidatorUtil;
 
 public class RegistryService {
 
@@ -26,45 +27,16 @@ public class RegistryService {
   }
 
   public Book borrowBook(String input) {
-    StringBuilder message = new StringBuilder();
-    Book book; Reader reader;
-    String[] bookAndReaderId;
 
-    if (ValidatorUtil.inputContainsSingleSlash(input)) {
-       bookAndReaderId = input.split("/");
-   } else {
-      message.append("\nInput should contain single dash!");
-      bookAndReaderId = new String[]{input, "#"};
-   }
+    validateInputOfTwoId(input);
+    String[] bookAndReaderId = input.split("/");
 
-    book = findBookOrGetErrorMessages(bookAndReaderId[0].strip(), message);
-    reader = findReaderOrGetExceptionMessage(bookAndReaderId[1].strip(), message);
+    Book book =bookService.findById(bookAndReaderId[0].strip()).orElseThrow(() -> new RuntimeException("Book not found"));
+    Reader reader = readerService.findById(bookAndReaderId[1].strip()).orElseThrow(() -> new RuntimeException("Reader not found"));
 
-    if (!message.isEmpty()) {
-      throw new RuntimeException(message.toString());
-    }
-    
     registryRepository.borrowBook(book, reader);
     return book;
 }
-
-  private Reader findReaderOrGetExceptionMessage(String input, StringBuilder message) {
-    try {
-      return readerService.findById(input).orElseThrow(() -> new RuntimeException("Reader not found"));
-    } catch (Exception e){
-      message.append("\n").append(e.getMessage());
-      return null;
-    }
-  }
-
-  private Book findBookOrGetErrorMessages(String input, StringBuilder message){
-    try {
-      return bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
-    } catch (Exception e){
-      message.append("\n").append(e.getMessage());
-      return null;
-    }
-  }
 
   public Book returnBook(String input) {
     Book book = bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
