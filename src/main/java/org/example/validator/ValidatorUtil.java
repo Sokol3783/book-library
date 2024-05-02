@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.example.entity.Book;
-import org.example.entity.Reader;
 import org.example.exception.ConsoleValidationException;
 
 public class ValidatorUtil {
@@ -48,18 +46,6 @@ public class ValidatorUtil {
 
     String joinedErrors = errors.stream().collect(Collectors.joining(";"));
     if(!joinedErrors.isEmpty()) throw new ConsoleValidationException(joinedErrors);
-
-  }
-
-  public static void validateInputOfNewReader(String name) {
-    List<String> errors = new ArrayList<>();
-
-    if (!inRange(name.length(), 5, 30)) errors.add("Invalid length. Name should contain more than 5 chars and less than 30 ones");
-    if (invalidName(name)) errors.add("Name must contain only letters, spaces, dashes, apostrophes!");
-
-    String joinedErrors = errors.stream().collect(Collectors.joining(";"));
-    if(!joinedErrors.isEmpty()) throw new ConsoleValidationException(joinedErrors);
-
   }
 
   public static boolean inputContainsSingleSlash(String input) {
