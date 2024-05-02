@@ -30,11 +30,15 @@ public class Util {
   }
 
   public static Reader getFistReader(){
-    return new Reader(1L, "reader");
+    Reader reader = new Reader("reader");
+    reader.setId(1L);
+    return reader;
   }
 
   public static Book getFirstBook(){
-    return new Book(1L, "book", "book");
+    Book book = new Book("book", "book");
+    book.setId(1L);
+    return book;
   }
 
   public static List<Book> setIdForTestBooks(List<Book> testBooks) {

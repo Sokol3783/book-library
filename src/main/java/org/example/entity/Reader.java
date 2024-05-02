@@ -5,11 +5,6 @@ public class Reader {
     private long id;
     private String name;
 
-    public Reader(long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
     public Reader(String name){
         this.name = name;
     }

@@ -43,14 +43,14 @@ class RegistryServiceTest {
   @Test
   void shouldPrintThereIsNoSuchReaderWhenOptionalReaderEmpty() {
     when(readerService.findById(any())).thenThrow(new RuntimeException());
-    when(bookService.findById(any())).thenReturn(Optional.of((new Book(1L, "book", "book"))));
+    when(bookService.findById(any())).thenReturn(Optional.of(getFirstBook()));
     assertAll(() -> assertThrows(RuntimeException.class, () -> registryService.borrowBook("1 / 1")),
         () -> assertThrows(RuntimeException.class, () -> registryService.findBorrowedBooksByReader("1")));
   }
 
   @Test
   void shouldPrintThereIsNoSuchBookWhenOptionalBookEmpty() {
-    when(readerService.findById(any())).thenReturn(Optional.of(new Reader(1l, "reader")));
+    when(readerService.findById(any())).thenReturn(Optional.of(getFistReader()));
     when(bookService.findById(any())).thenThrow(new RuntimeException("Book not found"));
 
     assertAll(() -> assertThrows(RuntimeException.class, () -> registryService.borrowBook("1 / 1")),
