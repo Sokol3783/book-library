@@ -22,7 +22,7 @@ class ReaderRepositoryTest {
   @Test
   void shouldFindById() {
     Optional<Reader> firstReader = readerRepository.findById(1L);
-    Reader reader = firstReader.orElse(new Reader(5120L, "dasd"));
+    Reader reader = firstReader.orElse(new Reader("dasd"));
     assertAll(() -> assertEquals(1L, reader.getId()),
         () -> assertEquals("Mike Douglas", reader.getName()));
   }
@@ -41,8 +41,8 @@ class ReaderRepositoryTest {
   void shouldFindAllReaders() {
     List<Reader> afterStartup = readerRepository.findAll();
     assertEquals(3, afterStartup.size());
-    readerRepository.save(new Reader(1L, "New Reader"));
-    readerRepository.save(new Reader(2L, "Second new"));
+    readerRepository.save(new Reader("New Reader"));
+    readerRepository.save(new Reader("Second new"));
     List<Reader> all = readerRepository.findAll();
     assertAll(() -> assertEquals(5, all.size()),
         () -> assertTrue(all.stream().anyMatch(s -> s.getId() == 4L)),

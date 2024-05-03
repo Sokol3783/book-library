@@ -16,9 +16,15 @@ public class BookRepository {
 
   public BookRepository() {
     books = new TreeSet<>(Comparator.comparingLong(Book::getId));
-    books.add(new Book(ID_GENERATOR.incrementAndGet(), "The Dark Tower", "Steven King"));
-    books.add(new Book(ID_GENERATOR.incrementAndGet(), "The name of the Wind", "Patric Rotfuss"));
-    books.add(new Book(ID_GENERATOR.incrementAndGet(), "A Game of Thrones", "George Martin"));
+    Book book = new Book("The Dark Tower", "Steven King");
+    book.setId(ID_GENERATOR.incrementAndGet());
+    books.add(book);
+    book = new Book( "The name of the Wind", "Patric Rotfuss");
+    book.setId(ID_GENERATOR.incrementAndGet());
+    books.add(book);
+    book = new Book( "A Game of Thrones", "George Martin");
+    book.setId(ID_GENERATOR.incrementAndGet());
+    books.add(book);
   }
 
   public Optional<Book> findById(long id) {

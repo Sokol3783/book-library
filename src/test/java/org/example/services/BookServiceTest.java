@@ -88,7 +88,7 @@ class BookServiceTest {
   @Test
   @Disabled("Has no ideas why it doesn't mock and work when set real implementation")
   void shouldCreateNewBookWithValidFieldsAndPrintMessage() {
-    Book book = new Book(0l, "Author 1", "Title 1");
+    Book book = new Book("Author 1", "Title 1");
     when(bookRepository.save(book)).thenReturn(book);
     Book saved = bookService.addNewBook(book.getName() + "/" + book.getAuthor());
     assertAll(() -> assertEquals(book, saved),
@@ -99,7 +99,7 @@ class BookServiceTest {
 
   @Test
   void shouldReturnBookIfValidInput() {
-    when(bookRepository.findById(anyLong())).thenReturn(Optional.of(new Book(1L, "book", "book")));
+    when(bookRepository.findById(anyLong())).thenReturn(Optional.of(new Book("book", "book")));
 
     assertAll(() -> assertTrue(bookService.findById("1").isPresent()),
         () -> assertTrue(bookService.findById("2").isPresent()),

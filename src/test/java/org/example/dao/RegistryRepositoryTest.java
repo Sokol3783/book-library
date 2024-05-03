@@ -31,8 +31,8 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldReturnBookSuccessful() {
-    Book book = new Book(1L, "book1", "author1");
-    Reader reader = new Reader(1L, "reader1");
+    Book book = new Book("book1", "author1");
+    Reader reader = new Reader("reader1");
     assertAll(() -> assertDoesNotThrow(() -> registryRepository.borrowBook(book, reader)),
         () -> assertDoesNotThrow(() -> registryRepository.returnBook(book)),
         () -> assertThrows(RegistryRepositoryException.class,
@@ -41,8 +41,8 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldThrowExceptionWhenTryToReturnNotTakenBook() {
-    Book book = new Book(1L, "book1", "book1");
-    Book book2 = new Book(2L, "book2", "book2");
+    Book book = new Book("book1", "book1");
+    Book book2 = new Book( "book2", "book2");
     assertAll(
         () -> assertThrows(RegistryRepositoryException.class,
             () -> registryRepository.returnBook(book)),
@@ -52,9 +52,9 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldThrowExceptionWhenSomeoneTryToBorrowBorrowedBook() throws RegistryRepositoryException {
-    Reader reader = new Reader(1L, "reader1");
-    Reader reader2 = new Reader(2L, "reader2");
-    Book book = new Book(1L, "book1", "book1");
+    Reader reader = new Reader("reader1");
+    Reader reader2 = new Reader("reader2");
+    Book book = new Book("book1", "book1");
     registryRepository.borrowBook(book, reader);
     assertAll(() -> assertThrows(RegistryRepositoryException.class,
             () -> registryRepository.borrowBook(book, reader2)),
@@ -122,10 +122,8 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldReturnEmptyOptionalIfNobodyBorrowBook() {
-    assertTrue(registryRepository.getReaderOfBook(new Book(1L, "", "")).isEmpty());
-    assertTrue(registryRepository.getReaderOfBook(new Book(5L, "", "")).isEmpty());
-    assertTrue(registryRepository.getReaderOfBook(new Book(10L, "", "")).isEmpty());
-  }
+    assertTrue(registryRepository.getReaderOfBook(new Book("", "")).isEmpty());
+ }
 
   private void borrowTestThreeBooks(Reader reader) {
     List<Book> testBooks = setIdForTestBooks(getTestBooks());

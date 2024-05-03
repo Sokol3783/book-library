@@ -44,8 +44,8 @@ class BookRepositoryTest {
   void shouldFindAllBooks() {
     List<Book> allOnStartup = bookRepository.findAll();
     assertEquals(3, allOnStartup.size());
-    bookRepository.save(new Book(1L, "Book", "Book"));
-    bookRepository.save(new Book(1L, "Book2", "Book4"));
+    bookRepository.save(new Book("Book", "Book"));
+    bookRepository.save(new Book("Book2", "Book4"));
 
     List<Book> allAfterChanges = bookRepository.findAll();
     assertAll(() -> assertEquals(5, allAfterChanges.size()),

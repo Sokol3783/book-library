@@ -79,7 +79,7 @@ class ReaderServiceTest {
 
   @Test
   void shouldReturnBookIfValidInput() {
-    when(readerRepository.findById(anyLong())).thenReturn(Optional.of(new Reader(1L, "reader")));
+    when(readerRepository.findById(anyLong())).thenReturn(Optional.of(new Reader("reader")));
     assertAll(() -> assertTrue(readerService.findById("1").isPresent()),
         () -> assertTrue(readerService.findById("2").isPresent()),
         () -> assertTrue(readerService.findById("3").isPresent()));
