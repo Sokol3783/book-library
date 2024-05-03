@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS book(
+  id BIGSERIAL PRIMARY KEY,
+  title VARCHAR(100),
+  author VARCHAR(30)
+);
