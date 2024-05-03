@@ -49,7 +49,7 @@ public class ValidatorUtil {
       errors.add("Name must contain only letters, spaces, dashes, apostrophes!");
     }
     if (!inRange(title.length(), 5, 100)) {
-      errors.add("Invalid length. Title should contain more than 5 chars and less than 30 ones");
+      errors.add("Invalid length. Title should contain more than 5 chars and less than 100 ones");
     }
     if (invalidTitle(title)) {
       errors.add("Title contains invalid symbols: |/\\\\#%=+*_><]");
