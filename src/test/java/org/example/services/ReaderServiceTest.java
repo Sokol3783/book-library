@@ -61,9 +61,9 @@ class ReaderServiceTest {
         () -> readerService.addNewReader("122312iagdasdghasdjkgfhsdjkfhasjkdfaskdnds"));
 
     assertAll(() -> assertTrue(
-            fewChar.getMessage().contains("Name should contain more than 5 char and less than 30 ones"))
+            fewChar.getMessage().contains("Name should contain more than 5 chars and less than 30 ones"))
         , () -> assertTrue(tooManyChar.getMessage()
-            .contains("Name should contain more than 5 char and less than 30 ones")));
+            .contains("Name should contain more than 5 chars and less than 30 ones")));
   }
 
   @Test
