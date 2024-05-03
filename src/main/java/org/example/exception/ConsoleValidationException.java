@@ -1,6 +1,6 @@
 package org.example.exception;
 
-public class ConsoleValidationException extends RuntimeException{
+public class ConsoleValidationException extends RuntimeException {
 
   public ConsoleValidationException() {
     super();

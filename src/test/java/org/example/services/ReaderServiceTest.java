@@ -89,7 +89,8 @@ class ReaderServiceTest {
   void shouldThrowValidationExceptionIfNotValidInput() {
     when(readerRepository.findById(anyLong())).thenReturn(Optional.empty());
     assertAll(
-        () -> assertThrows(ConsoleValidationException.class, () -> readerService.findById("asdasda")),
+        () -> assertThrows(ConsoleValidationException.class,
+            () -> readerService.findById("asdasda")),
         () -> assertTrue(readerService.findById("1").isEmpty()));
 
   }

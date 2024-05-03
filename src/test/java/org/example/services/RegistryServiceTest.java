@@ -26,7 +26,7 @@ import org.mockito.Mockito;
 
 class RegistryServiceTest {
 
- private static RegistryRepository registryRepository;
+  private static RegistryRepository registryRepository;
   private static RegistryService registryService;
   private static BookService bookService;
   private static ReaderService readerService;
@@ -45,7 +45,8 @@ class RegistryServiceTest {
     when(readerService.findById(any())).thenThrow(new RuntimeException());
     when(bookService.findById(any())).thenReturn(Optional.of(getFirstBook()));
     assertAll(() -> assertThrows(RuntimeException.class, () -> registryService.borrowBook("1 / 1")),
-        () -> assertThrows(RuntimeException.class, () -> registryService.findBorrowedBooksByReader("1")));
+        () -> assertThrows(RuntimeException.class,
+            () -> registryService.findBorrowedBooksByReader("1")));
   }
 
   @Test
@@ -55,7 +56,8 @@ class RegistryServiceTest {
 
     assertAll(() -> assertThrows(RuntimeException.class, () -> registryService.borrowBook("1 / 1")),
         () -> assertThrows(RuntimeException.class, () -> registryService.returnBook("5")),
-        () -> assertThrows(RuntimeException.class, () -> registryService.findCurrentReaderOfBook(" 5 ")));
+        () -> assertThrows(RuntimeException.class,
+            () -> registryService.findCurrentReaderOfBook(" 5 ")));
 
   }
 
@@ -75,8 +77,8 @@ class RegistryServiceTest {
     doNothing().when(registryRepository).borrowBook(any(), any());
     when(bookService.findById(anyString())).thenReturn(Optional.of(book));
     when(readerService.findById(anyString())).thenReturn(Optional.of(reader));
-    Book borrowedBook= registryService.borrowBook("1 / 1");
-    assertAll( () -> assertEquals(book, borrowedBook),
+    Book borrowedBook = registryService.borrowBook("1 / 1");
+    assertAll(() -> assertEquals(book, borrowedBook),
         () -> assertEquals("book", borrowedBook.getName()),
         () -> assertEquals("book", borrowedBook.getAuthor())
     );
@@ -92,8 +94,8 @@ class RegistryServiceTest {
     List<Book> borrowedBooks = registryService.findBorrowedBooksByReader("1");
 
     assertAll(() -> assertEquals(3, borrowedBooks.size()),
-              () -> assertTrue(borrowedBooks.stream().allMatch(s -> s.getName().contains("Title"))),
-              () -> assertTrue(borrowedBooks.stream().allMatch(s -> s.getAuthor().contains("Test"))));
+        () -> assertTrue(borrowedBooks.stream().allMatch(s -> s.getName().contains("Title"))),
+        () -> assertTrue(borrowedBooks.stream().allMatch(s -> s.getAuthor().contains("Test"))));
 
   }
 

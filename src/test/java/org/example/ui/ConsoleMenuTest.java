@@ -191,9 +191,12 @@ class ConsoleMenuTest {
   @Test
   @DisplayName("Menu shouldn't crash after incorrect input")
   void shouldNotFallDownAfterIncorrectInput() throws InterruptedException {
-    when(readerService.addNewReader(anyString())).thenThrow(new ConsoleValidationException("Invalid input reader"));
-    when(bookService.addNewBook(anyString())).thenThrow(new ConsoleValidationException("Invalid input book"));
-    when(registryService.findBorrowedBooksByReader(anyString())).thenThrow(new ConsoleValidationException("Invalid input registry"));
+    when(readerService.addNewReader(anyString())).thenThrow(
+        new ConsoleValidationException("Invalid input reader"));
+    when(bookService.addNewBook(anyString())).thenThrow(
+        new ConsoleValidationException("Invalid input book"));
+    when(registryService.findBorrowedBooksByReader(anyString())).thenThrow(
+        new ConsoleValidationException("Invalid input registry"));
     setInputAndRunMenu("200", "3", "asfhasdjf", "4", "dafhdasdjfhasjdf", "7",
         "dsafhgasjdkfhajskdfjasghdfas");
     String errors = errArr.toString();

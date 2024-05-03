@@ -25,7 +25,7 @@ public class BookRepository {
     return books.stream().filter(s -> s.getId() == id).findFirst();
   }
 
-  public List<Book> findAll(){
+  public List<Book> findAll() {
     return List.copyOf(books);
   }
 

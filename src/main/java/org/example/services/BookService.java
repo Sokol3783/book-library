@@ -12,7 +12,7 @@ public class BookService {
 
   private final BookRepository bookRepository;
 
-  public BookService(){
+  public BookService() {
     this.bookRepository = new BookRepository();
   }
 
@@ -26,7 +26,7 @@ public class BookService {
 
   public Book addNewBook(String input) {
     validateInputOfNewBook(input.strip());
-    String[] titleAndAuthor= input.split("/");
+    String[] titleAndAuthor = input.split("/");
     return bookRepository.save(new Book(titleAndAuthor[0], titleAndAuthor[1]));
   }
 
