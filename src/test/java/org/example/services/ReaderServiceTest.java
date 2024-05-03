@@ -61,9 +61,9 @@ class ReaderServiceTest {
         () -> readerService.addNewReader("122312iagdasdghasdjkgfhsdjkfhasjkdfaskdnds"));
 
     assertAll(() -> assertTrue(
-            fewChar.getMessage().contains("Name should contain more than 5 char and less than 30 ones"))
+            fewChar.getMessage().contains("Name should contain more than 5 chars and less than 30 ones"))
         , () -> assertTrue(tooManyChar.getMessage()
-            .contains("Name should contain more than 5 char and less than 30 ones")));
+            .contains("Name should contain more than 5 chars and less than 30 ones")));
   }
 
   @Test
@@ -79,7 +79,7 @@ class ReaderServiceTest {
 
   @Test
   void shouldReturnBookIfValidInput() {
-    when(readerRepository.findById(anyLong())).thenReturn(Optional.of(new Reader(1L, "reader")));
+    when(readerRepository.findById(anyLong())).thenReturn(Optional.of(new Reader("reader")));
     assertAll(() -> assertTrue(readerService.findById("1").isPresent()),
         () -> assertTrue(readerService.findById("2").isPresent()),
         () -> assertTrue(readerService.findById("3").isPresent()));
@@ -89,7 +89,8 @@ class ReaderServiceTest {
   void shouldThrowValidationExceptionIfNotValidInput() {
     when(readerRepository.findById(anyLong())).thenReturn(Optional.empty());
     assertAll(
-        () -> assertThrows(ConsoleValidationException.class, () -> readerService.findById("asdasda")),
+        () -> assertThrows(ConsoleValidationException.class,
+            () -> readerService.findById("asdasda")),
         () -> assertTrue(readerService.findById("1").isEmpty()));
 
   }

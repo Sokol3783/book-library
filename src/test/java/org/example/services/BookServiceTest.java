@@ -56,7 +56,7 @@ class BookServiceTest {
     ConsoleValidationException exception = assertThrows(
         ConsoleValidationException.class, () -> bookService.addNewBook("valid / a$l#utho<>r"));
     assertTrue(exception.getMessage()
-        .contains("Author must contain only letters, spaces, dashes, apostrophes!"));
+        .contains("Name must contain only letters, spaces, dashes, apostrophes!"));
   }
 
   @Test
@@ -65,11 +65,11 @@ class BookServiceTest {
         () -> bookService.addNewBook("valid / asd"));
     ConsoleValidationException titleToManyChar = assertThrows(ConsoleValidationException.class,
         () -> bookService.addNewBook("valid / $l#uyyyyyyyyyyyyesssssssssssssggthor"));
-
+    System.out.println(titleFewChar.getMessage());
     assertAll(() -> assertTrue(titleFewChar.getMessage()
-            .contains("Author should contain more than 5 char and less than 30 ones")),
+            .contains("Name should contain more than 5 chars and less than 30 ones")),
         () -> assertTrue(titleToManyChar.getMessage()
-            .contains("Author should contain more than 5 char and less than 30 ones")));
+            .contains("Name should contain more than 5 chars and less than 30 ones")));
   }
 
   @Test
@@ -80,15 +80,16 @@ class BookServiceTest {
         () -> bookService.addNewBook(
             "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiigjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjii / valid author"));
     assertAll(() -> assertTrue(titleFewChar.getMessage()
-            .contains("Title should contain more than 5 char and less than 100 ones")),
+            .contains("Title should contain more than 5 chars and less than 100 ones")),
         () -> assertTrue(titleToManyChar.getMessage()
-            .contains("Title should contain more than 5 char and less than 100 ones")));
+            .contains("Title should contain more than 5 chars and less than 100 ones")));
+
   }
 
   @Test
   @Disabled("Has no ideas why it doesn't mock and work when set real implementation")
   void shouldCreateNewBookWithValidFieldsAndPrintMessage() {
-    Book book = new Book(0l, "Author 1", "Title 1");
+    Book book = new Book("Author 1", "Title 1");
     when(bookRepository.save(book)).thenReturn(book);
     Book saved = bookService.addNewBook(book.getName() + "/" + book.getAuthor());
     assertAll(() -> assertEquals(book, saved),
@@ -99,7 +100,7 @@ class BookServiceTest {
 
   @Test
   void shouldReturnBookIfValidInput() {
-    when(bookRepository.findById(anyLong())).thenReturn(Optional.of(new Book(1L, "book", "book")));
+    when(bookRepository.findById(anyLong())).thenReturn(Optional.of(new Book("book", "book")));
 
     assertAll(() -> assertTrue(bookService.findById("1").isPresent()),
         () -> assertTrue(bookService.findById("2").isPresent()),
@@ -119,13 +120,13 @@ class BookServiceTest {
     ConsoleValidationException exception = assertThrows(ConsoleValidationException.class,
         () -> bookService.addNewBook(
             "i@# / sadjfhasjkdfhsjadhfjkshdfk jasdhfksad #12@%2132 valid author"));
-
+    System.out.println(exception.getMessage());
     assertAll(() -> assertTrue(exception.getMessage()
-            .contains("Title should contain more than 5 char and less than 100 ones")),
+            .contains("Title should contain more than 5 chars and less than 100 ones")),
         () -> assertTrue(exception.getMessage()
-            .contains("Author should contain more than 5 char and less than 30 ones")),
+            .contains("Name should contain more than 5 chars and less than 30 ones")),
         () -> assertTrue(exception.getMessage()
-            .contains("Author must contain only letters, spaces, dashes, apostrophes!")),
+            .contains("Name must contain only letters, spaces, dashes, apostrophes!")),
         () -> assertTrue(
             exception.getMessage().contains("Title contains invalid symbols: |/\\\\#%=+*_><]"))
     );

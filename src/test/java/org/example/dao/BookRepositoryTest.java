@@ -44,13 +44,13 @@ class BookRepositoryTest {
   void shouldFindAllBooks() {
     List<Book> allOnStartup = bookRepository.findAll();
     assertEquals(3, allOnStartup.size());
-    bookRepository.save(new Book(1L, "Book", "Book"));
-    bookRepository.save(new Book(1L, "Book2", "Book4"));
+    bookRepository.save(new Book("Book", "Book"));
+    bookRepository.save(new Book("Book2", "Book4"));
 
     List<Book> allAfterChanges = bookRepository.findAll();
     assertAll(() -> assertEquals(5, allAfterChanges.size()),
-        () -> assertTrue(allAfterChanges.stream().anyMatch( s ->s.getId() == 4L)),
-        () -> assertTrue(allAfterChanges.stream().anyMatch( s ->s.getId() == 5L)));
+        () -> assertTrue(allAfterChanges.stream().anyMatch(s -> s.getId() == 4L)),
+        () -> assertTrue(allAfterChanges.stream().anyMatch(s -> s.getId() == 5L)));
 
   }
 

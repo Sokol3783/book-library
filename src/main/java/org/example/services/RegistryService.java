@@ -20,10 +20,11 @@ public class RegistryService {
     this.readerService = readerService;
   }
 
-  public RegistryService(RegistryRepository registryRepository, BookService bookService, ReaderService readerService)  {
-      this.registryRepository = registryRepository;
-      this.bookService = bookService;
-      this.readerService = readerService;
+  public RegistryService(RegistryRepository registryRepository, BookService bookService,
+      ReaderService readerService) {
+    this.registryRepository = registryRepository;
+    this.bookService = bookService;
+    this.readerService = readerService;
   }
 
   public Book borrowBook(String input) {
@@ -31,28 +32,33 @@ public class RegistryService {
     validateInputOfTwoId(input);
     String[] bookAndReaderId = input.split("/");
 
-    Book book =bookService.findById(bookAndReaderId[0].strip()).orElseThrow(() -> new RuntimeException("Book not found"));
-    Reader reader = readerService.findById(bookAndReaderId[1].strip()).orElseThrow(() -> new RuntimeException("Reader not found"));
+    Book book = bookService.findById(bookAndReaderId[0].strip())
+        .orElseThrow(() -> new RuntimeException("Book not found"));
+    Reader reader = readerService.findById(bookAndReaderId[1].strip())
+        .orElseThrow(() -> new RuntimeException("Reader not found"));
 
     registryRepository.borrowBook(book, reader);
     return book;
-}
+  }
 
   public Book returnBook(String input) {
-    Book book = bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
+    Book book = bookService.findById(input)
+        .orElseThrow(() -> new RuntimeException("Book not found"));
     registryRepository.returnBook(book);
     return book;
   }
 
-  public List<Book> findBorrowedBooksByReader(String input){
-    Reader reader = readerService.findById(input.strip()).orElseThrow(() -> new RuntimeException("Reader nod found!"));
+  public List<Book> findBorrowedBooksByReader(String input) {
+    Reader reader = readerService.findById(input.strip())
+        .orElseThrow(() -> new RuntimeException("Reader nod found!"));
     return registryRepository.getListBorrowedBooksOfReader(reader);
   }
 
-  public Reader findCurrentReaderOfBook(String input){
-    Book book = bookService.findById(input).orElseThrow(() -> new RuntimeException("Book not found"));
+  public Reader findCurrentReaderOfBook(String input) {
+    Book book = bookService.findById(input)
+        .orElseThrow(() -> new RuntimeException("Book not found"));
     Optional<Reader> readerOfBook = registryRepository.getReaderOfBook(book);
     return readerOfBook.orElseThrow(() -> new RuntimeException("Nobody reads this book"));
- }
+  }
 
 }

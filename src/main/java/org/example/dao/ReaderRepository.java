@@ -11,26 +11,33 @@ import org.example.entity.Reader;
 public class ReaderRepository {
 
   private final AtomicLong ID_GENERATOR = new AtomicLong(0);
-  private final Set<Reader> readers= new TreeSet<>(Comparator.comparingLong(Reader::getId));
+  private final Set<Reader> readers;
 
   public ReaderRepository() {
-    readers.add(new Reader(ID_GENERATOR.incrementAndGet(), "Mike Douglas"));
-    readers.add(new Reader(ID_GENERATOR.incrementAndGet(), "Fedor Trybeckoi"));
-    readers.add(new Reader(ID_GENERATOR.incrementAndGet(), "Ivan Mazepa"));
+    this.readers = new TreeSet<>(Comparator.comparingLong(Reader::getId));
+    Reader reader = new Reader("Mike Douglas");
+    reader.setId(ID_GENERATOR.incrementAndGet());
+    readers.add(reader);
+    reader = new Reader("Fedor Trybeckoi");
+    reader.setId(ID_GENERATOR.incrementAndGet());
+    readers.add(reader);
+    reader = new Reader("Ivan Mazepa");
+    reader.setId(ID_GENERATOR.incrementAndGet());
+    readers.add(reader);
   }
 
-  public Optional<Reader> findById(long id){
+  public Optional<Reader> findById(long id) {
     return readers.stream().filter(s -> s.getId() == id).findFirst();
   }
 
-  public List<Reader> findAll(){
+  public List<Reader> findAll() {
     return List.copyOf(readers);
   }
 
- public Reader save(Reader reader){
+  public Reader save(Reader reader) {
     reader.setId(ID_GENERATOR.incrementAndGet());
     readers.add(reader);
     return reader;
- }
+  }
 
 }

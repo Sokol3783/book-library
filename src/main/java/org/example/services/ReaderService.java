@@ -21,10 +21,10 @@ public class ReaderService {
   }
 
   public List<Reader> findAllReaders() {
-      return readerRepository.findAll();
+    return readerRepository.findAll();
   }
 
-  public Reader addNewReader(String input){
+  public Reader addNewReader(String input) {
     ValidatorUtil.validateInputOfNewReader(input);
     return readerRepository.save(new Reader(input));
   }

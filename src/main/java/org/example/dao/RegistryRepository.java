@@ -16,12 +16,14 @@ public class RegistryRepository {
 
   private final Map<Reader, Set<Book>> map;
 
-  public RegistryRepository(){
+  public RegistryRepository() {
     map = new HashMap<>();
   }
 
   public void borrowBook(Book book, Reader reader) {
-    if (isBorrowedBook(book)) throw new RegistryRepositoryException("Book is already borrowed! You can't borrow it");
+    if (isBorrowedBook(book)) {
+      throw new RegistryRepositoryException("Book is already borrowed! You can't borrow it");
+    }
     map.computeIfAbsent(reader, k -> new HashSet<>()).add(book);
   }
 
@@ -36,17 +38,17 @@ public class RegistryRepository {
         orElseThrow(() -> new RegistryRepositoryException("This book anybody doesn't borrow!"));
   }
 
-  public Optional<Reader> getReaderOfBook(Book book){
+  public Optional<Reader> getReaderOfBook(Book book) {
     return map.entrySet().stream().
         filter(s -> s.getValue().contains(book)).
         map(Entry::getKey).
         findFirst();
   }
 
-  public List<Book> getListBorrowedBooksOfReader(Reader reader){
+  public List<Book> getListBorrowedBooksOfReader(Reader reader) {
     return Optional.ofNullable(map.get(reader))
-                   .map(List::copyOf)
-                   .orElse(Collections.emptyList());
+        .map(List::copyOf)
+        .orElse(Collections.emptyList());
   }
 
 

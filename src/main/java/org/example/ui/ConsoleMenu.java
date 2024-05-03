@@ -15,19 +15,19 @@ public class ConsoleMenu {
   private static final String ENTER_BOOK_ID_MESSAGE = "Please, enter book's ID:";
 
   private final Scanner scanner = new Scanner(System.in);
-  private boolean terminated;
-
   private final BookService bookService;
   private final ReaderService readerService;
   private final RegistryService registryService;
+  private boolean terminated;
 
-  public ConsoleMenu(){
+  public ConsoleMenu() {
     bookService = new BookService();
     readerService = new ReaderService();
     registryService = new RegistryService(bookService, readerService);
   }
 
-  public ConsoleMenu(BookService bookService, ReaderService readers, RegistryService registryService) {
+  public ConsoleMenu(BookService bookService, ReaderService readers,
+      RegistryService registryService) {
     this.bookService = bookService;
     this.readerService = readers;
     this.registryService = registryService;
@@ -76,7 +76,8 @@ public class ConsoleMenu {
   }
 
   private void addNewBook() {
-    System.out.println("Please, enter new book name and author separated by “/”. Like this: name / author");
+    System.out.println(
+        "Please, enter new book name and author separated by “/”. Like this: name / author");
     String newBook = scanner.nextLine();
     Book saved = bookService.addNewBook(newBook);
     System.out.println(saved);
@@ -92,7 +93,7 @@ public class ConsoleMenu {
   private void borrowBook() {
     System.out.println("Please enter book ID and reader ID. Like this: 15 / 15");
     String bookIdAndReaderId = scanner.nextLine();
-    Book book= registryService.borrowBook(bookIdAndReaderId);
+    Book book = registryService.borrowBook(bookIdAndReaderId);
     System.out.println("Book " + book.getName() + "borrowed.");
   }
 
@@ -130,7 +131,7 @@ public class ConsoleMenu {
 
   private String getTextMenu() {
     return """
-        
+                
         PLEASE, SELECT ONE OF THE FOLLOWING ACTIONS BY TYPING THE OPTION’S NUMBER AND PRESSING ENTER KEY:
         [1] SHOW ALL BOOKS IN THE LIBRARY
         [2] SHOW ALL READERS REGISTERED IN THE LIBRARY
