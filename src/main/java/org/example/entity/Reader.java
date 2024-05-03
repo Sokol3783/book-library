@@ -5,8 +5,7 @@ public class Reader {
     private long id;
     private String name;
 
-    public Reader(long id, String name) {
-        this.id = id;
+    public Reader(String name){
         this.name = name;
     }
 
@@ -31,6 +30,24 @@ public class Reader {
 
     @Override
     public String toString() {
-        return "ID = " + id + "| name = " + name;
+        return "ID = " + id + " | name = " + name;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Reader reader)) {
+            return false;
+        }
+
+      return id == reader.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(id);
     }
 }

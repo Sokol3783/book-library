@@ -1,11 +1,12 @@
 package org.example;
 
-import org.example.ui.BaseConsoleMenu;
+import org.example.ui.ConsoleMenu;
 
 public class App {
 
   public static void main(String[] args) {
-      BaseConsoleMenu menu = new BaseConsoleMenu();
-      menu.run();
+   ConsoleMenu menu = new ConsoleMenu();
+   menu.run();
   }
+
 }
