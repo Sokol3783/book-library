@@ -43,6 +43,11 @@
       <scope>test</scope>
       <version>${mockito-core.version}</version>
     </dependency>
+    <dependency>
+      <artifactId>postgresql</artifactId>
+      <groupId>org.postgresql</groupId>
+      <version>${postgresql.version}</version>
+    </dependency>
   </dependencies>
   <groupId>org.example</groupId>
 
@@ -55,6 +60,7 @@
     <java.version>17</java.version>
     <junit-jupiter.version>5.5.2</junit-jupiter.version>
     <mockito-core.version>5.11.0</mockito-core.version>
+    <postgresql.version>42.7.3</postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
