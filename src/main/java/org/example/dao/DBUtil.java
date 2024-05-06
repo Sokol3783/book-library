@@ -21,12 +21,10 @@ public class DBUtil {
     source.setConnectTimeout(1000);
     source.setDatabaseName("library");
     return source;
-
   }
 
   static Connection getConnection() throws SQLException {
     return dataSource.getConnection();
-
   }
 
 }
