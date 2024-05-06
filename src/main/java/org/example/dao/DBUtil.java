@@ -1,9 +1,7 @@
 package org.example.dao;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -43,7 +41,7 @@ public class DBUtil {
   }
 
   private static void insertInitialValue(Connection connection) throws SQLException {
-    String data = readFromResources("data.sql");
+    String data = readSQLfromResource("data.sql");
     PreparedStatement statement = connection.prepareStatement(data);
     if (statement.execute()) {
       statement.close();
@@ -51,22 +49,20 @@ public class DBUtil {
   }
 
   private static void createTables(Connection connection) throws SQLException {
-    String schema = readFromResources("schema.sql");
+    String schema = readSQLfromResource("schema.sql");
     PreparedStatement statement = connection.prepareStatement(schema);
     if (statement.execute()) {
       statement.close();
     }
   }
 
-  private static String readFromResources(String resourceName) {
-    String file = DBUtil.class.getResource(resourceName).getFile();
-    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+  private static String readSQLfromResource(String resourceName) {
+    var resourceAsStream = DBUtil.class.getClassLoader().getResourceAsStream(resourceName);
+    if (resourceAsStream != null) {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
       return reader.lines().collect(Collectors.joining("\n"));
-    } catch (FileNotFoundException e) {
-      throw new RuntimeException(e);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
     }
+    throw new RuntimeException(resourceName + "resource not found");
   }
 
 }
