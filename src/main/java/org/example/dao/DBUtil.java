@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
+import org.example.exception.DAOException;
 import org.postgresql.ds.PGSimpleDataSource;
 
 public class DBUtil {
@@ -35,19 +36,23 @@ public class DBUtil {
   /**
    * Create new tables from files schema.sql (structure of database) and data.sql (some values on
    * first run of application)
+   *
+   * @throws DAOException If there is miss schema.sql or data sql throws an error, also if there are
+   *                      problems with executing scripts
    */
-  public static void initDatabase() {
+  public static void initDatabase() throws DAOException {
     try (Connection connection = getConnection()) {
       List<String> scriptsInResources = List.of("schema.sql", "data.sql");
       for (String script : scriptsInResources) {
         executeSQLScript(connection, script);
       }
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DAOException(e);
     }
   }
 
-  private static void executeSQLScript(Connection connection, String fileName) throws SQLException {
+  private static void executeSQLScript(Connection connection, String fileName)
+      throws SQLException, DAOException {
     String data = readSQLFromResource(fileName);
     PreparedStatement statement = connection.prepareStatement(data);
     if (statement.execute()) {
@@ -55,13 +60,14 @@ public class DBUtil {
     }
   }
 
-  private static String readSQLFromResource(String resourceName) {
+  private static String readSQLFromResource(String resourceName) throws DAOException {
     var resourceAsStream = DBUtil.class.getClassLoader().getResourceAsStream(resourceName);
     if (resourceAsStream != null) {
       BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
       return reader.lines().collect(Collectors.joining("\n"));
     }
-    throw new RuntimeException(resourceName + "resource not found");
+    throw new DAOException(
+        "Initiation of database failed because resource not found: " + resourceName);
   }
 
 }
