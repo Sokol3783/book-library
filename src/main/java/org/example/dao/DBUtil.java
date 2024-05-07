@@ -5,15 +5,16 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.postgresql.ds.PGSimpleDataSource;
 
 public class DBUtil {
 
-  private final static String URL = "jdbc:postgresql://localhost:5432/library";
-  private final static String LOGIN = "sam";
-  private final static String PASSWORD = "password";
+  private final static String URL = "jdbc:postgresql://localhost:5432/book-library-sokol";
+  private final static String LOGIN = "postgres";
+  private final static String PASSWORD = "postgres";
 
   private final static DataSource dataSource = readConfig();
 
@@ -31,32 +32,30 @@ public class DBUtil {
     return dataSource.getConnection();
   }
 
+  /**
+   * Create new tables from files schema.sql (structure of database) and data.sql (some values on
+   * first run of application)
+   */
   public static void initDatabase() {
     try (Connection connection = getConnection()) {
-      createTables(connection);
-      insertInitialValue(connection);
+      List<String> scriptsInResources = List.of("schema.sql", "data.sql");
+      for (String script : scriptsInResources) {
+        executeSQLScript(connection, script);
+      }
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
 
-  private static void insertInitialValue(Connection connection) throws SQLException {
-    String data = readSQLfromResource("data.sql");
+  private static void executeSQLScript(Connection connection, String fileName) throws SQLException {
+    String data = readSQLFromResource(fileName);
     PreparedStatement statement = connection.prepareStatement(data);
     if (statement.execute()) {
       statement.close();
     }
   }
 
-  private static void createTables(Connection connection) throws SQLException {
-    String schema = readSQLfromResource("schema.sql");
-    PreparedStatement statement = connection.prepareStatement(schema);
-    if (statement.execute()) {
-      statement.close();
-    }
-  }
-
-  private static String readSQLfromResource(String resourceName) {
+  private static String readSQLFromResource(String resourceName) {
     var resourceAsStream = DBUtil.class.getClassLoader().getResourceAsStream(resourceName);
     if (resourceAsStream != null) {
       BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
