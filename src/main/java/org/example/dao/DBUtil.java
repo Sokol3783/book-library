@@ -1,6 +1,7 @@
 package org.example.dao;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +11,6 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.example.exception.DAOException;
-import org.example.util.AppUtil;
 import org.postgresql.ds.PGSimpleDataSource;
 
 public class DBUtil {
@@ -18,7 +18,7 @@ public class DBUtil {
   private final static DataSource dataSource = createDataSource();
 
   private static DataSource createDataSource() {
-    Properties appProperties = AppUtil.getApplicationProperties();
+    Properties appProperties = getApplicationProperties();
     PGSimpleDataSource source = new PGSimpleDataSource();
     source.setUser(appProperties.getProperty("username"));
     source.setPassword(appProperties.getProperty("pass"));
@@ -69,4 +69,17 @@ public class DBUtil {
         "Initiation of database failed because resource not found: " + resourceName);
   }
 
+  private static Properties getApplicationProperties() {
+    Properties properties = new Properties();
+    var stream = DBUtil.class.getClassLoader().getResourceAsStream("application.properties");
+    if (stream != null) {
+      try {
+        properties.load(stream);
+        return properties;
+      } catch (IOException e) {
+        throw new DAOException(e.getMessage());
+      }
+    }
+    throw new DAOException("application.properties is missed!");
+  }
 }
