@@ -18,9 +18,9 @@ public class BookRepository {
   }
 
   public Optional<Book> findById(long id) {
-    try (Connection connection = DBUtil.getConnection()) {
-      PreparedStatement statement = connection.prepareStatement(
-          "SELECT id, name, title FROM book WHERE id = ?");
+    try (Connection connection = DBUtil.getConnection();
+        PreparedStatement statement = connection.prepareStatement(
+            "SELECT id, name, title FROM book WHERE id = ?")) {
       statement.setLong(1, id);
       ResultSet resultSet = statement.executeQuery();
       if (resultSet.next()) {
