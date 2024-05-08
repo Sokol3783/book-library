@@ -50,11 +50,8 @@ public class DBUtil {
   private static void executeSQLScript(Connection connection, String fileName)
       throws SQLException, DAOException {
     String data = readSQLFromResource(fileName);
-    PreparedStatement statement = connection.prepareStatement(data);
-    if (statement.execute()) {
-      statement.close();
-    } else {
-      throw new DAOException("Script doesn't executed" + fileName);
+    try (PreparedStatement statement = connection.prepareStatement(data)) {
+      statement.execute();
     }
   }
 
