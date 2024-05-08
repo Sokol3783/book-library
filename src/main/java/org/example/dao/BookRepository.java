@@ -28,7 +28,7 @@ public class BookRepository {
       }
       return Optional.empty();
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DAOException(e.getMessage());
     }
   }
 
@@ -67,10 +67,10 @@ public class BookRepository {
         return book;
       }
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DAOException(e.getMessage());
     }
 
-    throw new RuntimeException("Book doesn't save");
+    throw new DAOException("Book doesn't save");
   }
 
   private Optional<Book> mapToBook(ResultSet resultSet) throws SQLException {
