@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
@@ -41,10 +40,8 @@ public class DBUtil {
    */
   public static void initDatabase() throws DAOException {
     try (Connection connection = getConnection()) {
-      List<String> scriptsInResources = List.of("schema.sql", "data.sql");
-      for (String script : scriptsInResources) {
-        executeSQLScript(connection, script);
-      }
+      executeSQLScript(connection, "schema.sql");
+      executeSQLScript(connection, "data.sql");
     } catch (SQLException e) {
       throw new DAOException(e);
     }
@@ -56,6 +53,8 @@ public class DBUtil {
     PreparedStatement statement = connection.prepareStatement(data);
     if (statement.execute()) {
       statement.close();
+    } else {
+      throw new DAOException("Script doesn't executed" + fileName);
     }
   }
 
