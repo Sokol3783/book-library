@@ -23,10 +23,7 @@ public class BookRepository {
             "SELECT id, name, title FROM book WHERE id = ?")) {
       statement.setLong(1, id);
       ResultSet resultSet = statement.executeQuery();
-      if (resultSet.next()) {
-        return mapToBook(resultSet);
-      }
-      return Optional.empty();
+      return mapToBook(resultSet);
     } catch (SQLException e) {
       throw new DAOException(e.getMessage());
     }
