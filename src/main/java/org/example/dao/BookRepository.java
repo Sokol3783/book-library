@@ -46,9 +46,9 @@ public class BookRepository {
 
   private List<Book> mapToBookList(ResultSet resultSet) throws SQLException {
     List<Book> books = new ArrayList<>();
-    while (resultSet.next()) {
-      Book book = mapToBook(resultSet).orElseThrow(() -> new SQLException("Book failed to map!"));
-      books.add(book);
+    Optional<Book> book;
+    while ((book = mapToBook(resultSet)).isPresent()) {
+      books.add(book.get());
     }
     return books;
   }
@@ -74,11 +74,14 @@ public class BookRepository {
   }
 
   private Optional<Book> mapToBook(ResultSet resultSet) throws SQLException {
-    Book book = new Book();
-    book.setId(resultSet.getLong("id"));
-    book.setAuthor(resultSet.getString("author"));
-    book.setName(resultSet.getString("title"));
-    return Optional.of(book);
+    if (resultSet.next()) {
+      Book book = new Book();
+      book.setId(resultSet.getLong("id"));
+      book.setAuthor(resultSet.getString("author"));
+      book.setName(resultSet.getString("title"));
+      return Optional.of(book);
+    }
+    return Optional.empty();
   }
 
 }
