@@ -15,9 +15,9 @@ import org.postgresql.ds.PGSimpleDataSource;
 
 public class DBUtil {
 
-  private final static DataSource dataSource = readConfig();
+  private final static DataSource dataSource = createDataSource();
 
-  private static DataSource readConfig() {
+  private static DataSource createDataSource() {
     Properties appProperties = AppUtil.getApplicationProperties();
     PGSimpleDataSource source = new PGSimpleDataSource();
     source.setUser(appProperties.getProperty("username"));
