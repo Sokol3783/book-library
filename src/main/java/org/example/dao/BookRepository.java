@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.example.entity.Book;
+import org.example.exception.DAOException;
 
 public class BookRepository {
 
@@ -23,8 +24,7 @@ public class BookRepository {
       statement.setLong(1, id);
       ResultSet resultSet = statement.executeQuery();
       if (resultSet.next()) {
-        Book book = parseBook(resultSet);
-        return Optional.of(book);
+        return mapToBook(resultSet);
       }
       return Optional.empty();
     } catch (SQLException e) {
@@ -32,19 +32,25 @@ public class BookRepository {
     }
   }
 
-  public List<Book> findAll() {
-    List<Book> books = new ArrayList<>();
-    try (Connection connection = DBUtil.getConnection()) {
-      PreparedStatement statement = connection.prepareStatement("SELECT id, name, title FROM book");
-      ResultSet resultSet = statement.executeQuery();
-      while (resultSet.next()) {
-        Book book = parseBook(resultSet);
-        books.add(book);
-      }
+  public List<Book> findAll() throws DAOException {
+    try (Connection connection = DBUtil.getConnection();
+        PreparedStatement statement = connection.prepareStatement(
+            "SELECT id, name, title FROM book");
+        ResultSet resultSet = statement.executeQuery()
+    ) {
+      return mapToBookList(resultSet);
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DAOException(e.getMessage());
     }
-    return List.copyOf(books);
+  }
+
+  private List<Book> mapToBookList(ResultSet resultSet) throws SQLException {
+    List<Book> books = new ArrayList<>();
+    while (resultSet.next()) {
+      Book book = mapToBook(resultSet).orElseThrow(() -> new SQLException("Book failed to map!"));
+      books.add(book);
+    }
+    return books;
   }
 
   public Book save(Book book) {
@@ -67,12 +73,12 @@ public class BookRepository {
     throw new RuntimeException("Book doesn't save");
   }
 
-  private Book parseBook(ResultSet resultSet) throws SQLException {
+  private Optional<Book> mapToBook(ResultSet resultSet) throws SQLException {
     Book book = new Book();
     book.setId(resultSet.getLong("id"));
     book.setAuthor(resultSet.getString("author"));
     book.setName(resultSet.getString("title"));
-    return book;
+    return Optional.of(book);
   }
 
 }
