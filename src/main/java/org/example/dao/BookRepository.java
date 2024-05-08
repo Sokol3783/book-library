@@ -20,7 +20,7 @@ public class BookRepository {
   public Optional<Book> findById(long id) {
     try (Connection connection = DBUtil.getConnection();
         PreparedStatement statement = connection.prepareStatement(
-            "SELECT id, name, title FROM book WHERE id = ?")) {
+            "SELECT id, author, title FROM book WHERE id = ?")) {
       statement.setLong(1, id);
       ResultSet resultSet = statement.executeQuery();
       return mapToBook(resultSet);
@@ -32,7 +32,7 @@ public class BookRepository {
   public List<Book> findAll() throws DAOException {
     try (Connection connection = DBUtil.getConnection();
         PreparedStatement statement = connection.prepareStatement(
-            "SELECT id, name, title FROM book");
+            "SELECT id, author, title FROM book");
         ResultSet resultSet = statement.executeQuery()
     ) {
       return mapToBookList(resultSet);
