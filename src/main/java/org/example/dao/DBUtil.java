@@ -6,26 +6,25 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.example.exception.DAOException;
+import org.example.util.AppUtil;
 import org.postgresql.ds.PGSimpleDataSource;
 
 public class DBUtil {
 
-  private final static String URL = "jdbc:postgresql://localhost:5432/book-library-sokol";
-  private final static String LOGIN = "postgres";
-  private final static String PASSWORD = "postgres";
-
   private final static DataSource dataSource = readConfig();
 
   private static DataSource readConfig() {
+    Properties appProperties = AppUtil.getApplicationProperties();
     PGSimpleDataSource source = new PGSimpleDataSource();
-    source.setUser(LOGIN);
-    source.setPassword(PASSWORD);
-    source.setURL(URL);
+    source.setUser(appProperties.getProperty("username"));
+    source.setPassword(appProperties.getProperty("pass"));
+    source.setURL(appProperties.getProperty("url"));
     source.setConnectTimeout(1000);
-    source.setDatabaseName("library");
+    source.setDatabaseName(appProperties.getProperty("db-name"));
     return source;
   }
 
