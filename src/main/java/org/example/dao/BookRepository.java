@@ -54,10 +54,10 @@ public class BookRepository {
   }
 
   public Book save(Book book) {
-    try (Connection connection = DBUtil.getConnection()) {
-      PreparedStatement statement = connection.prepareStatement(
-          "INSERT INTO book(title, author) VALUES (?,?)",
-          Statement.RETURN_GENERATED_KEYS);
+    try (Connection connection = DBUtil.getConnection();
+        PreparedStatement statement = connection.prepareStatement(
+            "INSERT INTO book(title, author) VALUES (?,?)",
+            Statement.RETURN_GENERATED_KEYS)) {
       statement.setString(1, book.getName());
       statement.setString(2, book.getAuthor());
       statement.execute();
