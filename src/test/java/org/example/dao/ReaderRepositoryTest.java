@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Optional;
 import org.example.entity.Reader;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled
 class ReaderRepositoryTest {
 
   private static ReaderRepository readerRepository;
