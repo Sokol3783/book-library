@@ -1,11 +1,13 @@
 package org.example.dao;
 
+import static org.example.dao.MapperUtil.mapToBook;
+import static org.example.dao.MapperUtil.mapToBookList;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.example.entity.Book;
@@ -41,14 +43,6 @@ public class BookRepository {
     }
   }
 
-  private List<Book> mapToBookList(ResultSet resultSet) throws SQLException {
-    List<Book> books = new ArrayList<>();
-    Optional<Book> book;
-    while ((book = mapToBook(resultSet)).isPresent()) {
-      books.add(book.get());
-    }
-    return books;
-  }
 
   public Book save(Book book) {
     try (Connection connection = DBUtil.getConnection();
@@ -69,16 +63,4 @@ public class BookRepository {
 
     throw new DAOException("Book doesn't save");
   }
-
-  private Optional<Book> mapToBook(ResultSet resultSet) throws SQLException {
-    if (resultSet.next()) {
-      Book book = new Book();
-      book.setId(resultSet.getLong("id"));
-      book.setAuthor(resultSet.getString("author"));
-      book.setName(resultSet.getString("title"));
-      return Optional.of(book);
-    }
-    return Optional.empty();
-  }
-
 }

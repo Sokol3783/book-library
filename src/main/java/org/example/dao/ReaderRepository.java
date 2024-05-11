@@ -1,11 +1,13 @@
 package org.example.dao;
 
+import static org.example.dao.MapperUtil.mapToReader;
+import static org.example.dao.MapperUtil.mapToReaderList;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.example.entity.Reader;
@@ -41,14 +43,6 @@ public class ReaderRepository {
     }
   }
 
-  private List<Reader> mapToReaderList(ResultSet resultSet) throws SQLException {
-    List<Reader> readers = new ArrayList<>();
-    Optional<Reader> reader;
-    while ((reader = mapToReader(resultSet)).isPresent()) {
-      readers.add(reader.get());
-    }
-    return readers;
-  }
 
   public Reader save(Reader reader) {
     try (Connection connection = DBUtil.getConnection();
@@ -68,13 +62,5 @@ public class ReaderRepository {
     throw new DAOException("Reader doesn't save");
   }
 
-  private Optional<Reader> mapToReader(ResultSet resultSet) throws SQLException {
-    if (resultSet.next()) {
-      Reader reader = new Reader();
-      reader.setName(resultSet.getString("name"));
-      reader.setId(resultSet.getLong("id"));
-      return Optional.of(reader);
-    }
-    return Optional.empty();
-  }
+
 }

@@ -68,7 +68,7 @@ public class RegistryRepository {
         )) {
       statement.setLong(1, book.getId());
       ResultSet resultSet = statement.executeQuery();
-      return Optional.empty();
+      return MapperUtil.mapToReader(resultSet);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -86,7 +86,7 @@ public class RegistryRepository {
         )) {
       statement.setLong(1, reader.getId());
       ResultSet resultSet = statement.executeQuery();
-      return List.of();
+      return MapperUtil.mapToBookList(resultSet);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
