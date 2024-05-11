@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -262,6 +263,22 @@ class ConsoleMenuTest {
         () -> assertEquals(3, countRepeatedSubstrings(errorMessage, "Invalid option")));
   }
 
+  @Test
+  @DisplayName("After input 9 print list of reader with their current borrowed books")
+  void shouldPrintListOfReaderWithTheirCurrentBooks() throws InterruptedException {
+    setInputAndRunMenu("9");
+    String string = output.toString();
+    fail();
+  }
+
+  @Test
+  @DisplayName("After input 10 print list books with current readers, if anybody doesn't read print - 'available'")
+  void shouldPrintListOfBookWithCurrentReaders() throws InterruptedException {
+    setInputAndRunMenu("10");
+    String string = output.toString();
+    fail();
+  }
+
   private String getTextMenu() {
     return """
         PLEASE, SELECT ONE OF THE FOLLOWING ACTIONS BY TYPING THE OPTION’S NUMBER AND PRESSING ENTER KEY:
@@ -273,6 +290,8 @@ class ConsoleMenuTest {
         [6] RETURN A BOOK TO THE LIBRARY
         [7] SHOW ALL BORROWED BOOK BY USER ID
         [8] SHOW CURRENT READER OF A BOOK WITH ID
+        [9] SHOW ALL READERS WITH THEIR BORROWED BOOKS
+        [10] SHOW ALL BOOKS WITH THEIR CURRENT READERS
         TYPE “EXIT” TO STOP THE PROGRAM AND EXIT!
         """;
   }
@@ -282,5 +301,4 @@ class ConsoleMenuTest {
     executor.execute(this::run);
     sleep(300);
   }
-
 }
