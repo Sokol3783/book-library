@@ -1,9 +1,15 @@
 package org.example.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import org.example.entity.Book;
 import org.example.entity.Reader;
+import org.example.exception.DAOException;
+import org.example.exception.RegistryRepositoryException;
 
 public class RegistryRepository {
 
@@ -11,36 +17,78 @@ public class RegistryRepository {
   }
 
   public void borrowBook(Book book, Reader reader) {
-   /*
-    if (isBorrowedBook(book)) {
-      throw new RegistryRepositoryException("Book is already borrowed! You can't borrow it");
+    try (Connection connection = DBUtil.getConnection();
+        PreparedStatement statement = connection.prepareStatement(
+            """
+                INSERT INTO registry (book_id, reader_id)
+                SELECT ?, ?
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM registry
+                    WHERE book_id = ? 
+                );
+                """
+        )) {
+      statement.setLong(1, book.getId());
+      statement.setLong(2, reader.getId());
+      statement.setLong(3, book.getId());
+      int i = statement.executeUpdate();
+      if (i == 0) {
+        throw new RegistryRepositoryException("Book is already borrowed! You can't borrow it!");
+      }
+    } catch (SQLException e) {
+      throw new RegistryRepositoryException();
     }
-    map.computeIfAbsent(reader, k -> new HashSet<>()).add(book);
-    */
-  }
-
-  private boolean isBorrowedBook(Book book) {
-    return false;
-    /*
-    return map.entrySet().stream().anyMatch(s -> s.getValue().contains(book));
-     */
   }
 
   public void returnBook(Book book) {
-/*
-    map.values().stream()
-        .filter(s -> s.remove(book))
-        .findAny().
-        orElseThrow(() -> new RegistryRepositoryException("This book anybody doesn't borrow!"));
- */
+    try (Connection connection = DBUtil.getConnection();
+        PreparedStatement statement = connection.prepareStatement(
+            "DELETE FROM registry WHERE book_id = ?")) {
+      statement.setLong(1, book.getId());
+      int i = statement.executeUpdate();
+      if (i == 0) {
+        throw new DAOException("");
+      }
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public Optional<Reader> getReaderOfBook(Book book) {
-    return Optional.empty();
+    try (Connection connection = DBUtil.getConnection();
+        PreparedStatement statement = connection.prepareStatement(
+            """
+                SELECT reader.id, reader.name
+                FROM registry
+                INNER JOIN reader ON registry.reader_id = reader.id
+                WHERE book_id = ?
+                """
+        )) {
+      statement.setLong(1, book.getId());
+      ResultSet resultSet = statement.executeQuery();
+      return Optional.empty();
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public List<Book> getListBorrowedBooksOfReader(Reader reader) {
-    return List.of();
+    try (Connection connection = DBUtil.getConnection();
+        PreparedStatement statement = connection.prepareStatement(
+            """
+                SELECT book.id, book.author, book.title
+                FROM registry
+                LEFT JOIN book ON registry.book_id = book.id
+                WHERE reader_id = ?
+                """
+        )) {
+      statement.setLong(1, reader.getId());
+      ResultSet resultSet = statement.executeQuery();
+      return List.of();
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
-
 }
