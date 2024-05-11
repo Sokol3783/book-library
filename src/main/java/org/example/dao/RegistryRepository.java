@@ -25,7 +25,7 @@ public class RegistryRepository {
                 WHERE NOT EXISTS (
                     SELECT 1
                     FROM registry
-                    WHERE book_id = ? 
+                    WHERE book_id = ?
                 );
                 """
         )) {
@@ -37,7 +37,7 @@ public class RegistryRepository {
         throw new RegistryRepositoryException("Book is already borrowed! You can't borrow it!");
       }
     } catch (SQLException e) {
-      throw new RegistryRepositoryException();
+      throw new DAOException(e.getMessage());
     }
   }
 
@@ -48,11 +48,11 @@ public class RegistryRepository {
       statement.setLong(1, book.getId());
       int i = statement.executeUpdate();
       if (i == 0) {
-        throw new DAOException("");
+        throw new RegistryRepositoryException("This book anybody doesn't borrow!");
       }
 
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DAOException(e.getMessage());
     }
   }
 
@@ -70,7 +70,7 @@ public class RegistryRepository {
       ResultSet resultSet = statement.executeQuery();
       return MapperUtil.mapToReader(resultSet);
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DAOException(e.getMessage());
     }
   }
 
@@ -88,7 +88,7 @@ public class RegistryRepository {
       ResultSet resultSet = statement.executeQuery();
       return MapperUtil.mapToBookList(resultSet);
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DAOException(e.getMessage());
     }
   }
 }
