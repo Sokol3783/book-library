@@ -10,4 +10,4 @@ INSERT INTO reader(name) VALUES
 
 INSERT INTO registry(book_id, reader_id) VALUES
                   (1, 1),
-                  (1, 2)
+                  (2, 1)
