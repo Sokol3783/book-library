@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.example.entity.Book;
 import org.example.entity.Reader;
@@ -90,5 +92,13 @@ public class RegistryRepository {
     } catch (SQLException e) {
       throw new DAOException(e.getMessage());
     }
+  }
+
+  public Map<Reader, List<Book>> getAllReadersWithBorrowedBooks() {
+    return new HashMap<>();
+  }
+
+  public Map<Book, Optional<Reader>> getAllBooksWithCurrentReaders() {
+    return new HashMap<>();
   }
 }
