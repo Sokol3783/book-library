@@ -1,6 +1,8 @@
 package org.example.ui;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 import org.example.entity.Book;
 import org.example.entity.Reader;
@@ -60,9 +62,38 @@ public class ConsoleMenu {
       case "6" -> returnBook();
       case "7" -> showAllBorrowedByReader();
       case "8" -> showCurrentReaderOfBook();
+      case "9" -> showAllReaderWithCurrentlyBorrowedBooks();
+      case "10" -> showAllBooksWithBorrowers();
       case "exit" -> exit();
       default -> printErrInvalidOption();
     }
+  }
+
+  private void showAllBooksWithBorrowers() {
+    Map<Reader, List<Book>> readersWithBorrowedBooks = registryService.getAllReadersWithBorrowedBooks();
+    readersWithBorrowedBooks.entrySet().forEach(s -> {
+          System.out.println("\n");
+          if (s.getValue().isEmpty()) {
+            System.out.println(s.getKey() + "no books borrowed");
+          } else {
+            System.out.println(s.getKey() + "list of borrowed books");
+            s.getValue().forEach(System.out::println);
+          }
+        }
+    );
+  }
+
+  private void showAllReaderWithCurrentlyBorrowedBooks() {
+    Map<Book, Optional<Reader>> booksWithCurrentReaders = registryService.getAllBooksWithBorrowers();
+    booksWithCurrentReaders.entrySet().forEach(
+        s -> {
+          if (s.getValue().isPresent()) {
+            System.out.println(s.getKey().toString() + " borrower: " + s.getValue().get());
+          } else {
+            System.out.println(s.getKey().toString() + " available");
+          }
+        }
+    );
   }
 
   private void printAllReaders() {
