@@ -141,4 +141,13 @@ class RegistryServiceTest {
     assertTrue(exception.getMessage().contains(message));
   }
 
+  @Test
+  void shouldReturnMapKeyReaderValueListOfBook() {
+  }
+
+  @Test
+  void shouldReturnMapKeyBookValueOptionalReader() {
+
+  }
+
 }
