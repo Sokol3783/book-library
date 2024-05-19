@@ -15,7 +15,6 @@ import org.example.exception.DAOException;
 
 public class BookRepository {
 
-
   public BookRepository() {
   }
 
