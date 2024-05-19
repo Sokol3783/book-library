@@ -3,11 +3,11 @@ package org.example.entity;
 public class Book {
 
   private long id;
-  private String name;
+  private String title;
   private String author;
 
-  public Book(String name, String author) {
-    this.name = name;
+  public Book(String title, String author) {
+    this.title = title;
     this.author = author;
   }
 
@@ -23,11 +23,11 @@ public class Book {
   }
 
   public String getName() {
-    return name;
+    return title;
   }
 
   public void setName(String name) {
-    this.name = name;
+    this.title = name;
   }
 
   public String getAuthor() {
@@ -40,7 +40,7 @@ public class Book {
 
   @Override
   public String toString() {
-    return "ID = " + id + " | author = " + author + " | title = " + name;
+    return "ID = " + id + " | author = " + author + " | title = " + title;
   }
 
   @Override
