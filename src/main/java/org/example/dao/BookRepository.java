@@ -21,7 +21,7 @@ public class BookRepository {
 
   public Optional<Book> findById(long id) {
     try (Connection connection = DBUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement(
+        var statement = connection.prepareStatement(
             "SELECT id, author, title FROM book WHERE id = ?")) {
       statement.setLong(1, id);
       ResultSet resultSet = statement.executeQuery();
@@ -52,15 +52,20 @@ public class BookRepository {
       statement.setString(1, book.getName());
       statement.setString(2, book.getAuthor());
       statement.execute();
-      ResultSet generatedKeys = statement.getGeneratedKeys();
-      if (generatedKeys.next()) {
-        book.setId(generatedKeys.getInt(1));
-        return book;
-      }
+      var generatedId = extractGeneratedId(statement.getGeneratedKeys());
+      book.setId(generatedId);
+      return book;
     } catch (SQLException e) {
       throw new DAOException(e.getMessage());
     }
-
-    throw new DAOException("Book doesn't save");
   }
+
+  private int extractGeneratedId(ResultSet generatedKeys) throws SQLException {
+    if(generatedKeys.next()) {
+      return generatedKeys.getInt(1);
+    } else {
+      throw new DAOException("Failed to save new book: no generated ID is returned from DB");
+    }
+  }
+
 }
