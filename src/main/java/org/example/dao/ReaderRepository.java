@@ -4,7 +4,6 @@ import static org.example.dao.MapperUtil.mapToReader;
 import static org.example.dao.MapperUtil.mapToReaderList;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -20,7 +19,7 @@ public class ReaderRepository {
 
   public Optional<Reader> findById(long id) {
     try (Connection connection = DBUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement(
+        var statement = connection.prepareStatement(
             "SELECT id, name FROM READER WHERE id =?")
     ) {
       statement.setLong(1, id);
@@ -33,7 +32,7 @@ public class ReaderRepository {
 
   public List<Reader> findAll() {
     try (Connection connection = DBUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement(
+        var statement = connection.prepareStatement(
             "SELECT id, name FROM READER")
     ) {
       ResultSet resultSet = statement.executeQuery();
@@ -43,24 +42,27 @@ public class ReaderRepository {
     }
   }
 
-
   public Reader save(Reader reader) {
     try (Connection connection = DBUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement(
+        var statement = connection.prepareStatement(
             "INSERT INTO reader(name) VALUES (?)",
             Statement.RETURN_GENERATED_KEYS)) {
       statement.setString(1, reader.getName());
       statement.execute();
-      ResultSet generatedKeys = statement.getGeneratedKeys();
-      if (generatedKeys.next()) {
-        reader.setId(generatedKeys.getInt(1));
-        return reader;
-      }
+      var generatedId = extractGeneratedId(statement.getGeneratedKeys());
+      reader.setId(generatedId);
+      return reader;
     } catch (SQLException e) {
       throw new DAOException(e.getMessage());
     }
-    throw new DAOException("Reader doesn't save");
   }
 
+  private int extractGeneratedId(ResultSet generatedKeys) throws SQLException {
+    if (generatedKeys.next()) {
+      return generatedKeys.getInt(1);
+    } else {
+      throw new DAOException("Failed to save new reader: no generated ID is returned from DB");
+    }
+  }
 
 }

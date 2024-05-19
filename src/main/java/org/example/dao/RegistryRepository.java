@@ -1,7 +1,6 @@
 package org.example.dao;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -18,7 +17,7 @@ public class RegistryRepository {
 
   public void borrowBook(Book book, Reader reader) {
     try (Connection connection = DBUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement(
+        var statement = connection.prepareStatement(
             """
                 INSERT INTO registry (book_id, reader_id)
                 SELECT ?, ?
@@ -43,14 +42,13 @@ public class RegistryRepository {
 
   public void returnBook(Book book) {
     try (Connection connection = DBUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement(
+        var statement = connection.prepareStatement(
             "DELETE FROM registry WHERE book_id = ?")) {
       statement.setLong(1, book.getId());
       int i = statement.executeUpdate();
       if (i == 0) {
         throw new RegistryRepositoryException("This book anybody doesn't borrow!");
       }
-
     } catch (SQLException e) {
       throw new DAOException(e.getMessage());
     }
@@ -58,7 +56,7 @@ public class RegistryRepository {
 
   public Optional<Reader> getReaderOfBook(Book book) {
     try (Connection connection = DBUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement(
+        var statement = connection.prepareStatement(
             """
                 SELECT reader.id, reader.name
                 FROM registry
@@ -76,7 +74,7 @@ public class RegistryRepository {
 
   public List<Book> getListBorrowedBooksOfReader(Reader reader) {
     try (Connection connection = DBUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement(
+        var statement = connection.prepareStatement(
             """
                 SELECT book.id, book.author, book.title
                 FROM registry
