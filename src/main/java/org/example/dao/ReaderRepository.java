@@ -26,7 +26,8 @@ public class ReaderRepository {
       ResultSet resultSet = statement.executeQuery();
       return mapToReader(resultSet);
     } catch (SQLException e) {
-      throw new DAOException(e.getMessage());
+      throw new DAOException(
+          "Failed to retrieve a reader by ID " + id + ", due to a DB error: " + e.getMessage());
     }
   }
 
@@ -35,10 +36,10 @@ public class ReaderRepository {
         var statement = connection.prepareStatement(
             "SELECT id, name FROM READER")
     ) {
-      ResultSet resultSet = statement.executeQuery();
+      var resultSet = statement.executeQuery();
       return mapToReaderList(resultSet);
     } catch (SQLException e) {
-      throw new DAOException(e.getMessage());
+      throw new DAOException("Failed to retrieve a readers due to a DB error: " + e.getMessage());
     }
   }
 
@@ -53,7 +54,8 @@ public class ReaderRepository {
       reader.setId(generatedId);
       return reader;
     } catch (SQLException e) {
-      throw new DAOException(e.getMessage());
+      throw new DAOException(
+          "Failed to save reader: " + reader.getName() + ", due to a DB error " + e.getMessage());
     }
   }
 

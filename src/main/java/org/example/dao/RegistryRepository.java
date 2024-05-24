@@ -1,7 +1,6 @@
 package org.example.dao;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +35,9 @@ public class RegistryRepository {
         throw new RegistryRepositoryException("Book is already borrowed! You can't borrow it!");
       }
     } catch (SQLException e) {
-      throw new DAOException(e.getMessage());
+      throw new DAOException(
+          "Reader with id %d failed to borrow book with id %d, due to DB error: %s"
+              .formatted(book.getId(), reader.getId(), e.getMessage()));
     }
   }
 
@@ -50,7 +51,9 @@ public class RegistryRepository {
         throw new RegistryRepositoryException("This book anybody doesn't borrow!");
       }
     } catch (SQLException e) {
-      throw new DAOException(e.getMessage());
+      throw new DAOException(
+          "Failed to retrieve a book by ID %d due to a DB error: %s"
+              .formatted(book.getId(), e.getMessage()));
     }
   }
 
@@ -59,8 +62,8 @@ public class RegistryRepository {
         var statement = connection.prepareStatement(
             """
                 SELECT reader.id, reader.name
-                FROM registry
-                INNER JOIN reader ON registry.reader_id = reader.id
+                FROM reader 
+                INNER JOIN registry ON reader.id = registry.reader_id
                 WHERE book_id = ?
                 """
         )) {
@@ -68,7 +71,9 @@ public class RegistryRepository {
       ResultSet resultSet = statement.executeQuery();
       return MapperUtil.mapToReader(resultSet);
     } catch (SQLException e) {
-      throw new DAOException(e.getMessage());
+      throw new DAOException(
+          "Failed to find reader of a book by ID %d due to a DB error: %s"
+              .formatted(book.getId(), e.getMessage()));
     }
   }
 
@@ -86,7 +91,9 @@ public class RegistryRepository {
       ResultSet resultSet = statement.executeQuery();
       return MapperUtil.mapToBookList(resultSet);
     } catch (SQLException e) {
-      throw new DAOException(e.getMessage());
+      throw new DAOException(
+          "Failed to find list of borrowed books of reader by ID %d, to a DB error: %s"
+              .formatted(reader.getId(), e.getMessage()));
     }
   }
 }
