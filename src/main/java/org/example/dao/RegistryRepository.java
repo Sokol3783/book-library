@@ -18,20 +18,15 @@ public class RegistryRepository {
     try (Connection connection = DBUtil.getConnection();
         var statement = connection.prepareStatement(
             """
-                INSERT INTO registry (book_id, reader_id)
-                SELECT ?, ?
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM registry
-                    WHERE book_id = ?
-                );
+                 INSERT INTO registry (book_id, reader_id)
+                 ON CONFLICT DO NOTHING
                 """
         )) {
       statement.setLong(1, book.getId());
       statement.setLong(2, reader.getId());
       statement.setLong(3, book.getId());
-      int i = statement.executeUpdate();
-      if (i == 0) {
+      int borrowedBooksCount = statement.executeUpdate();
+      if (borrowedBooksCount == 0) {
         throw new RegistryRepositoryException("Book is already borrowed! You can't borrow it!");
       }
     } catch (SQLException e) {
@@ -46,8 +41,8 @@ public class RegistryRepository {
         var statement = connection.prepareStatement(
             "DELETE FROM registry WHERE book_id = ?")) {
       statement.setLong(1, book.getId());
-      int i = statement.executeUpdate();
-      if (i == 0) {
+      int returnedBookCount = statement.executeUpdate();
+      if (returnedBookCount == 0) {
         throw new RegistryRepositoryException("This book anybody doesn't borrow!");
       }
     } catch (SQLException e) {
@@ -68,7 +63,7 @@ public class RegistryRepository {
                 """
         )) {
       statement.setLong(1, book.getId());
-      ResultSet resultSet = statement.executeQuery();
+      var resultSet = statement.executeQuery();
       return MapperUtil.mapToReader(resultSet);
     } catch (SQLException e) {
       throw new DAOException(
@@ -82,13 +77,13 @@ public class RegistryRepository {
         var statement = connection.prepareStatement(
             """
                 SELECT book.id, book.author, book.title
-                FROM registry
-                LEFT JOIN book ON registry.book_id = book.id
+                FROM book
+                INNER JOIN registry ON book.id = registry.book_id
                 WHERE reader_id = ?
                 """
         )) {
       statement.setLong(1, reader.getId());
-      ResultSet resultSet = statement.executeQuery();
+      var resultSet = statement.executeQuery();
       return MapperUtil.mapToBookList(resultSet);
     } catch (SQLException e) {
       throw new DAOException(
