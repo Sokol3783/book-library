@@ -39,7 +39,7 @@ public class ReaderRepository {
       var resultSet = statement.executeQuery();
       return mapToReaderList(resultSet);
     } catch (SQLException e) {
-      throw new DAOException("Failed to retrieve a readers due to a DB error: " + e.getMessage());
+      throw new DAOException("Failed to retrieve all readers due to a DB error: " + e.getMessage());
     }
   }
 
