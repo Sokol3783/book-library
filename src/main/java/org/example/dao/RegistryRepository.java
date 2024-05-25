@@ -2,7 +2,6 @@ package org.example.dao;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -95,10 +94,42 @@ public class RegistryRepository {
   }
 
   public Map<Reader, List<Book>> getAllReadersWithBorrowedBooks() {
-    return new HashMap<>();
+    try (Connection connection = DBUtil.getConnection();
+        var statement = connection.prepareStatement(
+            """
+                SELECT reader.id as reader_id, reader.name, book.id as book_id, book.title, book.author
+                FROM reader
+                LEFT JOIN registry ON reader.id = registry.reader_id
+                LEFT JOIN book ON registry.book_id = book.id
+                ORDER BY reader.id, book.id
+                """
+        )) {
+      var resultSet = statement.executeQuery();
+      return MapperUtil.mapToReadersAndBorrowedBooks(resultSet);
+    } catch (SQLException e) {
+      throw new DAOException(
+          "Failed to retrieve list of readers with borrowed by them books, due to DB error: "
+              + e.getMessage());
+    }
   }
 
   public Map<Book, Optional<Reader>> getAllBooksWithCurrentReaders() {
-    return new HashMap<>();
+    try (Connection connection = DBUtil.getConnection();
+        var statement = connection.prepareStatement(
+            """
+                SELECT book.id as book_id, book.title, book.author, reader.id as reader_id, reader.name
+                FROM book
+                LEFT JOIN registry ON book.id = registry.book_id
+                LEFT JOIN reader ON registry.reader_id = reader.id
+                ORDER BY book.id
+                """
+        )) {
+      var resultSet = statement.executeQuery();
+      return MapperUtil.mapToBooksBorrowedByReader(resultSet);
+    } catch (SQLException e) {
+      throw new DAOException(
+          "Failed to retrieve list of books with current readers, due to DB error: "
+              + e.getMessage());
+    }
   }
 }
