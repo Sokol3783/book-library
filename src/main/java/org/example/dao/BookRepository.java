@@ -26,7 +26,8 @@ public class BookRepository {
       ResultSet resultSet = statement.executeQuery();
       return mapToBook(resultSet);
     } catch (SQLException e) {
-      throw new DAOException(e.getMessage());
+      throw new DAOException(
+          "Failed to retrieve a book by ID " + id + ", due to a DB error: " + e.getMessage());
     }
   }
 
@@ -38,7 +39,7 @@ public class BookRepository {
     ) {
       return mapToBookList(resultSet);
     } catch (SQLException e) {
-      throw new DAOException(e.getMessage());
+      throw new DAOException("Failed to retrieve all books due to a DB error: " + e.getMessage());
     }
   }
 
@@ -55,12 +56,13 @@ public class BookRepository {
       book.setId(generatedId);
       return book;
     } catch (SQLException e) {
-      throw new DAOException(e.getMessage());
+      throw new DAOException(
+          "Failed to save book: " + book.getName() + ", due to a DB error " + e.getMessage());
     }
   }
 
   private int extractGeneratedId(ResultSet generatedKeys) throws SQLException {
-    if(generatedKeys.next()) {
+    if (generatedKeys.next()) {
       return generatedKeys.getInt(1);
     } else {
       throw new DAOException("Failed to save new book: no generated ID is returned from DB");
