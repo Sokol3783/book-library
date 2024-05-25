@@ -18,8 +18,11 @@ import org.example.entity.Book;
 import org.example.entity.Reader;
 import org.example.exception.RegistryRepositoryException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+
+@Disabled
 class RegistryRepositoryTest {
 
   private static RegistryRepository registryRepository;

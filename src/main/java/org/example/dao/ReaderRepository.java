@@ -1,43 +1,70 @@
 package org.example.dao;
 
-import java.util.Comparator;
+import static org.example.dao.MapperUtil.mapToReader;
+import static org.example.dao.MapperUtil.mapToReaderList;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicLong;
 import org.example.entity.Reader;
+import org.example.exception.DAOException;
 
 public class ReaderRepository {
 
-  private final AtomicLong ID_GENERATOR = new AtomicLong(0);
-  private final Set<Reader> readers;
-
   public ReaderRepository() {
-    this.readers = new TreeSet<>(Comparator.comparingLong(Reader::getId));
-    Reader reader = new Reader("Mike Douglas");
-    reader.setId(ID_GENERATOR.incrementAndGet());
-    readers.add(reader);
-    reader = new Reader("Fedor Trybeckoi");
-    reader.setId(ID_GENERATOR.incrementAndGet());
-    readers.add(reader);
-    reader = new Reader("Ivan Mazepa");
-    reader.setId(ID_GENERATOR.incrementAndGet());
-    readers.add(reader);
   }
 
   public Optional<Reader> findById(long id) {
-    return readers.stream().filter(s -> s.getId() == id).findFirst();
+    try (Connection connection = DBUtil.getConnection();
+        var statement = connection.prepareStatement(
+            "SELECT id, name FROM READER WHERE id =?")
+    ) {
+      statement.setLong(1, id);
+      ResultSet resultSet = statement.executeQuery();
+      return mapToReader(resultSet);
+    } catch (SQLException e) {
+      throw new DAOException(
+          "Failed to retrieve a reader by ID " + id + ", due to a DB error: " + e.getMessage());
+    }
   }
 
   public List<Reader> findAll() {
-    return List.copyOf(readers);
+    try (Connection connection = DBUtil.getConnection();
+        var statement = connection.prepareStatement(
+            "SELECT id, name FROM READER")
+    ) {
+      var resultSet = statement.executeQuery();
+      return mapToReaderList(resultSet);
+    } catch (SQLException e) {
+      throw new DAOException("Failed to retrieve all readers due to a DB error: " + e.getMessage());
+    }
   }
 
   public Reader save(Reader reader) {
-    reader.setId(ID_GENERATOR.incrementAndGet());
-    readers.add(reader);
-    return reader;
+    try (Connection connection = DBUtil.getConnection();
+        var statement = connection.prepareStatement(
+            "INSERT INTO reader(name) VALUES (?)",
+            Statement.RETURN_GENERATED_KEYS)) {
+      statement.setString(1, reader.getName());
+      statement.execute();
+      var generatedId = extractGeneratedId(statement.getGeneratedKeys());
+      reader.setId(generatedId);
+      return reader;
+    } catch (SQLException e) {
+      throw new DAOException(
+          "Failed to save reader: " + reader.getName() + ", due to a DB error " + e.getMessage());
+    }
+  }
+
+  private int extractGeneratedId(ResultSet generatedKeys) throws SQLException {
+    if (generatedKeys.next()) {
+      return generatedKeys.getInt(1);
+    } else {
+      throw new DAOException("Failed to save new reader: no generated ID is returned from DB");
+    }
   }
 
 }

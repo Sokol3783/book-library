@@ -1,18 +1,19 @@
 package org.example.dao;
 
+import static org.example.dao.MapperUtil.mapToBook;
+import static org.example.dao.MapperUtil.mapToBookList;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.example.entity.Book;
 import org.example.exception.DAOException;
 
 public class BookRepository {
-
 
   public BookRepository() {
   }
@@ -25,7 +26,8 @@ public class BookRepository {
       ResultSet resultSet = statement.executeQuery();
       return mapToBook(resultSet);
     } catch (SQLException e) {
-      throw new DAOException(e.getMessage());
+      throw new DAOException(
+          "Failed to retrieve a book by ID " + id + ", due to a DB error: " + e.getMessage());
     }
   }
 
@@ -37,18 +39,10 @@ public class BookRepository {
     ) {
       return mapToBookList(resultSet);
     } catch (SQLException e) {
-      throw new DAOException(e.getMessage());
+      throw new DAOException("Failed to retrieve all books due to a DB error: " + e.getMessage());
     }
   }
 
-  private List<Book> mapToBookList(ResultSet resultSet) throws SQLException {
-    List<Book> books = new ArrayList<>();
-    Optional<Book> book;
-    while ((book = mapToBook(resultSet)).isPresent()) {
-      books.add(book.get());
-    }
-    return books;
-  }
 
   public Book save(Book book) {
     try (Connection connection = DBUtil.getConnection();
@@ -62,27 +56,17 @@ public class BookRepository {
       book.setId(generatedId);
       return book;
     } catch (SQLException e) {
-      throw new DAOException(e.getMessage());
+      throw new DAOException(
+          "Failed to save book: " + book.getName() + ", due to a DB error " + e.getMessage());
     }
   }
 
   private int extractGeneratedId(ResultSet generatedKeys) throws SQLException {
-    if(generatedKeys.next()) {
+    if (generatedKeys.next()) {
       return generatedKeys.getInt(1);
     } else {
       throw new DAOException("Failed to save new book: no generated ID is returned from DB");
     }
-  }
-
-  private Optional<Book> mapToBook(ResultSet resultSet) throws SQLException {
-    if (resultSet.next()) {
-      var book = new Book();
-      book.setId(resultSet.getLong("id"));
-      book.setAuthor(resultSet.getString("author"));
-      book.setName(resultSet.getString("title"));
-      return Optional.of(book);
-    }
-    return Optional.empty();
   }
 
 }
