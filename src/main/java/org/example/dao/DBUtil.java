@@ -1,7 +1,10 @@
 package org.example.dao;
 
+import static java.util.Optional.ofNullable;
+
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -66,16 +69,19 @@ public class DBUtil {
   }
 
   private static Properties getApplicationProperties() {
-    Properties properties = new Properties();
     var stream = DBUtil.class.getClassLoader().getResourceAsStream("application.properties");
-    if (stream != null) {
-      try {
-        properties.load(stream);
-        return properties;
-      } catch (IOException e) {
-        throw new DAOException(e.getMessage());
-      }
+    return ofNullable(stream)
+        .map(DBUtil::loadProperties)
+        .orElseThrow(() -> new DAOException("Failed to read properties file from disk"));
+  }
+
+  private static Properties loadProperties(InputStream stream) {
+    try {
+      var properties = new Properties();
+      properties.load(stream);
+      return properties;
+    } catch (IOException e) {
+      throw new DAOException(e.getMessage());
     }
-    throw new DAOException("application.properties is missed!");
   }
 }

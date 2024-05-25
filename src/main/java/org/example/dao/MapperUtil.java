@@ -12,7 +12,7 @@ public class MapperUtil {
 
   static Optional<Book> mapToBook(ResultSet resultSet) throws SQLException {
     if (resultSet.next()) {
-      Book book = new Book();
+      var book = new Book();
       book.setId(resultSet.getLong("id"));
       book.setAuthor(resultSet.getString("author"));
       book.setName(resultSet.getString("title"));
@@ -32,7 +32,7 @@ public class MapperUtil {
 
   static Optional<Reader> mapToReader(ResultSet resultSet) throws SQLException {
     if (resultSet.next()) {
-      Reader reader = new Reader();
+      var reader = new Reader();
       reader.setName(resultSet.getString("name"));
       reader.setId(resultSet.getLong("id"));
       return Optional.of(reader);
