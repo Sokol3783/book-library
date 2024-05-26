@@ -3,7 +3,7 @@ package org.example.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -53,39 +53,34 @@ public class MapperUtil {
 
   static Map<Reader, List<Book>> mapToReadersAndBorrowedBooks(ResultSet resultSet)
       throws SQLException {
-    Map<Reader, List<Book>> readersBooks = new HashMap<>();
+    var readersBooks = new LinkedHashMap<Reader, List<Book>>();
     while (resultSet.next()) {
-      var reader = mapToReaderByReader_ID(resultSet);
-      var borrowedBook = mapToBookByBook_ID(resultSet);
-      reader.ifPresent(
-          value -> readersBooks.merge(value, bookInList(borrowedBook), MapperUtil::mergeListBooks));
+      var readerOptional = mapToReaderByReaderId(resultSet);
+      var borrowedBookOptional = mapToBookByBookId(resultSet);
+      readerOptional.ifPresent(
+          reader -> borrowedBookOptional.ifPresentOrElse(
+              book -> readersBooks
+                  .computeIfAbsent(reader, borrowedBooks -> new ArrayList<>())
+                  .add(book),
+              () -> readersBooks.putIfAbsent(reader, new ArrayList<>())
+          )
+      );
     }
     return readersBooks;
   }
 
-  private static List<Book> bookInList(Optional<Book> borrowedBook) {
-    var books = new ArrayList<Book>();
-    borrowedBook.ifPresent(books::add);
-    return books;
-  }
-
-  private static List<Book> mergeListBooks(List<Book> books, List<Book> books2) {
-    books.addAll(books2);
-    return books;
-  }
-
   public static Map<Book, Optional<Reader>> mapToBooksBorrowedByReader(ResultSet resultSet)
       throws SQLException {
-    var booksCurrentReader = new HashMap<Book, Optional<Reader>>();
+    var booksCurrentReader = new LinkedHashMap<Book, Optional<Reader>>();
     while (resultSet.next()) {
-      Optional<Book> book = mapToBookByBook_ID(resultSet);
-      Optional<Reader> reader = mapToReaderByReader_ID(resultSet);
+      Optional<Book> book = mapToBookByBookId(resultSet);
+      Optional<Reader> reader = mapToReaderByReaderId(resultSet);
       book.ifPresent(k -> booksCurrentReader.put(k, reader));
     }
     return booksCurrentReader;
   }
 
-  private static Optional<Book> mapToBookByBook_ID(ResultSet resultSet) throws SQLException {
+  private static Optional<Book> mapToBookByBookId(ResultSet resultSet) throws SQLException {
     long bookId = resultSet.getLong("book_id");
     if (bookId != 0) {
       var book = new Book();
@@ -97,7 +92,7 @@ public class MapperUtil {
     return Optional.empty();
   }
 
-  private static Optional<Reader> mapToReaderByReader_ID(ResultSet resultSet) throws SQLException {
+  private static Optional<Reader> mapToReaderByReaderId(ResultSet resultSet) throws SQLException {
     long readerId = resultSet.getLong("reader_id");
     if (readerId != 0) {
       var reader = new Reader();
