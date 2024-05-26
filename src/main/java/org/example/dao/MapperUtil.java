@@ -57,14 +57,21 @@ public class MapperUtil {
     while (resultSet.next()) {
       var reader = mapToReaderByReader_ID(resultSet);
       var borrowedBook = mapToBookByBook_ID(resultSet);
-      reader.ifPresent(value -> readersBooks.computeIfAbsent(value, k -> {
-            var books = new ArrayList<Book>();
-            borrowedBook.ifPresent(books::add);
-            return books;
-          }
-      ));
+      reader.ifPresent(
+          value -> readersBooks.merge(value, bookInList(borrowedBook), MapperUtil::mergeListBooks));
     }
     return readersBooks;
+  }
+
+  private static List<Book> bookInList(Optional<Book> borrowedBook) {
+    var books = new ArrayList<Book>();
+    borrowedBook.ifPresent(books::add);
+    return books;
+  }
+
+  private static List<Book> mergeListBooks(List<Book> books, List<Book> books2) {
+    books.addAll(books2);
+    return books;
   }
 
   public static Map<Book, Optional<Reader>> mapToBooksBorrowedByReader(ResultSet resultSet)

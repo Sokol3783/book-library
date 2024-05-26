@@ -1,8 +1,6 @@
 package org.example.ui;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Scanner;
 import org.example.entity.Book;
 import org.example.entity.Reader;
@@ -70,30 +68,25 @@ public class ConsoleMenu {
   }
 
   private void showAllBooksWithBorrowers() {
-    Map<Reader, List<Book>> readersWithBorrowedBooks = registryService.getAllReadersWithBorrowedBooks();
-    readersWithBorrowedBooks.entrySet().forEach(s -> {
-          System.out.println("\n");
-          if (s.getValue().isEmpty()) {
-            System.out.println(s.getKey() + "no books borrowed");
-          } else {
-            System.out.println(s.getKey() + "list of borrowed books");
-            s.getValue().forEach(System.out::println);
-          }
-        }
+    var booksWithCurrentReaders = registryService.getAllBooksWithBorrowers();
+    System.out.println("\n");
+    booksWithCurrentReaders.forEach((key, value) ->
+        value.ifPresentOrElse(
+            reader -> System.out.println(key.toString() + " -> borrower: " + reader),
+            () -> System.out.println(key.toString() + " -> available"))
     );
   }
 
   private void showAllReaderWithCurrentlyBorrowedBooks() {
-    Map<Book, Optional<Reader>> booksWithCurrentReaders = registryService.getAllBooksWithBorrowers();
-    booksWithCurrentReaders.entrySet().forEach(
-        s -> {
-          if (s.getValue().isPresent()) {
-            System.out.println(s.getKey().toString() + " borrower: " + s.getValue().get());
-          } else {
-            System.out.println(s.getKey().toString() + " available");
-          }
-        }
-    );
+    var readersWithBorrowedBooks = registryService.getAllReadersWithBorrowedBooks();
+    readersWithBorrowedBooks.forEach((key, value) -> {
+      if (value.isEmpty()) {
+        System.out.println("\nReader : " + key + " no books borrowed");
+      } else {
+        System.out.println("\nReader : " + key + " list of borrowed books:");
+        value.forEach(System.out::println);
+      }
+    });
   }
 
   private void printAllReaders() {
@@ -172,6 +165,8 @@ public class ConsoleMenu {
         [6] RETURN A BOOK TO THE LIBRARY
         [7] SHOW ALL BORROWED BOOK BY USER ID
         [8] SHOW CURRENT READER OF A BOOK WITH ID
+        [9] SHOW ALL READERS WITH THEIR BORROWED BOOKS
+        [10] SHOW ALL BOOKS WITH THEIR CURRENT READERS
         TYPE “EXIT” TO STOP THE PROGRAM AND EXIT!
         """;
   }
