@@ -74,8 +74,8 @@ public class MapperUtil {
     var booksCurrentReader = new LinkedHashMap<Book, Optional<Reader>>();
     while (resultSet.next()) {
       Optional<Book> optionalBook = mapToBookByBookId(resultSet);
-      Optional<Reader> reader = mapToReaderByReaderId(resultSet);
-      optionalBook.ifPresent(book -> booksCurrentReader.put(book, reader));
+      Optional<Reader> optionalReader = mapToReaderByReaderId(resultSet);
+      optionalBook.ifPresent(book -> booksCurrentReader.put(book, optionalReader));
     }
     return booksCurrentReader;
   }
