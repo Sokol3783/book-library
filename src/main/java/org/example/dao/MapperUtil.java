@@ -3,7 +3,9 @@ package org.example.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.example.entity.Book;
 import org.example.entity.Reader;
@@ -47,6 +49,58 @@ public class MapperUtil {
       readers.add(reader.get());
     }
     return readers;
+  }
+
+  static Map<Reader, List<Book>> mapToReadersAndBorrowedBooks(ResultSet resultSet)
+      throws SQLException {
+    var readersBooks = new LinkedHashMap<Reader, List<Book>>();
+    while (resultSet.next()) {
+      var readerOptional = mapToReaderByReaderId(resultSet);
+      var borrowedBookOptional = mapToBookByBookId(resultSet);
+      readerOptional.ifPresent(
+          reader -> borrowedBookOptional.ifPresentOrElse(
+              book -> readersBooks
+                  .computeIfAbsent(reader, borrowedBooks -> new ArrayList<>())
+                  .add(book),
+              () -> readersBooks.putIfAbsent(reader, new ArrayList<>())
+          )
+      );
+    }
+    return readersBooks;
+  }
+
+  public static Map<Book, Optional<Reader>> mapToBooksBorrowedByReader(ResultSet resultSet)
+      throws SQLException {
+    var booksCurrentReader = new LinkedHashMap<Book, Optional<Reader>>();
+    while (resultSet.next()) {
+      Optional<Book> optionalBook = mapToBookByBookId(resultSet);
+      Optional<Reader> optionalReader = mapToReaderByReaderId(resultSet);
+      optionalBook.ifPresent(book -> booksCurrentReader.put(book, optionalReader));
+    }
+    return booksCurrentReader;
+  }
+
+  private static Optional<Book> mapToBookByBookId(ResultSet resultSet) throws SQLException {
+    long bookId = resultSet.getLong("book_id");
+    if (bookId != 0) {
+      var book = new Book();
+      book.setId(bookId);
+      book.setName(resultSet.getString("title"));
+      book.setAuthor(resultSet.getString("author"));
+      return Optional.of(book);
+    }
+    return Optional.empty();
+  }
+
+  private static Optional<Reader> mapToReaderByReaderId(ResultSet resultSet) throws SQLException {
+    long readerId = resultSet.getLong("reader_id");
+    if (readerId != 0) {
+      var reader = new Reader();
+      reader.setId(readerId);
+      reader.setName(resultSet.getString("name"));
+      return Optional.of(reader);
+    }
+    return Optional.empty();
   }
 
 }

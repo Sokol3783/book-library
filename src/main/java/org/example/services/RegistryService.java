@@ -3,6 +3,7 @@ package org.example.services;
 import static org.example.validator.ValidatorUtil.validateInputOfTwoId;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.example.dao.RegistryRepository;
 import org.example.entity.Book;
@@ -61,4 +62,11 @@ public class RegistryService {
     return readerOfBook.orElseThrow(() -> new RuntimeException("Nobody reads this book"));
   }
 
+  public Map<Reader, List<Book>> getAllReadersWithBorrowedBooks() {
+    return registryRepository.getAllReadersWithBorrowedBooks();
+  }
+
+  public Map<Book, Optional<Reader>> getAllBooksWithBorrowers() {
+    return registryRepository.getAllBooksWithCurrentReaders();
+  }
 }

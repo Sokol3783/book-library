@@ -60,9 +60,33 @@ public class ConsoleMenu {
       case "6" -> returnBook();
       case "7" -> showAllBorrowedByReader();
       case "8" -> showCurrentReaderOfBook();
+      case "9" -> showAllReaderWithCurrentlyBorrowedBooks();
+      case "10" -> showAllBooksWithBorrowers();
       case "exit" -> exit();
       default -> printErrInvalidOption();
     }
+  }
+
+  private void showAllBooksWithBorrowers() {
+    var booksWithCurrentReaders = registryService.getAllBooksWithBorrowers();
+    System.out.println("\n");
+    booksWithCurrentReaders.forEach((book, optionalReader) ->
+        optionalReader.ifPresentOrElse(
+            reader -> System.out.println(book.toString() + " -> borrower: " + reader),
+            () -> System.out.println(book.toString() + " -> available"))
+    );
+  }
+
+  private void showAllReaderWithCurrentlyBorrowedBooks() {
+    var readersWithBorrowedBooks = registryService.getAllReadersWithBorrowedBooks();
+    readersWithBorrowedBooks.forEach((reader, borrowedBooks) -> {
+      if (borrowedBooks.isEmpty()) {
+        System.out.println("\nReader : " + reader + " no books borrowed");
+      } else {
+        System.out.println("\nReader : " + reader + " list of borrowed books:");
+        borrowedBooks.forEach(System.out::println);
+      }
+    });
   }
 
   private void printAllReaders() {
@@ -131,7 +155,7 @@ public class ConsoleMenu {
 
   private String getTextMenu() {
     return """
-                
+        
         PLEASE, SELECT ONE OF THE FOLLOWING ACTIONS BY TYPING THE OPTION’S NUMBER AND PRESSING ENTER KEY:
         [1] SHOW ALL BOOKS IN THE LIBRARY
         [2] SHOW ALL READERS REGISTERED IN THE LIBRARY
@@ -141,6 +165,8 @@ public class ConsoleMenu {
         [6] RETURN A BOOK TO THE LIBRARY
         [7] SHOW ALL BORROWED BOOK BY USER ID
         [8] SHOW CURRENT READER OF A BOOK WITH ID
+        [9] SHOW ALL READERS WITH THEIR BORROWED BOOKS
+        [10] SHOW ALL BOOKS WITH THEIR CURRENT READERS
         TYPE “EXIT” TO STOP THE PROGRAM AND EXIT!
         """;
   }

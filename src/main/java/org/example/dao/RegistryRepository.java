@@ -3,6 +3,7 @@ package org.example.dao;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.example.entity.Book;
 import org.example.entity.Reader;
@@ -15,16 +16,15 @@ public class RegistryRepository {
   }
 
   public void borrowBook(Book book, Reader reader) {
+    var query = """
+         INSERT INTO registry (book_id, reader_id)
+         VALUES (?,?)
+         ON CONFLICT DO NOTHING
+        """;
     try (Connection connection = DBUtil.getConnection();
-        var statement = connection.prepareStatement(
-            """
-                 INSERT INTO registry (book_id, reader_id)
-                 ON CONFLICT DO NOTHING
-                """
-        )) {
+        var statement = connection.prepareStatement(query)) {
       statement.setLong(1, book.getId());
       statement.setLong(2, reader.getId());
-      statement.setLong(3, book.getId());
       int borrowedBooksCount = statement.executeUpdate();
       if (borrowedBooksCount == 0) {
         throw new RegistryRepositoryException("Book is already borrowed! You can't borrow it!");
@@ -53,15 +53,14 @@ public class RegistryRepository {
   }
 
   public Optional<Reader> getReaderOfBook(Book book) {
+    var query = """
+        SELECT reader.id, reader.name
+        FROM reader
+            INNER JOIN registry ON reader.id = registry.reader_id
+        WHERE book_id = ?
+        """;
     try (Connection connection = DBUtil.getConnection();
-        var statement = connection.prepareStatement(
-            """
-                SELECT reader.id, reader.name
-                FROM reader 
-                INNER JOIN registry ON reader.id = registry.reader_id
-                WHERE book_id = ?
-                """
-        )) {
+        var statement = connection.prepareStatement(query)) {
       statement.setLong(1, book.getId());
       var resultSet = statement.executeQuery();
       return MapperUtil.mapToReader(resultSet);
@@ -73,15 +72,17 @@ public class RegistryRepository {
   }
 
   public List<Book> getListBorrowedBooksOfReader(Reader reader) {
+    var query = """
+        SELECT
+            book.id,
+            book.author,
+            book.title
+        FROM book
+            INNER JOIN registry ON book.id = registry.book_id
+        WHERE reader_id = ?
+        """;
     try (Connection connection = DBUtil.getConnection();
-        var statement = connection.prepareStatement(
-            """
-                SELECT book.id, book.author, book.title
-                FROM book
-                INNER JOIN registry ON book.id = registry.book_id
-                WHERE reader_id = ?
-                """
-        )) {
+        var statement = connection.prepareStatement(query)) {
       statement.setLong(1, reader.getId());
       var resultSet = statement.executeQuery();
       return MapperUtil.mapToBookList(resultSet);
@@ -89,6 +90,54 @@ public class RegistryRepository {
       throw new DAOException(
           "Failed to find list of borrowed books of reader by ID %d, to a DB error: %s"
               .formatted(reader.getId(), e.getMessage()));
+    }
+  }
+
+  public Map<Reader, List<Book>> getAllReadersWithBorrowedBooks() {
+    var query = """
+        SELECT
+               reader.id as reader_id,
+               reader.name,
+               book.id   as book_id,
+               book.title,
+               book.author
+        FROM reader
+             LEFT JOIN registry ON reader.id = registry.reader_id
+             LEFT JOIN book ON registry.book_id = book.id
+        ORDER BY reader.id, book.id
+        """;
+    try (Connection connection = DBUtil.getConnection();
+        var statement = connection.prepareStatement(query)) {
+      var resultSet = statement.executeQuery();
+      return MapperUtil.mapToReadersAndBorrowedBooks(resultSet);
+    } catch (SQLException e) {
+      throw new DAOException(
+          "Failed to retrieve list of readers with borrowed by their books, due to DB error: "
+          + e.getMessage());
+    }
+  }
+
+  public Map<Book, Optional<Reader>> getAllBooksWithCurrentReaders() {
+    var query = """
+        SELECT
+              book.id as book_id,
+              book.title,
+              book.author,
+              reader.id as reader_id,
+              reader.name
+        FROM book
+            LEFT JOIN registry ON book.id = registry.book_id
+            LEFT JOIN reader ON registry.reader_id = reader.id
+        ORDER BY book.id
+        """;
+    try (Connection connection = DBUtil.getConnection();
+        var statement = connection.prepareStatement(query)) {
+      var resultSet = statement.executeQuery();
+      return MapperUtil.mapToBooksBorrowedByReader(resultSet);
+    } catch (SQLException e) {
+      throw new DAOException(
+          "Failed to retrieve list of books with current readers, due to DB error: "
+          + e.getMessage());
     }
   }
 }
