@@ -70,21 +70,21 @@ public class ConsoleMenu {
   private void showAllBooksWithBorrowers() {
     var booksWithCurrentReaders = registryService.getAllBooksWithBorrowers();
     System.out.println("\n");
-    booksWithCurrentReaders.forEach((key, value) ->
-        value.ifPresentOrElse(
-            reader -> System.out.println(key.toString() + " -> borrower: " + reader),
-            () -> System.out.println(key.toString() + " -> available"))
+    booksWithCurrentReaders.forEach((book, optionalReader) ->
+        optionalReader.ifPresentOrElse(
+            reader -> System.out.println(book.toString() + " -> borrower: " + reader),
+            () -> System.out.println(book.toString() + " -> available"))
     );
   }
 
   private void showAllReaderWithCurrentlyBorrowedBooks() {
     var readersWithBorrowedBooks = registryService.getAllReadersWithBorrowedBooks();
-    readersWithBorrowedBooks.forEach((key, value) -> {
-      if (value.isEmpty()) {
-        System.out.println("\nReader : " + key + " no books borrowed");
+    readersWithBorrowedBooks.forEach((reader, borrowedBooks) -> {
+      if (borrowedBooks.isEmpty()) {
+        System.out.println("\nReader : " + reader + " no books borrowed");
       } else {
-        System.out.println("\nReader : " + key + " list of borrowed books:");
-        value.forEach(System.out::println);
+        System.out.println("\nReader : " + reader + " list of borrowed books:");
+        borrowedBooks.forEach(System.out::println);
       }
     });
   }
@@ -155,7 +155,7 @@ public class ConsoleMenu {
 
   private String getTextMenu() {
     return """
-                
+        
         PLEASE, SELECT ONE OF THE FOLLOWING ACTIONS BY TYPING THE OPTION’S NUMBER AND PRESSING ENTER KEY:
         [1] SHOW ALL BOOKS IN THE LIBRARY
         [2] SHOW ALL READERS REGISTERED IN THE LIBRARY

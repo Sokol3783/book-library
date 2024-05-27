@@ -73,9 +73,9 @@ public class MapperUtil {
       throws SQLException {
     var booksCurrentReader = new LinkedHashMap<Book, Optional<Reader>>();
     while (resultSet.next()) {
-      Optional<Book> book = mapToBookByBookId(resultSet);
+      Optional<Book> optionalBook = mapToBookByBookId(resultSet);
       Optional<Reader> reader = mapToReaderByReaderId(resultSet);
-      book.ifPresent(k -> booksCurrentReader.put(k, reader));
+      optionalBook.ifPresent(book -> booksCurrentReader.put(book, reader));
     }
     return booksCurrentReader;
   }
