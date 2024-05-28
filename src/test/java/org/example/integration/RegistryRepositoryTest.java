@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.example.dao.BookRepository;
 import org.example.dao.DBUtil;
 import org.example.dao.ReaderRepository;
@@ -115,6 +117,36 @@ class RegistryRepositoryTest {
   void shouldReturnEmptyOptionalIfNobodyBorrowBook() {
     var thirdBook = bookRepository.findById(3L).orElseGet(Util::getBookWhenError);
     assertTrue(registryRepository.getReaderOfBook(thirdBook).isEmpty());
+  }
+
+  private static long countFirstReaderBorrowBook(Map<Book, Optional<Reader>> map, Reader reader) {
+    return map.values().stream().filter(
+            optionalReader -> (optionalReader.orElse(new Reader("NO SUCH READER")).equals(reader)))
+        .count();
+  }
+
+  @Test
+  void shouldReturnAllReadersWithBorrowedBooks() {
+    var allReadersWithBorrowedBooks = registryRepository.getAllReadersWithBorrowedBooks();
+    var listReader = allReadersWithBorrowedBooks.keySet().stream().toList();
+    var readersFromRepository = readerRepository.findAll();
+    assertAll(() -> assertTrue(listReader.containsAll(readersFromRepository)), () -> assertEquals(2,
+            allReadersWithBorrowedBooks.values().stream().filter(List::isEmpty).count()),
+        () -> assertTrue(
+            allReadersWithBorrowedBooks.values().stream().anyMatch(list -> list.size() == 2)));
+  }
+
+  @Test
+  void shouldReturnBookWithTheirCurrentReaders() {
+    var reader = getFirstReader();
+    var allBooksWithCurrentReaders = registryRepository.getAllBooksWithCurrentReaders();
+    var listBook = bookRepository.findAll();
+
+    assertAll(() -> assertTrue(
+            allBooksWithCurrentReaders.keySet().stream().toList().containsAll(listBook)),
+        () -> assertEquals(2, countFirstReaderBorrowBook(allBooksWithCurrentReaders, reader)),
+        () -> assertEquals(1,
+            allBooksWithCurrentReaders.values().stream().filter(Optional::isEmpty).count()));
   }
 
 }
