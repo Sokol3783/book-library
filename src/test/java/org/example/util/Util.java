@@ -34,6 +34,10 @@ public class Util {
     return reader;
   }
 
+  public static Reader getReaderWhenError() {
+    return new Reader("ERROR");
+  }
+
   public static Book getFirstBook() {
     Book book = new Book("book", "book");
     book.setId(1L);
