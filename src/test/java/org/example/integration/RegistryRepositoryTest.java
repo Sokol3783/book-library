@@ -64,7 +64,6 @@ class RegistryRepositoryTest {
 
     assertAll(() -> assertThrows(RegistryRepositoryException.class,
         () -> registryRepository.borrowBook(book, reader2)));
-
   }
 
   private Reader getFistReader() {
