@@ -2,10 +2,17 @@ package org.example.util;
 
 import static java.lang.Thread.sleep;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.example.entity.Book;
 import org.example.entity.Reader;
+import org.example.exception.DAOException;
 
 public class Util {
 
@@ -57,4 +64,23 @@ public class Util {
       return ++id;
     }
   }
+
+  public static void executeSQLScript(Connection connection, String fileName)
+      throws SQLException, DAOException {
+    String data = readSQLFromTestResource(fileName);
+    try (PreparedStatement statement = connection.prepareStatement(data)) {
+      statement.execute();
+    }
+  }
+
+  private static String readSQLFromTestResource(String resourceName) throws DAOException {
+    var resourceAsStream = Util.class.getClassLoader().getResourceAsStream(resourceName);
+    if (resourceAsStream != null) {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
+      return reader.lines().collect(Collectors.joining("\n"));
+    }
+    throw new DAOException(
+        "Initiation of database failed because resource not found: " + resourceName);
+  }
+
 }

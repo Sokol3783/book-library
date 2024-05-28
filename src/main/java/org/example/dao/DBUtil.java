@@ -30,7 +30,7 @@ public class DBUtil {
     return source;
   }
 
-  static Connection getConnection() throws SQLException {
+  public static Connection getConnection() throws SQLException {
     return dataSource.getConnection();
   }
 
