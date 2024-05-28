@@ -3,9 +3,9 @@ package org.example.integration;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -19,6 +19,7 @@ import org.example.exception.RegistryRepositoryException;
 import org.example.util.Util;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 
@@ -66,7 +67,7 @@ class RegistryRepositoryTest {
         () -> registryRepository.borrowBook(book, reader2)));
   }
 
-  private Reader getFistReader() {
+  private Reader getFirstReader() {
     return readerRepository.findById(1L).orElseGet(Util::getReaderWhenError);
   }
 
@@ -77,65 +78,43 @@ class RegistryRepositoryTest {
     assertTrue(emptyList.isEmpty());
   }
 
-
   @Test
   void shouldReturnListOfBorrowedBooksOfReader() {
-    Reader reader = getFistReader();
+    Reader reader = getFirstReader();
     List<Book> books = registryRepository.getListBorrowedBooksOfReader(reader);
-    assertAll(
-        () -> assertEquals(2, books.size()),
-        () -> assertTrue(books.stream().allMatch(book -> book.getId() > 0 && book.getId() < 3))
-    );
+    assertAll(() -> assertEquals(2, books.size()),
+        () -> assertTrue(books.stream().allMatch(book -> book.getId() > 0 && book.getId() < 3)));
   }
-
 
   @Test
-  void shouldReturnListOfTwoBorrowedBooksOfReaderAfterReturningBook()
+  @DisplayName("First return list with two borrowed books of reader after returning book, should return list with one book")
+  void shouldReturnListWithOneBorrowedBookOfReaderAfterReturningBook()
       throws RegistryRepositoryException {
-    fail();
-    /*
-    Reader reader = getFistReader();
-    borrowTestThreeBooks(reader);
-    List<Book> testBooks = new ArrayList<>(setIdForTestBooks(getTestBooks()));
-    List<Book> books = registryRepository.getListBorrowedBooksOfReader(reader);
-    assertAll(() -> assertFalse(books.isEmpty()),
-        () -> assertEquals(3, books.size()));
-    Book remove = testBooks.remove(0);
-    registryRepository.returnBook(remove);
+    var reader = getFirstReader();
+    var book = getFirstBook();
+    List<Book> listBorrowedBooksBeforeReturn = registryRepository.getListBorrowedBooksOfReader(
+        reader);
+    registryRepository.returnBook(book);
+    List<Book> listBorrowedBooksAfterReturn = registryRepository.getListBorrowedBooksOfReader(
+        reader);
 
-    List<Book> booksAfterReturnOne = registryRepository.getListBorrowedBooksOfReader(reader);
-    assertAll(() -> assertFalse(booksAfterReturnOne.isEmpty()),
-        () -> assertEquals(2, booksAfterReturnOne.size()),
-        () -> assertEquals(testBooks, booksAfterReturnOne));
-
-     */
+    assertAll(() -> assertEquals(2, listBorrowedBooksBeforeReturn.size()),
+        () -> assertEquals(1, listBorrowedBooksAfterReturn.size()),
+        () -> assertFalse(listBorrowedBooksAfterReturn.contains(book)));
   }
-
 
   @Test
   void shouldReturnReaderWhoBorrowBook() {
-    fail();
-    /*
-    Reader reader = getFistReader();
-    borrowTestThreeBooks(reader);
-    List<Book> books = setIdForTestBooks(getTestBooks());
-    Optional<Reader> firstReader = registryRepository.getReaderOfBook(books.get(0));
-    Optional<Reader> secondReader = registryRepository.getReaderOfBook(books.get(1));
-    Optional<Reader> thirdReader = registryRepository.getReaderOfBook(books.get(2));
-    assertAll(() -> assertTrue(firstReader.isPresent()),
-        () -> assertTrue(secondReader.isPresent()),
-        () -> assertTrue(thirdReader.isPresent()),
-        () -> assertEquals(reader, firstReader.get()),
-        () -> assertEquals(reader, secondReader.get()),
-        () -> assertEquals(reader, thirdReader.get()));
-
-     */
+    Reader reader = getFirstReader();
+    Book book = getFirstBook();
+    assertEquals(reader,
+        registryRepository.getReaderOfBook(book).orElseGet(() -> new Reader("NO SUCH READER")));
   }
 
   @Test
   void shouldReturnEmptyOptionalIfNobodyBorrowBook() {
-    fail();
-    assertTrue(registryRepository.getReaderOfBook(new Book("", "")).isEmpty());
+    var thirdBook = bookRepository.findById(3L).orElseGet(Util::getBookWhenError);
+    assertTrue(registryRepository.getReaderOfBook(thirdBook).isEmpty());
   }
 
 }
