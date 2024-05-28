@@ -40,6 +40,10 @@ public class Util {
     return book;
   }
 
+  public static Book getBookWhenError() {
+    return new Book("Error", "Error");
+  }
+
   public static List<Book> setIdForTestBooks(List<Book> testBooks) {
     IdGenerator idGenerator = new IdGenerator();
     testBooks.forEach(s -> s.setId(idGenerator.getNextId()));
