@@ -18,7 +18,6 @@ import org.example.dao.BookRepository;
 import org.example.entity.Book;
 import org.example.exception.ConsoleValidationException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class BookServiceTest {
@@ -87,9 +86,8 @@ class BookServiceTest {
   }
 
   @Test
-  @Disabled("Has no ideas why it doesn't mock and work when set real implementation")
   void shouldCreateNewBookWithValidFieldsAndPrintMessage() {
-    Book book = new Book("Author 1", "Title 1");
+    Book book = new Book("Title 1", "Author 1");
     when(bookRepository.save(book)).thenReturn(book);
     Book saved = bookService.addNewBook(book.getName() + "/" + book.getAuthor());
     assertAll(() -> assertEquals(book, saved),

@@ -8,7 +8,10 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.example.entity.Book;
 import org.example.entity.Reader;
@@ -62,6 +65,30 @@ public class Util {
     String join = String.join("\n", data);
     System.setIn(new ByteArrayInputStream(join.getBytes()));
     sleep(200);
+  }
+
+  public static Map<Reader, List<Book>> getTestReadersWithBorrowedBooks() {
+    var map = new HashMap<Reader, List<Book>>();
+    var reader = new Reader("reader1");
+    reader.setId(1L);
+    map.put(reader, List.of(new Book("book1", "book1")));
+    reader = new Reader("reader2");
+    reader.setId(2L);
+    map.put(reader, List.of(new Book("book2", "book2"), new Book("book3", "book3")));
+    reader = new Reader("reader3");
+    reader.setId(3L);
+    map.put(reader,List.of());
+    return map;
+  }
+
+  public static Map<Book, Optional<Reader>> getTestBooksWithCurrentReader() {
+    var map = new HashMap<Book, Optional<Reader>>();
+    var book = new Book("book1", "book1");
+    map.put(book, Optional.of(new Reader("reader1")));
+    book = new Book("book2", "book2");
+    book.setId(2L);
+    map.put(book, Optional.empty());
+    return map;
   }
 
   public static class IdGenerator {

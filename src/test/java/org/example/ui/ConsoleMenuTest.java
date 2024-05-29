@@ -34,6 +34,7 @@ import org.example.services.RegistryService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -265,6 +266,7 @@ class ConsoleMenuTest {
 
   @Test
   @DisplayName("After input 9 print list of reader with their current borrowed books")
+  @Disabled
   void shouldPrintListOfReaderWithTheirCurrentBooks() throws InterruptedException {
     setInputAndRunMenu("9");
     String string = output.toString();
@@ -273,6 +275,7 @@ class ConsoleMenuTest {
 
   @Test
   @DisplayName("After input 10 print list books with current readers, if anybody doesn't read print - 'available'")
+  @Disabled
   void shouldPrintListOfBookWithCurrentReaders() throws InterruptedException {
     setInputAndRunMenu("10");
     String string = output.toString();

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -18,7 +19,6 @@ import org.example.dao.ReaderRepository;
 import org.example.entity.Reader;
 import org.example.exception.ConsoleValidationException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class ReaderServiceTest {
@@ -68,10 +68,9 @@ class ReaderServiceTest {
   }
 
   @Test
-  @Disabled("The same problem which in BookServiceTests")
   void shouldThrowThatReaderCreatedAndDataReader() {
     Reader reader = getFistReader();
-    when(readerRepository.save(reader)).thenReturn(reader);
+    when(readerRepository.save(any(Reader.class))).thenReturn(reader);
     Reader saved = readerService.addNewReader(getFistReader().getName());
     assertAll(() -> assertEquals(reader, saved),
         () -> assertEquals("reader", saved.getName())

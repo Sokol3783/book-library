@@ -6,6 +6,7 @@ import static org.example.util.Util.getTestBooks;
 import static org.example.util.Util.setIdForTestBooks;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,11 +16,14 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import org.example.dao.RegistryRepository;
 import org.example.entity.Book;
 import org.example.entity.Reader;
 import org.example.exception.RegistryRepositoryException;
+import org.example.util.Util;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -143,11 +147,42 @@ class RegistryServiceTest {
 
   @Test
   void shouldReturnMapKeyReaderValueListOfBook() {
+    when(registryRepository.getAllReadersWithBorrowedBooks()).thenReturn(
+        Util.getTestReadersWithBorrowedBooks());
+    var allReadersWithBorrowedBooks = registryService.getAllReadersWithBorrowedBooks();
+    assertAll(() -> assertFalse(allReadersWithBorrowedBooks.containsValue(null)),
+        () -> assertEquals(3, allReadersWithBorrowedBooks.size()),
+        () -> assertEquals(1, getListBorrowedBooksByReaderNamse("reader1", allReadersWithBorrowedBooks).size()),
+        () -> assertEquals(2, getListBorrowedBooksByReaderNamse("reader2", allReadersWithBorrowedBooks).size()),
+        () -> assertTrue(getListBorrowedBooksByReaderNamse("reader3", allReadersWithBorrowedBooks).isEmpty())
+    );
+  }
+
+  private List<Book> getListBorrowedBooksByReaderNamse(String readerName,
+      Map<Reader, List<Book>> allReadersWithBorrowedBooks) {
+    return allReadersWithBorrowedBooks.entrySet().stream()
+        .filter(entry -> entry.getKey().getName().contentEquals(readerName)).map(Entry::getValue)
+        .findAny().orElse(null);
   }
 
   @Test
   void shouldReturnMapKeyBookValueOptionalReader() {
+    when(registryRepository.getAllBooksWithCurrentReaders()).thenReturn(
+        Util.getTestBooksWithCurrentReader());
+    var allBooksWithBorrowers = registryService.getAllBooksWithBorrowers();
+    assertAll(() -> assertEquals(2, allBooksWithBorrowers.size()),
+        () -> assertFalse(allBooksWithBorrowers.containsValue(null)),
+        () -> assertTrue(getReaderByBookTitle("book1", allBooksWithBorrowers).isPresent()),
+        () -> assertTrue(getReaderByBookTitle("book2", allBooksWithBorrowers).isEmpty())
+    );
 
+  }
+
+  private Optional<Reader> getReaderByBookTitle(String bookTitle,
+      Map<Book, Optional<Reader>> allBooksWithBorrowers) {
+    return allBooksWithBorrowers.entrySet().stream()
+        .filter(entry -> entry.getKey().getName().contentEquals(bookTitle))
+        .map(Entry::getValue).findAny().orElse(null);
   }
 
 }
