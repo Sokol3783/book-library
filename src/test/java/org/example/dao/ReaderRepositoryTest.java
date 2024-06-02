@@ -61,9 +61,9 @@ class ReaderRepositoryTest {
   @Test
   void shouldHaveThreeReadersOnStartup() {
     List<Reader> afterStart = readerRepository.findAll();
-    Reader save = afterStart.get(0);
-    Reader save1 = afterStart.get(1);
-    Reader save2 = afterStart.get(2);
+    var existingReaderOne = afterStart.get(0);
+    var existingReaderTwo = afterStart.get(1);
+    var existingReaderThree = afterStart.get(2);
     assertAll(() -> assertEquals(1L, save.getId()),
         () -> assertEquals(2L, save1.getId()),
         () -> assertEquals(3L, save2.getId()),
