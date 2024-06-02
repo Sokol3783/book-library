@@ -1,23 +1,24 @@
 package org.example.dao;
 
-import static org.example.util.Util.getBookWhenError;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import org.example.entity.Book;
 import org.example.util.Util;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class BookRepositoryTest {
 
-  private static final BookRepository bookRepository = new BookRepository();
+  private final BookRepository bookRepository = new BookRepository();
 
   @BeforeAll
   static void setUpClass() {
@@ -25,18 +26,9 @@ class BookRepositoryTest {
   }
 
 
-  private static boolean titleIsEquals(Optional<Book> optionalBook, Book newBook) {
-    return optionalBook.map(savedBook -> savedBook.getName().contentEquals(newBook.getName()))
-        .orElse(false);
-  }
-
-  @Test
-  void shouldNotFindById() {
-    assertAll(() -> assertTrue(bookRepository.findById(5L).isEmpty()),
-        () -> assertTrue(bookRepository.findById(250L).isEmpty()),
-        () -> assertTrue(bookRepository.findById(1000L).isEmpty()),
-        () -> assertTrue(bookRepository.findById(12631231L).isEmpty()),
-        () -> assertTrue(bookRepository.findById(1L).isPresent()));
+  @BeforeEach
+  void setUp() throws SQLException {
+    Util.executeSQLScript("books.sql");
   }
 
   @Test
@@ -52,28 +44,10 @@ class BookRepositoryTest {
         () -> assertTrue(allAfterChanges.stream().anyMatch(s -> s.getId() == 5L)));
   }
 
-  @Test
-  void shouldHaveThreeBooksOnStartup() {
-    List<Book> afterStartup = bookRepository.findAll();
-    Book save = afterStartup.get(0);
-    Book save1 = afterStartup.get(1);
-    Book save2 = afterStartup.get(2);
-
-    assertAll(() -> assertEquals(1L, save.getId()),
-        () -> assertEquals(2L, save1.getId()),
-        () -> assertEquals(3L, save2.getId()),
-        () -> assertEquals("Steven King", save.getAuthor()),
-        () -> assertEquals("Patric Rotfuss", save1.getAuthor()),
-        () -> assertEquals("George Martin", save2.getAuthor()),
-        () -> assertEquals("The Dark Tower", save.getName()),
-        () -> assertEquals("The name of the Wind", save1.getName()),
-        () -> assertEquals("A Game of Thrones", save2.getName()));
-  }
-
-  @BeforeEach
-  void setUp() throws SQLException {
-    Connection connection = DBUtil.getConnection();
-    Util.executeSQLScript(connection, "books.sql");
+  @ParameterizedTest
+  @ValueSource(longs = {5L, 250L, 1000L, 12631231L})
+  void shouldNotFindById(Long id) {
+    assertTrue(bookRepository.findById(id).isEmpty());
   }
 
   @Test
@@ -90,7 +64,36 @@ class BookRepositoryTest {
         () -> assertEquals(4, listOfBooks.size()));
   }
 
- @Test
+  private static boolean titleIsEquals(Optional<Book> optionalBook, Book newBook) {
+    return optionalBook.map(savedBook -> savedBook.getName().contentEquals(newBook.getName()))
+        .orElse(false);
+  }
+
+  private boolean authorIsEquals(Optional<Book> optionalBook, Book newBook) {
+    return optionalBook.map(savedBook -> savedBook.getAuthor().contentEquals(newBook.getAuthor()))
+        .orElse(false);
+  }
+
+  @Test
+  void shouldHaveThreeBooksOnStartup() {
+    List<Book> afterStartup = bookRepository.findAll();
+    var existingBookOne = afterStartup.get(0);
+    var existingBookTwo = afterStartup.get(1);
+    var existingBookThree = afterStartup.get(2);
+
+    assertAll(() -> assertEquals(3, afterStartup.size()),
+        () -> assertEquals(1L, existingBookOne.getId()),
+        () -> assertEquals(2L, existingBookTwo.getId()),
+        () -> assertEquals(3L, existingBookThree.getId()),
+        () -> assertEquals("Steven King", existingBookOne.getAuthor()),
+        () -> assertEquals("Patric Rotfuss", existingBookTwo.getAuthor()),
+        () -> assertEquals("George Martin", existingBookThree.getAuthor()),
+        () -> assertEquals("The Dark Tower", existingBookOne.getName()),
+        () -> assertEquals("The name of the Wind", existingBookTwo.getName()),
+        () -> assertEquals("A Game of Thrones", existingBookThree.getName()));
+  }
+
+  @Test
   void shouldFindById() {
     bookRepository.findById(1L)
         .ifPresentOrElse(
@@ -112,8 +115,4 @@ class BookRepositoryTest {
         );
   }
 
-  private boolean authorIsEquals(Optional<Book> optionalBook, Book newBook) {
-    return optionalBook.map(savedBook -> savedBook.getAuthor().contentEquals(newBook.getAuthor()))
-        .orElse(false);
-  }
 }
