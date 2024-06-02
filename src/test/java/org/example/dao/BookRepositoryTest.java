@@ -90,16 +90,26 @@ class BookRepositoryTest {
         () -> assertEquals(4, listOfBooks.size()));
   }
 
-  @Test
+ @Test
   void shouldFindById() {
-    Book bookID_1 = bookRepository.findById(1L).orElse(getBookWhenError());
-    Book bookID_3 = bookRepository.findById(3L).orElse(getBookWhenError());
-    assertAll(() -> assertEquals(1L, bookID_1.getId()),
-        () -> assertEquals("The Dark Tower", bookID_1.getName()),
-        () -> assertEquals("Steven King", bookID_1.getAuthor()),
-        () -> assertEquals(3L, bookID_3.getId()),
-        () -> assertEquals("A Game of Thrones", bookID_3.getName()),
-        () -> assertEquals("George Martin", bookID_3.getAuthor()));
+    bookRepository.findById(1L)
+        .ifPresentOrElse(
+            book -> assertAll(
+                () -> assertEquals(1L, book.getId()),
+                () -> assertEquals("The Dark Tower", book.getName()),
+                () -> assertEquals("Steven King", book.getAuthor())
+            ),
+            Assertions::fail
+        );
+    bookRepository.findById(3L)
+        .ifPresentOrElse(
+            book -> assertAll(
+                () -> assertEquals(3L, book.getId()),
+                () -> assertEquals("A Game of Thrones", book.getName()),
+                () -> assertEquals("George Martin", book.getAuthor())
+            ),
+            Assertions::fail
+        );
   }
 
   private boolean authorIsEquals(Optional<Book> optionalBook, Book newBook) {
