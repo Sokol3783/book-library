@@ -23,29 +23,33 @@ import org.junit.jupiter.api.Test;
 
 class RegistryRepositoryTest {
 
-  private final static RegistryRepository registryRepository = new RegistryRepository();
-  private static final BookRepository bookRepository = new BookRepository();
-  private static final ReaderRepository readerRepository = new ReaderRepository();
+  private final RegistryRepository registryRepository = new RegistryRepository();
 
   @BeforeAll
   static void setUpDB() {
     DBUtil.initDatabase();
   }
 
-  private static Book getFirstBook() {
-    return bookRepository.findById(1L).orElseGet(Util::getBookWhenError);
-  }
 
   @BeforeEach
   void setUp() throws SQLException {
-    var connection = DBUtil.getConnection();
-    Util.executeSQLScript(connection, "registry.sql");
+    Util.executeSQLScript("registry.sql");
   }
 
   @Test
   void shouldReturnBookSuccessful() {
     var book = getFirstBook();
     registryRepository.returnBook(book);
+    RegistryRepositoryException exception = assertThrows(RegistryRepositoryException.class,
+        () -> registryRepository.returnBook(book));
+
+    assertTrue(exception.getMessage().contentEquals("This book anybody doesn't borrow!"));
+  }
+
+  private Book getFirstBook() {
+    var book = new Book();
+    book.setId(1L);
+    return book;
   }
 
   @Test
@@ -53,96 +57,109 @@ class RegistryRepositoryTest {
     Book book = getFirstBook();
     registryRepository.returnBook(book);
 
-    assertThrows(RegistryRepositoryException.class, () -> registryRepository.returnBook(book));
+    RegistryRepositoryException exception = assertThrows(RegistryRepositoryException.class,
+        () -> registryRepository.returnBook(book));
+    assertTrue(exception.getMessage().contentEquals("This book anybody doesn't borrow!"));
   }
 
   @Test
   void shouldThrowExceptionWhenSomeoneTryToBorrowBorrowedBook() throws RegistryRepositoryException {
     var book = getFirstBook();
-    var reader2 = readerRepository.findById(2L).orElseGet(Util::getReaderWhenError);
-
-    assertAll(() -> assertThrows(RegistryRepositoryException.class,
-        () -> registryRepository.borrowBook(book, reader2)));
+    var reader = getReaderWithId(2L);
+    assertThrows(RegistryRepositoryException.class,
+        () -> registryRepository.borrowBook(book, reader));
   }
 
-  private Reader getFirstReader() {
-    return readerRepository.findById(1L).orElseGet(Util::getReaderWhenError);
+  private Reader getReaderWithId(Long id) {
+    var reader = new Reader();
+    reader.setId(id);
+    return reader;
   }
 
   @Test
   void shouldReturnEmptyListIfReaderDoesNotBorrowBook() {
-    Reader reader = readerRepository.findById(3L).orElseGet(Util::getReaderWhenError);
-    List<Book> emptyList = registryRepository.getListBorrowedBooksOfReader(reader);
-    assertTrue(emptyList.isEmpty());
+    var reader = getReaderWithId(3L);
+    var emptyListOfBooks = registryRepository.getListBorrowedBooksOfReader(reader);
+    assertTrue(emptyListOfBooks.isEmpty());
   }
 
   @Test
   void shouldReturnListOfBorrowedBooksOfReader() {
-    Reader reader = getFirstReader();
-    List<Book> books = registryRepository.getListBorrowedBooksOfReader(reader);
+    var reader = getReaderWithId(1L);
+    var books = registryRepository.getListBorrowedBooksOfReader(reader);
     assertAll(() -> assertEquals(2, books.size()),
-        () -> assertTrue(books.stream().allMatch(book -> book.getId() > 0 && book.getId() < 3)));
+        () -> assertTrue(books.stream().allMatch(book -> book.getId() == 1 || book.getId() == 2)));
   }
 
   @Test
   @DisplayName("First return list with two borrowed books of reader after returning book, should return list with one book")
   void shouldReturnListWithOneBorrowedBookOfReaderAfterReturningBook()
       throws RegistryRepositoryException {
-    var reader = getFirstReader();
+    var reader = getReaderWithId(1L);
     var book = getFirstBook();
-    List<Book> listBorrowedBooksBeforeReturn = registryRepository.getListBorrowedBooksOfReader(
-        reader);
+    var borrowedBooksBeforeReturn = registryRepository.getListBorrowedBooksOfReader(reader);
     registryRepository.returnBook(book);
-    List<Book> listBorrowedBooksAfterReturn = registryRepository.getListBorrowedBooksOfReader(
-        reader);
+    var borrowedBooksAfterReturn = registryRepository.getListBorrowedBooksOfReader(reader);
 
-    assertAll(() -> assertEquals(2, listBorrowedBooksBeforeReturn.size()),
-        () -> assertEquals(1, listBorrowedBooksAfterReturn.size()),
-        () -> assertFalse(listBorrowedBooksAfterReturn.contains(book)));
+    assertAll(() -> assertEquals(2, borrowedBooksBeforeReturn.size()),
+        () -> assertEquals(1, borrowedBooksAfterReturn.size()),
+        () -> assertFalse(borrowedBooksAfterReturn.contains(book)));
   }
 
   @Test
   void shouldReturnReaderWhoBorrowBook() {
-    Reader reader = getFirstReader();
-    Book book = getFirstBook();
-    assertEquals(reader,
-        registryRepository.getReaderOfBook(book).orElseGet(() -> new Reader("NO SUCH READER")));
+    var reader = getReaderWithId(1L);
+    var book = getFirstBook();
+    assertEquals(reader, registryRepository.getReaderOfBook(book).orElseThrow(AssertionError::new));
   }
 
   @Test
   void shouldReturnEmptyOptionalIfNobodyBorrowBook() {
-    var thirdBook = bookRepository.findById(3L).orElseGet(Util::getBookWhenError);
+    var thirdBook = getBookWithId(3L);
     assertTrue(registryRepository.getReaderOfBook(thirdBook).isEmpty());
   }
 
-  private static long countFirstReaderBorrowBook(Map<Book, Optional<Reader>> map, Reader reader) {
-    return map.values().stream().filter(
-            optionalReader -> (optionalReader.orElse(new Reader("NO SUCH READER")).equals(reader)))
-        .count();
+  private Book getBookWithId(long id) {
+    var book = new Book();
+    book.setId(id);
+    return book;
   }
 
   @Test
   void shouldReturnAllReadersWithBorrowedBooks() {
-    var allReadersWithBorrowedBooks = registryRepository.getAllReadersWithBorrowedBooks();
-    var listReader = allReadersWithBorrowedBooks.keySet().stream().toList();
-    var readersFromRepository = readerRepository.findAll();
-    assertAll(() -> assertTrue(listReader.containsAll(readersFromRepository)), () -> assertEquals(2,
-            allReadersWithBorrowedBooks.values().stream().filter(List::isEmpty).count()),
+    var readersWithBorrowedBooks = registryRepository.getAllReadersWithBorrowedBooks();
+    var listReader = readersWithBorrowedBooks.keySet().stream().toList();
+    var readersFromRepository = List.of(getReaderWithId(1L), getReaderWithId(2L),
+        getReaderWithId(3L));
+    assertAll(
+        () -> assertTrue(listReader.containsAll(readersFromRepository)),
+        () -> assertEquals(2,
+            readersWithBorrowedBooks.values().stream().filter(List::isEmpty).count()),
         () -> assertTrue(
-            allReadersWithBorrowedBooks.values().stream().anyMatch(list -> list.size() == 2)));
+            readersWithBorrowedBooks.values().stream().anyMatch(list -> list.size() == 2))
+    );
   }
 
   @Test
   void shouldReturnBookWithTheirCurrentReaders() {
-    var reader = getFirstReader();
-    var allBooksWithCurrentReaders = registryRepository.getAllBooksWithCurrentReaders();
-    var listBook = bookRepository.findAll();
+    var reader = getReaderWithId(1L);
+    var booksWithCurrentReaders = registryRepository.getAllBooksWithCurrentReaders();
+    var listBook = List.of(getBookWithId(1L), getBookWithId(2L), getBookWithId(3L));
 
-    assertAll(() -> assertTrue(
-            allBooksWithCurrentReaders.keySet().stream().toList().containsAll(listBook)),
-        () -> assertEquals(2, countFirstReaderBorrowBook(allBooksWithCurrentReaders, reader)),
-        () -> assertEquals(1,
-            allBooksWithCurrentReaders.values().stream().filter(Optional::isEmpty).count()));
+    assertAll(
+        () -> assertTrue(booksWithCurrentReaders.keySet().stream().toList().containsAll(listBook)),
+        () -> assertEquals(2, countBorrowedBooks(booksWithCurrentReaders, reader)),
+        () -> assertEquals(1, countBooksWithoutReader(booksWithCurrentReaders))
+    );
+  }
+
+  private long countBooksWithoutReader(Map<Book, Optional<Reader>> booksWithCurrentReaders) {
+    return booksWithCurrentReaders.values().stream().filter(Optional::isEmpty).count();
+  }
+
+  private long countBorrowedBooks(Map<Book, Optional<Reader>> map, Reader reader) {
+    return map.values().stream()
+        .filter(optionalReader -> optionalReader.map(reader::equals).orElse(false)).count();
   }
 
 }
