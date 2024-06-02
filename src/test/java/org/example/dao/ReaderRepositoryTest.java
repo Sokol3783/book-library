@@ -9,13 +9,16 @@ import java.util.List;
 import java.util.Optional;
 import org.example.entity.Reader;
 import org.example.util.Util;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class ReaderRepositoryTest {
 
-  private final static ReaderRepository readerRepository = new ReaderRepository();
+  private final ReaderRepository readerRepository = new ReaderRepository();
 
   @BeforeAll
   static void setUpDB() {
@@ -24,26 +27,25 @@ class ReaderRepositoryTest {
 
   @BeforeEach
   void setUp() throws SQLException {
-    var connection = DBUtil.getConnection();
-    Util.executeSQLScript(connection, "readers.sql");
+    Util.executeSQLScript("readers.sql");
   }
 
   @Test
   void shouldFindById() {
-    Optional<Reader> firstReader = readerRepository.findById(1L);
-    Reader reader = firstReader.orElse(Util.getReaderWhenError());
-    assertAll(() -> assertEquals(1L, reader.getId()),
-        () -> assertEquals("Mike Douglas", reader.getName()));
+    readerRepository.findById(1L).
+        ifPresentOrElse(reader -> assertAll(
+                () -> assertEquals(1L, reader.getId()),
+                () -> assertEquals("Mike Douglas", reader.getName())
+            ),
+            Assertions::fail
+        );
   }
 
 
-  @Test
-  void shouldNotFindById() {
-    assertAll(() -> assertTrue(readerRepository.findById(5L).isEmpty()),
-        () -> assertTrue(readerRepository.findById(250L).isEmpty()),
-        () -> assertTrue(readerRepository.findById(1000L).isEmpty()),
-        () -> assertTrue(readerRepository.findById(12631231L).isEmpty()),
-        () -> assertTrue(readerRepository.findById(1L).isPresent()));
+  @ParameterizedTest
+  @ValueSource(longs = {5L, 250L, 1000L, 12631231L})
+  void shouldNotFindById(Long id) {
+    assertTrue(readerRepository.findById(id).isEmpty());
   }
 
   @Test
@@ -64,12 +66,12 @@ class ReaderRepositoryTest {
     var existingReaderOne = afterStart.get(0);
     var existingReaderTwo = afterStart.get(1);
     var existingReaderThree = afterStart.get(2);
-    assertAll(() -> assertEquals(1L, save.getId()),
-        () -> assertEquals(2L, save1.getId()),
-        () -> assertEquals(3L, save2.getId()),
-        () -> assertEquals("Mike Douglas", save.getName()),
-        () -> assertEquals("Fedor Trybeckoi", save1.getName()),
-        () -> assertEquals("IVAN MAZEPA", save2.getName()));
+    assertAll(() -> assertEquals(1L, existingReaderOne.getId()),
+        () -> assertEquals(2L, existingReaderTwo.getId()),
+        () -> assertEquals(3L, existingReaderThree.getId()),
+        () -> assertEquals("Mike Douglas", existingReaderOne.getName()),
+        () -> assertEquals("Fedor Trybeckoi", existingReaderTwo.getName()),
+        () -> assertEquals("IVAN MAZEPA", existingReaderThree.getName()));
   }
 
   @Test
