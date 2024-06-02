@@ -1,4 +1,4 @@
-package org.example.integration;
+package org.example.dao;
 
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -11,10 +11,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.example.dao.BookRepository;
-import org.example.dao.DBUtil;
-import org.example.dao.ReaderRepository;
-import org.example.dao.RegistryRepository;
 import org.example.entity.Book;
 import org.example.entity.Reader;
 import org.example.exception.RegistryRepositoryException;

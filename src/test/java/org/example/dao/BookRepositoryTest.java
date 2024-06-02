@@ -1,4 +1,4 @@
-package org.example.integration;
+package org.example.dao;
 
 import static org.example.util.Util.getBookWhenError;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -9,8 +9,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import org.example.dao.BookRepository;
-import org.example.dao.DBUtil;
 import org.example.entity.Book;
 import org.example.util.Util;
 import org.junit.jupiter.api.BeforeAll;

@@ -1,4 +1,4 @@
-package org.example.integration;
+package org.example.dao;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import org.example.dao.DBUtil;
-import org.example.dao.ReaderRepository;
 import org.example.entity.Reader;
 import org.example.util.Util;
 import org.junit.jupiter.api.BeforeAll;
