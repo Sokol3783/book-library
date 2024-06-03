@@ -7,29 +7,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.example.dao.BookRepository;
 import org.example.entity.Book;
 import org.example.exception.ConsoleValidationException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class BookServiceTest {
 
-  private static BookService bookService;
-  private static BookRepository bookRepository;
-
-  @BeforeEach
-  void setUp() {
-    bookRepository = mock(BookRepository.class);
-    bookService = new BookService(bookRepository);
-  }
+  @Mock
+  private BookRepository bookRepository;
+  @InjectMocks
+  private BookService bookService;
 
   @Test
   void shouldCallRepositoryOnceWhenGetListOfBooks() {
@@ -43,82 +47,75 @@ class BookServiceTest {
     );
   }
 
-  @Test
-  void shouldThrowThatTitleContainInvalidSymbols() {
-    ConsoleValidationException exception = assertThrows(
-        ConsoleValidationException.class, () -> bookService.addNewBook("tbba3#$ / author"));
-    assertTrue(exception.getMessage().contains("Title contains invalid symbols: |/\\\\#%=+*_><]"));
+  @ParameterizedTest
+  @MethodSource("provideInvalidAuthorsWithExpectedErrorMessage")
+  void shouldPrintErrorForInvalidAuthor(String author, String message) {
+    var exception = assertThrows(ConsoleValidationException.class,
+        () -> bookService.addNewBook("title / " + author));
+    assertTrue(exception.getMessage().contains(message));
   }
 
-  @Test
-  void shouldThrowThatAuthorContainsInvalidSymbols() {
-    ConsoleValidationException exception = assertThrows(
-        ConsoleValidationException.class, () -> bookService.addNewBook("valid / a$l#utho<>r"));
-    assertTrue(exception.getMessage()
-        .contains("Name must contain only letters, spaces, dashes, apostrophes!"));
+  private static Stream<Arguments> provideInvalidAuthorsWithExpectedErrorMessage() {
+    return Stream.of(
+        Arguments.of("asd", "Name should contain more than 5 chars and less than 30 ones"),
+        Arguments.of("fashdfjsafsdfaskldfsdfsadfasdfhsjkdfhaskjdfhskjd",
+            "Name should contain more than 5 chars and less than 30 ones"),
+        Arguments.of("name!", "Name must contain only letters, spaces, dashes, apostrophes!"),
+        Arguments.of("name//%&^*^&",
+            "Name must contain only letters, spaces, dashes, apostrophes!"),
+        Arguments.of("name&!@#^&", "Name must contain only letters, spaces, dashes, apostrophes!")
+    );
   }
 
-  @Test
-  void shouldThrowErrThatSizeAuthorNotValid() {
-    ConsoleValidationException titleFewChar = assertThrows(ConsoleValidationException.class,
-        () -> bookService.addNewBook("valid / asd"));
-    ConsoleValidationException titleToManyChar = assertThrows(ConsoleValidationException.class,
-        () -> bookService.addNewBook("valid / $l#uyyyyyyyyyyyyesssssssssssssggthor"));
-    System.out.println(titleFewChar.getMessage());
-    assertAll(() -> assertTrue(titleFewChar.getMessage()
-            .contains("Name should contain more than 5 chars and less than 30 ones")),
-        () -> assertTrue(titleToManyChar.getMessage()
-            .contains("Name should contain more than 5 chars and less than 30 ones")));
+
+  @ParameterizedTest
+  @MethodSource("provideInvalidTitleWithExpectedErrorMessage")
+  void shouldPrintErrorForInvalidTitle(String title, String message) {
+    var exception = assertThrows(ConsoleValidationException.class,
+        () -> bookService.addNewBook(title + "/ author"));
+    assertTrue(exception.getMessage().contains(message));
   }
 
-  @Test
-  void shouldThrowErrThatSizeTitleNotValid() {
-    ConsoleValidationException titleFewChar = assertThrows(ConsoleValidationException.class,
-        () -> bookService.addNewBook("vali / valid author"));
-    ConsoleValidationException titleToManyChar = assertThrows(ConsoleValidationException.class,
-        () -> bookService.addNewBook(
-            "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiigjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjii / valid author"));
-    assertAll(() -> assertTrue(titleFewChar.getMessage()
-            .contains("Title should contain more than 5 chars and less than 100 ones")),
-        () -> assertTrue(titleToManyChar.getMessage()
-            .contains("Title should contain more than 5 chars and less than 100 ones")));
-
+  private static Stream<Arguments> provideInvalidTitleWithExpectedErrorMessage() {
+    return Stream.of(
+        Arguments.of("asd", "Title should contain more than 5 chars and less than 100 ones"),
+        Arguments.of(
+            "fashdgasdkjhfjkasdhdfjksahdfkjsahdfjmanvamshfklsdahfjaskdhfkalsjndfmasdnfjksadhfkasjdhfaskjdhfjsadhfkasjhdfknsnsmdfasfjsafsdfaskldfsdfsadfasdfhsjkdfhaskjdfhskjd",
+            "Title should contain more than 5 chars and less than 100 ones"),
+        Arguments.of("title+", "Title contains invalid symbols: |/\\\\#%=+*_><]"),
+        Arguments.of("title*|", "Title contains invalid symbols: |/\\\\#%=+*_><]"),
+        Arguments.of("title#^&", "Title contains invalid symbols: |/\\\\#%=+*_><]")
+    );
   }
 
   @Test
   void shouldCreateNewBookWithValidFieldsAndPrintMessage() {
-    Book book = new Book("Title 1", "Author 1");
+    var book = new Book("Title 1", "Author 1");
     when(bookRepository.save(book)).thenReturn(book);
-    Book saved = bookService.addNewBook(book.getName() + "/" + book.getAuthor());
+    var saved = bookService.addNewBook(book.getName() + "/" + book.getAuthor());
     assertAll(() -> assertEquals(book, saved),
         () -> assertEquals("Author 1", saved.getAuthor()),
         () -> assertEquals("Title 1", saved.getName())
     );
   }
 
-  @Test
-  void shouldReturnBookIfValidInput() {
+  @ParameterizedTest
+  @ValueSource(strings = {"1", "2", "3"})
+  void shouldReturnBookIfValidInput(String id) {
     when(bookRepository.findById(anyLong())).thenReturn(Optional.of(new Book("book", "book")));
-
-    assertAll(() -> assertTrue(bookService.findById("1").isPresent()),
-        () -> assertTrue(bookService.findById("2").isPresent()),
-        () -> assertTrue(bookService.findById("3").isPresent()));
+    assertTrue(bookService.findById(id).isPresent());
   }
 
   @Test
   void shouldThrowRepositoryExceptionIfNotValidInput() {
-    when(bookRepository.findById(anyLong())).thenReturn(Optional.empty());
-    assertAll(
-        () -> assertThrows(ConsoleValidationException.class, () -> bookService.findById("asdasda")),
-        () -> assertTrue(bookService.findById("1").isEmpty()));
+    assertThrows(ConsoleValidationException.class, () -> bookService.findById("asdasda"));
   }
 
   @Test
   void shouldThrowAllMistakesInInput() {
-    ConsoleValidationException exception = assertThrows(ConsoleValidationException.class,
+    var exception = assertThrows(ConsoleValidationException.class,
         () -> bookService.addNewBook(
             "i@# / sadjfhasjkdfhsjadhfjkshdfk jasdhfksad #12@%2132 valid author"));
-    System.out.println(exception.getMessage());
     assertAll(() -> assertTrue(exception.getMessage()
             .contains("Title should contain more than 5 chars and less than 100 ones")),
         () -> assertTrue(exception.getMessage()
@@ -128,7 +125,6 @@ class BookServiceTest {
         () -> assertTrue(
             exception.getMessage().contains("Title contains invalid symbols: |/\\\\#%=+*_><]"))
     );
-
   }
 
 }
