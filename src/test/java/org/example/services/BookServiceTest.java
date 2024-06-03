@@ -49,7 +49,7 @@ class BookServiceTest {
 
   @ParameterizedTest
   @MethodSource("provideInvalidAuthorsWithExpectedErrorMessage")
-  void shouldPrintErrorForInvalidAuthor(String author, String message) {
+  void shouldThrowErrorWithMessageInvalidAuthor(String author, String message) {
     var exception = assertThrows(ConsoleValidationException.class,
         () -> bookService.addNewBook("title / " + author));
     assertTrue(exception.getMessage().contains(message));
@@ -70,7 +70,7 @@ class BookServiceTest {
 
   @ParameterizedTest
   @MethodSource("provideInvalidTitleWithExpectedErrorMessage")
-  void shouldPrintErrorForInvalidTitle(String title, String message) {
+  void shouldThrowErrorWithMessageInvalidTitle(String title, String message) {
     var exception = assertThrows(ConsoleValidationException.class,
         () -> bookService.addNewBook(title + "/ author"));
     assertTrue(exception.getMessage().contains(message));
@@ -89,7 +89,7 @@ class BookServiceTest {
   }
 
   @Test
-  void shouldCreateNewBookWithValidFieldsAndPrintMessage() {
+  void shouldCreateNewBookWithValidFieldsAndReturnSavedBook() {
     var book = new Book("Title 1", "Author 1");
     when(bookRepository.save(book)).thenReturn(book);
     var saved = bookService.addNewBook(book.getName() + "/" + book.getAuthor());
