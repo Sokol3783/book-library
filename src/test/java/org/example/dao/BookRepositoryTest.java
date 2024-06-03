@@ -64,7 +64,7 @@ class BookRepositoryTest {
         () -> assertEquals(4, listOfBooks.size()));
   }
 
-  private static boolean titleIsEquals(Optional<Book> optionalBook, Book newBook) {
+  private boolean titleIsEquals(Optional<Book> optionalBook, Book newBook) {
     return optionalBook.map(savedBook -> savedBook.getName().contentEquals(newBook.getName()))
         .orElse(false);
   }
