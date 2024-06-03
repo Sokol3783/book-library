@@ -54,7 +54,7 @@ class RegistryRepositoryTest {
 
   @Test
   void shouldThrowExceptionWhenTryToReturnNotTakenBook() {
-    Book book = getFirstBook();
+    var book = getFirstBook();
     registryRepository.returnBook(book);
 
     RegistryRepositoryException exception = assertThrows(RegistryRepositoryException.class,
