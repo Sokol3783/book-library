@@ -159,7 +159,9 @@ class RegistryRepositoryTest {
 
   private long countBorrowedBooks(Map<Book, Optional<Reader>> map, Reader reader) {
     return map.values().stream()
-        .filter(optionalReader -> optionalReader.map(reader::equals).orElse(false)).count();
+        .flatMap(Optional::stream)
+        .filter(reader::equals)
+        .count();
   }
 
 }
