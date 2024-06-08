@@ -82,7 +82,7 @@ class RegistryServiceTest {
   }
 
   @Test
-  void shouldReturnBorrowedBook() throws RegistryRepositoryException {
+  void shouldBorrowBookSuccessfully() throws RegistryRepositoryException {
     var reader = getFistReader();
     var book = getFirstBook();
 

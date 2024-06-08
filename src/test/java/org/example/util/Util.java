@@ -43,6 +43,18 @@ public class Util {
     return book;
   }
 
+  public static Reader getReaderWithId(Long id) {
+    var reader = new Reader();
+    reader.setId(id);
+    return reader;
+  }
+
+  public static Book getBookWithId(long id) {
+    var book = new Book();
+    book.setId(id);
+    return book;
+  }
+
   public static List<Book> setIdForTestBooks(List<Book> testBooks) {
     IdGenerator idGenerator = new IdGenerator();
     testBooks.forEach(s -> s.setId(idGenerator.getNextId()));

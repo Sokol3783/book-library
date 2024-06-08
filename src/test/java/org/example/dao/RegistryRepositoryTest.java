@@ -1,11 +1,15 @@
 package org.example.dao;
 
 
+import static org.example.util.Util.getBookWithId;
+import static org.example.util.Util.getFirstBook;
+import static org.example.util.Util.getReaderWithId;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -15,6 +19,7 @@ import org.example.entity.Book;
 import org.example.entity.Reader;
 import org.example.exception.RegistryRepositoryException;
 import org.example.util.Util;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,16 +45,11 @@ class RegistryRepositoryTest {
   void shouldReturnBookSuccessful() {
     var book = getFirstBook();
     registryRepository.returnBook(book);
+
+    registryRepository.getReaderOfBook(book).ifPresent(reader -> fail("Book should be returned"));
     RegistryRepositoryException exception = assertThrows(RegistryRepositoryException.class,
         () -> registryRepository.returnBook(book));
-
     assertTrue(exception.getMessage().contentEquals("This book anybody doesn't borrow!"));
-  }
-
-  private Book getFirstBook() {
-    var book = new Book();
-    book.setId(1L);
-    return book;
   }
 
   @Test
@@ -70,11 +70,6 @@ class RegistryRepositoryTest {
         () -> registryRepository.borrowBook(book, reader));
   }
 
-  private Reader getReaderWithId(Long id) {
-    var reader = new Reader();
-    reader.setId(id);
-    return reader;
-  }
 
   @Test
   void shouldReturnEmptyListIfReaderDoesNotBorrowBook() {
@@ -110,7 +105,11 @@ class RegistryRepositoryTest {
   void shouldReturnReaderWhoBorrowBook() {
     var reader = getReaderWithId(1L);
     var book = getFirstBook();
-    assertEquals(reader, registryRepository.getReaderOfBook(book).orElseThrow(AssertionError::new));
+    registryRepository.getReaderOfBook(book)
+        .ifPresentOrElse(
+            readerFromBook -> assertEquals(reader, readerFromBook),
+            Assertions::fail
+        );
   }
 
   @Test
@@ -119,11 +118,6 @@ class RegistryRepositoryTest {
     assertTrue(registryRepository.getReaderOfBook(thirdBook).isEmpty());
   }
 
-  private Book getBookWithId(long id) {
-    var book = new Book();
-    book.setId(id);
-    return book;
-  }
 
   @Test
   void shouldReturnAllReadersWithBorrowedBooks() {
