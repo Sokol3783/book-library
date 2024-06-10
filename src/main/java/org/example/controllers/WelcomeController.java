@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class WelcomeController {
 
   private final static String WELCOME_MESSAGE = "Welcome to the library!";
-  private final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern(
+  private final static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(
       "dd.MM.yyyy HH:mm");
 
   @GetMapping("/welcome")
   public Map<String, String> getWelcomeMessage() {
     var map = new LinkedHashMap<String, String>();
     map.put("message", WELCOME_MESSAGE);
-    map.put("currentDate", LocalDateTime.now().format(formatter));
+    map.put("currentDate", LocalDateTime.now().format(DATE_TIME_FORMATTER));
     return map;
   }
 }

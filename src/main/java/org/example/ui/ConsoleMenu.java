@@ -94,12 +94,12 @@ public class ConsoleMenu {
 
   private void printAllReaders() {
     logger.info("\nList of readers:");
-    readerService.findAllReaders().forEach(System.out::println);
+    readerService.findAllReaders().forEach(reader -> logger.info(reader.toString()));
   }
 
   private void printAllBooks() {
     logger.info("\nList of books:");
-    bookService.findAllBooks().forEach(System.out::println);
+    bookService.findAllBooks().forEach(book -> logger.info(book.toString()));
   }
 
   private void addNewBook() {
