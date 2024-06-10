@@ -44,6 +44,12 @@
       <version>${mockito-core.version}</version>
     </dependency>
     <dependency>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <groupId>org.mockito</groupId>
+      <scope>test</scope>
+      <version>${mockito-core.version}</version>
+    </dependency>
+    <dependency>
       <artifactId>postgresql</artifactId>
       <groupId>org.postgresql</groupId>
       <version>${postgresql.version}</version>
