@@ -8,33 +8,37 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.example.dao.ReaderRepository;
 import org.example.entity.Reader;
 import org.example.exception.ConsoleValidationException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class ReaderServiceTest {
 
-  private static ReaderService readerService;
-  private static ReaderRepository readerRepository;
+  @Mock
+  private ReaderRepository readerRepository;
+  @InjectMocks
+  private ReaderService readerService;
 
-
-  @BeforeEach
-  void setUp() {
-    readerRepository = mock(ReaderRepository.class);
-    readerService = new ReaderService(readerRepository);
-  }
 
   @Test
-  void shouldThrowListOfReadersAndHeader() {
+  void shouldReturnListOfReaders() {
     List<Reader> testReaders = getTestReaders();
     when(readerRepository.findAll()).thenReturn(testReaders);
     List<Reader> allReaders = readerService.findAllReaders();
@@ -45,44 +49,41 @@ class ReaderServiceTest {
     );
   }
 
-  @Test
-  void shouldThrowErrNameContainsInvalidSymbols() {
-    ConsoleValidationException exception = assertThrows(ConsoleValidationException.class,
-        () -> readerService.addNewReader("name_with_symbol_**!@#@@${}"));
-    assertTrue(exception.getMessage()
-        .contains("Name must contain only letters, spaces, dashes, apostrophes"));
+  @ParameterizedTest
+  @MethodSource("provideInvalidNamesAndExpectedErrorMessage")
+  void shouldThrowErrorAndMessageInvalidInput(String name, String message) {
+    var exception = assertThrows(ConsoleValidationException.class,
+        () -> readerService.addNewReader(name));
+    assertTrue(exception.getMessage().contains(message));
   }
 
-  @Test
-  void shouldThrowThatLengthIsInvalid() {
-    ConsoleValidationException fewChar = assertThrows(ConsoleValidationException.class,
-        () -> readerService.addNewReader("few"));
-    ConsoleValidationException tooManyChar = assertThrows(ConsoleValidationException.class,
-        () -> readerService.addNewReader("122312iagdasdghasdjkgfhsdjkfhasjkdfaskdnds"));
-
-    assertAll(() -> assertTrue(
-            fewChar.getMessage()
-                .contains("Name should contain more than 5 chars and less than 30 ones"))
-        , () -> assertTrue(tooManyChar.getMessage()
-            .contains("Name should contain more than 5 chars and less than 30 ones")));
-  }
-
-  @Test
-  void shouldThrowThatReaderCreatedAndDataReader() {
-    Reader reader = getFistReader();
-    when(readerRepository.save(any(Reader.class))).thenReturn(reader);
-    Reader saved = readerService.addNewReader(getFistReader().getName());
-    assertAll(() -> assertEquals(reader, saved),
-        () -> assertEquals("reader", saved.getName())
+  private static Stream<Arguments> provideInvalidNamesAndExpectedErrorMessage() {
+    return Stream.of(
+        Arguments.of("abc", "Name should contain more than 5 chars and less than 30 ones"),
+        Arguments.of("abcdefghjklmnopqrstuvwxyzabcdefgjklmnopqrstuvwxyz",
+            "Name should contain more than 5 chars and less than 30 ones"),
+        Arguments.of("#name", "Name must contain only letters, spaces, dashes, apostrophes"),
+        Arguments.of("name#$!@", "Name must contain only letters, spaces, dashes, apostrophes"),
+        Arguments.of("name&^&???", "Name must contain only letters, spaces, dashes, apostrophes")
     );
   }
 
   @Test
-  void shouldReturnBookIfValidInput() {
+  void shouldReturnSavedReader() {
+    var reader = getFistReader();
+    when(readerRepository.save(any(Reader.class))).thenReturn(reader);
+    var saved = readerService.addNewReader(getFistReader().getName());
+    assertAll(
+        () -> assertEquals(reader, saved),
+        () -> assertEquals("reader", saved.getName())
+    );
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"1", "2", "3"})
+  void shouldReturnBookIfValidInput(String id) {
     when(readerRepository.findById(anyLong())).thenReturn(Optional.of(new Reader("reader")));
-    assertAll(() -> assertTrue(readerService.findById("1").isPresent()),
-        () -> assertTrue(readerService.findById("2").isPresent()),
-        () -> assertTrue(readerService.findById("3").isPresent()));
+    assertTrue(readerService.findById(id).isPresent());
   }
 
   @Test
@@ -91,6 +92,7 @@ class ReaderServiceTest {
     assertAll(
         () -> assertThrows(ConsoleValidationException.class,
             () -> readerService.findById("asdasda")),
-        () -> assertTrue(readerService.findById("1").isEmpty()));
+        () -> assertTrue(readerService.findById("1").isEmpty())
+    );
   }
 }

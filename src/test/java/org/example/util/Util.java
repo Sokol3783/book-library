@@ -5,7 +5,6 @@ import static java.lang.Thread.sleep;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -13,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.example.dao.DBUtil;
 import org.example.entity.Book;
 import org.example.entity.Reader;
 import org.example.exception.DAOException;
@@ -37,18 +37,22 @@ public class Util {
     return reader;
   }
 
-  public static Reader getReaderWhenError() {
-    return new Reader("ERROR");
-  }
-
   public static Book getFirstBook() {
     Book book = new Book("book", "book");
     book.setId(1L);
     return book;
   }
 
-  public static Book getBookWhenError() {
-    return new Book("Error", "Error");
+  public static Reader getReaderWithId(Long id) {
+    var reader = new Reader();
+    reader.setId(id);
+    return reader;
+  }
+
+  public static Book getBookWithId(long id) {
+    var book = new Book();
+    book.setId(id);
+    return book;
   }
 
   public static List<Book> setIdForTestBooks(List<Book> testBooks) {
@@ -77,7 +81,7 @@ public class Util {
     map.put(reader, List.of(new Book("book2", "book2"), new Book("book3", "book3")));
     reader = new Reader("reader3");
     reader.setId(3L);
-    map.put(reader,List.of());
+    map.put(reader, List.of());
     return map;
   }
 
@@ -100,8 +104,9 @@ public class Util {
     }
   }
 
-  public static void executeSQLScript(Connection connection, String fileName)
+  public static void executeSQLScript(String fileName)
       throws SQLException, DAOException {
+    var connection = DBUtil.getConnection();
     String data = readSQLFromTestResource(fileName);
     try (PreparedStatement statement = connection.prepareStatement(data)) {
       statement.execute();
