@@ -72,34 +72,39 @@ public class ConsoleMenu {
 
   private void showAllBooksWithBorrowers() {
     var booksWithCurrentReaders = registryService.getAllBooksWithBorrowers();
-    logger.info("\n");
+    var text = new StringBuilder();
     booksWithCurrentReaders.forEach((book, optionalReader) ->
         optionalReader.ifPresentOrElse(
-            reader -> logger.info("{} -> borrower: {}", book.toString(), reader),
-            () -> logger.info("{} -> available", book.toString()))
+            reader -> text.append("\n%s -> borrower: %s".formatted(book.toString(), reader)),
+            () -> text.append("\n%s -> available".formatted(book.toString())))
     );
+    logger.info(text.toString());
   }
 
   private void showAllReaderWithCurrentlyBorrowedBooks() {
     var readersWithBorrowedBooks = registryService.getAllReadersWithBorrowedBooks();
     readersWithBorrowedBooks.forEach((reader, borrowedBooks) -> {
       if (borrowedBooks.isEmpty()) {
-        logger.info("\nReader : {} no books borrowed", reader);
+        logger.info("Reader : {} no books borrowed", reader);
       } else {
-        logger.info("\nReader : {} list of borrowed books:", reader);
-        borrowedBooks.forEach(book -> logger.info(book.toString()));
+        var header = "Reader : %s list of borrowed books:".formatted(reader);
+        var text = new StringBuilder(header);
+        borrowedBooks.forEach(book -> text.append("\n").append(book.toString()));
+        logger.info(text.toString());
       }
     });
   }
 
   private void printAllReaders() {
-    logger.info("\nList of readers:");
-    readerService.findAllReaders().forEach(reader -> logger.info(reader.toString()));
+    var text = new StringBuilder("List of readers:");
+    readerService.findAllReaders().forEach(reader -> text.append("\n").append(reader.toString()));
+    logger.info(text.toString());
   }
 
   private void printAllBooks() {
-    logger.info("\nList of books:");
-    bookService.findAllBooks().forEach(book -> logger.info(book.toString()));
+    var text = new StringBuilder("List of books:");
+    bookService.findAllBooks().forEach(book -> text.append("\n").append(book.toString()));
+    logger.info(text.toString());
   }
 
   private void addNewBook() {
@@ -135,8 +140,9 @@ public class ConsoleMenu {
     logger.info(ENTER_READER_ID_MESSAGE);
     String readerId = scanner.nextLine();
     List<Book> borrowedBooks = registryService.findBorrowedBooksByReader(readerId);
-    logger.info("Borrowed books:");
-    borrowedBooks.forEach(book -> logger.info(book.toString()));
+    var text = new StringBuilder("Borrowed books:");
+    borrowedBooks.forEach(book -> text.append("\n").append(book.toString()));
+    logger.info(text.toString());
   }
 
   private void showCurrentReaderOfBook() {
