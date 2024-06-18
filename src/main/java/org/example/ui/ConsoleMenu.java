@@ -89,7 +89,8 @@ public class ConsoleMenu {
         logger.info("Reader : {} no books borrowed", reader);
       } else {
         var header = "Reader : %s list of borrowed books:".formatted(reader);
-        var text = borrowedBooks.stream().map(Book::toString)
+        var text = borrowedBooks.stream()
+            .map(Book::toString)
             .collect(Collectors.joining("\n", header + "\n", ""));
         logger.info(text);
       }
