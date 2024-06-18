@@ -2,6 +2,7 @@ package org.example.ui;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 import org.example.entity.Book;
 import org.example.entity.Reader;
 import org.example.services.BookService;
@@ -88,23 +89,27 @@ public class ConsoleMenu {
         logger.info("Reader : {} no books borrowed", reader);
       } else {
         var header = "Reader : %s list of borrowed books:".formatted(reader);
-        var text = new StringBuilder(header);
-        borrowedBooks.forEach(book -> text.append("\n").append(book.toString()));
-        logger.info(text.toString());
+        var text = borrowedBooks.stream().map(Book::toString)
+            .collect(Collectors.joining("\n", header + "\n", ""));
+        logger.info(text);
       }
     });
   }
 
   private void printAllReaders() {
-    var text = new StringBuilder("List of readers:");
-    readerService.findAllReaders().forEach(reader -> text.append("\n").append(reader.toString()));
-    logger.info(text.toString());
+    var header = "List of readers:";
+    var text = readerService.findAllReaders().stream()
+        .map(Reader::toString)
+        .collect(Collectors.joining("\n", header + "\n", ""));
+    logger.info(text);
   }
 
   private void printAllBooks() {
-    var text = new StringBuilder("List of books:");
-    bookService.findAllBooks().forEach(book -> text.append("\n").append(book.toString()));
-    logger.info(text.toString());
+    var header = "List of books:";
+    var text = bookService.findAllBooks().stream()
+        .map(Book::toString)
+        .collect(Collectors.joining("\n", header + "\n", ""));
+    logger.info(text);
   }
 
   private void addNewBook() {
@@ -140,9 +145,11 @@ public class ConsoleMenu {
     logger.info(ENTER_READER_ID_MESSAGE);
     String readerId = scanner.nextLine();
     List<Book> borrowedBooks = registryService.findBorrowedBooksByReader(readerId);
-    var text = new StringBuilder("Borrowed books:");
-    borrowedBooks.forEach(book -> text.append("\n").append(book.toString()));
-    logger.info(text.toString());
+    var header = "Borrowed books:";
+    var text = borrowedBooks.stream()
+        .map(Book::toString)
+        .collect(Collectors.joining("\n", header + "\n", ""));
+    logger.info(text);
   }
 
   private void showCurrentReaderOfBook() {
