@@ -2,14 +2,18 @@ package org.example.ui;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 import org.example.entity.Book;
 import org.example.entity.Reader;
 import org.example.services.BookService;
 import org.example.services.ReaderService;
 import org.example.services.RegistryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConsoleMenu {
 
+  Logger logger = LoggerFactory.getLogger(ConsoleMenu.class);
   private static final String WELCOME_MESSAGE = "WELCOME TO THE LIBRARY!";
   private static final String ENTER_READER_ID_MESSAGE = "Please, enter reader's ID:";
   private static final String ENTER_BOOK_ID_MESSAGE = "Please, enter book's ID:";
@@ -34,13 +38,13 @@ public class ConsoleMenu {
   }
 
   public void run() {
-    System.out.println(WELCOME_MESSAGE);
+    logger.info(WELCOME_MESSAGE);
     while (!terminated) {
       try {
-        System.out.println(getTextMenu());
+        logger.info(getTextMenu());
         handleOption(scanner.nextLine());
       } catch (RuntimeException e) {
-        System.err.println(e.getMessage());
+        logger.error(e.getMessage());
       }
     }
   }
@@ -69,88 +73,101 @@ public class ConsoleMenu {
 
   private void showAllBooksWithBorrowers() {
     var booksWithCurrentReaders = registryService.getAllBooksWithBorrowers();
-    System.out.println("\n");
+    var text = new StringBuilder();
     booksWithCurrentReaders.forEach((book, optionalReader) ->
         optionalReader.ifPresentOrElse(
-            reader -> System.out.println(book.toString() + " -> borrower: " + reader),
-            () -> System.out.println(book.toString() + " -> available"))
+            reader -> text.append("\n%s -> borrower: %s".formatted(book.toString(), reader)),
+            () -> text.append("\n%s -> available".formatted(book.toString())))
     );
+    logger.info(text.toString());
   }
 
   private void showAllReaderWithCurrentlyBorrowedBooks() {
     var readersWithBorrowedBooks = registryService.getAllReadersWithBorrowedBooks();
     readersWithBorrowedBooks.forEach((reader, borrowedBooks) -> {
       if (borrowedBooks.isEmpty()) {
-        System.out.println("\nReader : " + reader + " no books borrowed");
+        logger.info("Reader : {} no books borrowed", reader);
       } else {
-        System.out.println("\nReader : " + reader + " list of borrowed books:");
-        borrowedBooks.forEach(System.out::println);
+        var header = "Reader : %s list of borrowed books:".formatted(reader);
+        var text = borrowedBooks.stream()
+            .map(Book::toString)
+            .collect(Collectors.joining("\n", header + "\n", ""));
+        logger.info(text);
       }
     });
   }
 
   private void printAllReaders() {
-    System.out.println("\nList of readers:");
-    readerService.findAllReaders().forEach(System.out::println);
+    var header = "List of readers:";
+    var text = readerService.findAllReaders().stream()
+        .map(Reader::toString)
+        .collect(Collectors.joining("\n", header + "\n", ""));
+    logger.info(text);
   }
 
   private void printAllBooks() {
-    System.out.println("\nList of books:");
-    bookService.findAllBooks().forEach(System.out::println);
+    var header = "List of books:";
+    var text = bookService.findAllBooks().stream()
+        .map(Book::toString)
+        .collect(Collectors.joining("\n", header + "\n", ""));
+    logger.info(text);
   }
 
   private void addNewBook() {
-    System.out.println(
+    logger.info(
         "Please, enter new book name and author separated by “/”. Like this: name / author");
     String newBook = scanner.nextLine();
     Book saved = bookService.addNewBook(newBook);
-    System.out.println(saved);
+    logger.info(saved.toString());
   }
 
   private void addNewReader() {
-    System.out.println("Please enter new reader full name!");
+    logger.info("Please enter new reader full name!");
     String newReader = scanner.nextLine();
     Reader reader = readerService.addNewReader(newReader);
-    System.out.println(reader.toString());
+    logger.info(reader.toString());
   }
 
   private void borrowBook() {
-    System.out.println("Please enter book ID and reader ID. Like this: 15 / 15");
+    logger.info("Please enter book ID and reader ID. Like this: 15 / 15");
     String bookIdAndReaderId = scanner.nextLine();
     Book book = registryService.borrowBook(bookIdAndReaderId);
-    System.out.println("Book " + book.getName() + "borrowed.");
+    logger.info("Book {} borrowed.", book.getName());
   }
 
   private void returnBook() {
-    System.out.println(ENTER_BOOK_ID_MESSAGE);
+    logger.info(ENTER_BOOK_ID_MESSAGE);
     String bookId = scanner.nextLine();
     Book book = registryService.returnBook(bookId);
-    System.out.println("Book " + book.getName() + " is returned.");
+    logger.info("Book {} is returned.", book.getName());
   }
 
   private void showAllBorrowedByReader() {
-    System.out.println(ENTER_READER_ID_MESSAGE);
+    logger.info(ENTER_READER_ID_MESSAGE);
     String readerId = scanner.nextLine();
     List<Book> borrowedBooks = registryService.findBorrowedBooksByReader(readerId);
-    System.out.println("Borrowed books:");
-    borrowedBooks.forEach(System.out::println);
+    var header = "Borrowed books:";
+    var text = borrowedBooks.stream()
+        .map(Book::toString)
+        .collect(Collectors.joining("\n", header + "\n", ""));
+    logger.info(text);
   }
 
   private void showCurrentReaderOfBook() {
-    System.out.println(ENTER_BOOK_ID_MESSAGE);
+    logger.info(ENTER_BOOK_ID_MESSAGE);
     String readerId = scanner.nextLine();
     Reader reader = registryService.findCurrentReaderOfBook(readerId);
-    System.out.println(reader);
+    logger.info(reader.toString());
   }
 
   private void exit() {
-    System.out.println("Goodbye!");
+    logger.info("Goodbye!");
     terminated = true;
     scanner.close();
   }
 
   private void printErrInvalidOption() {
-    System.err.println("Invalid option");
+    logger.error("Invalid option");
   }
 
   private String getTextMenu() {
