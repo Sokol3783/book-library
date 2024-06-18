@@ -73,13 +73,13 @@ public class ConsoleMenu {
 
   private void showAllBooksWithBorrowers() {
     var booksWithCurrentReaders = registryService.getAllBooksWithBorrowers();
-    var header = "List of books with borrowers:";
-    var text = booksWithCurrentReaders.entrySet().stream().map(
-            bookWithReader -> bookWithReader.getValue().map(
-                    reader -> "%s -> borrower: %s".formatted(bookWithReader.getValue().toString(), reader))
-                .orElseGet(() -> "%s -> available".formatted(bookWithReader.getKey().toString())))
-        .collect(Collectors.joining("\n", header + "\n", ""));
-    logger.info(text);
+    var text = new StringBuilder();
+    booksWithCurrentReaders.forEach((book, optionalReader) ->
+        optionalReader.ifPresentOrElse(
+            reader -> text.append("\n%s -> borrower: %s".formatted(book.toString(), reader)),
+            () -> text.append("\n%s -> available".formatted(book.toString())))
+    );
+    logger.info(text.toString());
   }
 
   private void showAllReaderWithCurrentlyBorrowedBooks() {
