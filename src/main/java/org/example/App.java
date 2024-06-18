@@ -1,6 +1,5 @@
 package org.example;
 
-import org.example.dao.DBUtil;
 import org.example.exception.DAOException;
 import org.example.ui.ConsoleMenu;
 import org.slf4j.Logger;
@@ -18,7 +17,7 @@ public class App {
     SpringApplication.run(App.class, args);
 
     try {
-      DBUtil.initDatabase();
+      // DBUtil.initDatabase();
       ConsoleMenu menu = new ConsoleMenu();
       menu.run();
     } catch (DAOException e) {
