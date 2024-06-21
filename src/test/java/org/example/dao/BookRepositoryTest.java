@@ -4,32 +4,25 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import org.example.entity.Book;
-import org.example.util.Util;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
 class BookRepositoryTest {
 
-  private final BookRepository bookRepository = new BookRepository();
+  @Autowired
+  private BookRepository bookRepository;
 
-  @BeforeAll
-  static void setUpClass() {
-    DBUtil.initDatabase();
-  }
-
-
-  @BeforeEach
-  void setUp() throws SQLException {
-    Util.executeSQLScript("books.sql");
-  }
 
   @Test
   void shouldFindAllBooks() {

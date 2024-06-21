@@ -104,7 +104,7 @@
 
   <properties>
     <java.version>17</java.version>
-    <junit-jupiter.version>5.5.2</junit-jupiter.version>
+    <junit-jupiter.version>5.10.2</junit-jupiter.version>
     <mockito-core.version>5.11.0</mockito-core.version>
     <postgresql.version>42.7.3</postgresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
