@@ -12,10 +12,16 @@ import java.util.List;
 import java.util.Optional;
 import org.example.entity.Book;
 import org.example.exception.DAOException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class BookRepository {
 
-  public BookRepository() {
+  private final JdbcTemplate jdbcTemplate;
+
+  public BookRepository(JdbcTemplate jdbcTemplate) {
+    this.jdbcTemplate = jdbcTemplate;
   }
 
   public Optional<Book> findById(long id) {

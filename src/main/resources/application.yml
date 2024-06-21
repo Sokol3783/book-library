@@ -4,9 +4,11 @@ spring:
     password: postgres
     url: jdbc:postgresql://localhost:5432/book-library-sokol
     driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
+  sql:
+    init:
+      schema-locations: schema.sql
+      data-locations: data.sql
+      mode: always
 server:
   servlet:
     context-path: /book-library
