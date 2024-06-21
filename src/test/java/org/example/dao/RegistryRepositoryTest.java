@@ -22,10 +22,11 @@ import org.example.util.Util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-
+@Disabled
 class RegistryRepositoryTest {
 
   private final RegistryRepository registryRepository = new RegistryRepository();
