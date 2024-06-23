@@ -17,7 +17,6 @@ public class App {
     SpringApplication.run(App.class, args);
 
     try {
-      // DBUtil.initDatabase();
       ConsoleMenu menu = new ConsoleMenu();
       menu.run();
     } catch (DAOException e) {
