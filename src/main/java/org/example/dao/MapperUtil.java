@@ -9,10 +9,15 @@ import java.util.Map;
 import java.util.Optional;
 import org.example.entity.Book;
 import org.example.entity.Reader;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
 public class MapperUtil {
 
-  static Optional<Book> mapToBook(ResultSet resultSet) throws SQLException {
+  static ResultSetExtractor<Optional<Book>> mapToBook() {
+    return MapperUtil::mapToBook;
+  }
+
+  private static Optional<Book> mapToBook(ResultSet resultSet) throws SQLException {
     if (resultSet.next()) {
       var book = new Book();
       book.setId(resultSet.getLong("id"));
@@ -23,13 +28,15 @@ public class MapperUtil {
     return Optional.empty();
   }
 
-  static List<Book> mapToBookList(ResultSet resultSet) throws SQLException {
-    List<Book> books = new ArrayList<>();
-    Optional<Book> book;
-    while ((book = mapToBook(resultSet)).isPresent()) {
-      books.add(book.get());
-    }
-    return books;
+  static ResultSetExtractor<List<Book>> mapToBookList() {
+    return resultSet -> {
+      List<Book> books = new ArrayList<>();
+      Optional<Book> book;
+      while ((book = mapToBook(resultSet)).isPresent()) {
+        books.add(book.get());
+      }
+      return books;
+    };
   }
 
   static Optional<Reader> mapToReader(ResultSet resultSet) throws SQLException {

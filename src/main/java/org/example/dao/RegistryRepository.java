@@ -72,6 +72,7 @@ public class RegistryRepository {
   }
 
   public List<Book> getListBorrowedBooksOfReader(Reader reader) {
+    /*
     var query = """
         SELECT
             book.id,
@@ -91,6 +92,8 @@ public class RegistryRepository {
           "Failed to find list of borrowed books of reader by ID %d, to a DB error: %s"
               .formatted(reader.getId(), e.getMessage()));
     }
+     */
+    return null;
   }
 
   public Map<Reader, List<Book>> getAllReadersWithBorrowedBooks() {
