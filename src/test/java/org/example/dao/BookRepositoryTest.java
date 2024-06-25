@@ -9,22 +9,25 @@ import java.util.Optional;
 import org.example.entity.Book;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
+@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 class BookRepositoryTest {
 
   @Autowired
   private BookRepository bookRepository;
 
-
   @Test
+  @Transactional
+  @Rollback
   void shouldFindAllBooks() {
     List<Book> allOnStartup = bookRepository.findAll();
     assertEquals(3, allOnStartup.size());
@@ -44,6 +47,8 @@ class BookRepositoryTest {
   }
 
   @Test
+  @Transactional
+  @Rollback
   void shouldSaveNewBookWithId4() {
     var newBook = new Book("new book", "new book author");
     bookRepository.save(newBook);
