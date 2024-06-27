@@ -10,6 +10,7 @@ import org.example.entity.Book;
 import org.example.exception.DAOException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ public class BookRepository {
   public Optional<Book> findById(long id) {
     try {
       return jdbcTemplate.query("SELECT id, author, title FROM book WHERE id = ?",
-          MapperUtil.mapToBook(), id);
+          (ResultSetExtractor<Optional<Book>>) MapperUtil::mapToBook, id);
     } catch (DataAccessException e) {
       throw new DAOException(
           "Failed to retrieve a book by ID " + id + ", due to a DB error: " + e.getMessage());

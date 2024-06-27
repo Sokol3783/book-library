@@ -13,11 +13,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 
 public class MapperUtil {
 
-  static ResultSetExtractor<Optional<Book>> mapToBook() {
-    return MapperUtil::mapToBook;
-  }
-
-  private static Optional<Book> mapToBook(ResultSet resultSet) throws SQLException {
+  static Optional<Book> mapToBook(ResultSet resultSet) throws SQLException {
     if (resultSet.next()) {
       var book = new Book();
       book.setId(resultSet.getLong("id"));
