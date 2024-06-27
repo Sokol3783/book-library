@@ -3,11 +3,12 @@ package org.example.dao;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
-import java.util.Optional;
 import org.example.entity.Book;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -37,27 +38,30 @@ class BookRepositoryTest {
   @Test
   @Transactional
   @Rollback
-  void shouldSaveNewBookWithId4() {
+  @DisplayName("Should save book with id more than three, and find book by id with the same content")
+  void shouldSaveNewBookWithIdMoreThanThree() {
     var newBook = new Book("new book", "new book author");
-    bookRepository.save(newBook);
+    var savedBook = bookRepository.save(newBook);
 
     var optionalBook = bookRepository.findById(4L);
     var listOfBooks = bookRepository.findAll();
 
-    assertAll(() -> assertTrue(optionalBook.isPresent()),
-        () -> assertTrue(titleIsEquals(optionalBook, newBook)),
-        () -> assertTrue(authorIsEquals(optionalBook, newBook)),
-        () -> assertEquals(4, listOfBooks.size()));
+    optionalBook.ifPresentOrElse(findByIdBook -> assertAll(
+            () -> assertEquals(savedBook, findByIdBook),
+            () -> assertTrue(titleIsEquals(findByIdBook, newBook)),
+            () -> assertTrue(authorIsEquals(findByIdBook, newBook)),
+            () -> assertTrue(findByIdBook.getId() > 3),
+            () -> assertEquals(4, listOfBooks.size()))
+        , fail()
+    );
   }
 
-  private boolean titleIsEquals(Optional<Book> optionalBook, Book newBook) {
-    return optionalBook.map(savedBook -> savedBook.getName().contentEquals(newBook.getName()))
-        .orElse(false);
+  private boolean titleIsEquals(Book savedBook, Book newBook) {
+    return savedBook.getName().contentEquals(newBook.getName());
   }
 
-  private boolean authorIsEquals(Optional<Book> optionalBook, Book newBook) {
-    return optionalBook.map(savedBook -> savedBook.getAuthor().contentEquals(newBook.getAuthor()))
-        .orElse(false);
+  private boolean authorIsEquals(Book savedBook, Book newBook) {
+    return savedBook.getAuthor().contentEquals(newBook.getAuthor());
   }
 
   @Test
