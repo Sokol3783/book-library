@@ -3,7 +3,6 @@ package org.example.dao;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import org.example.entity.Book;
@@ -16,12 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.View;
 
 @SpringBootTest
 class BookRepositoryTest {
 
   @Autowired
   private BookRepository bookRepository;
+  private View error;
 
   @Test
   void shouldFindAllBooks() {
@@ -42,17 +43,16 @@ class BookRepositoryTest {
   void shouldSaveNewBookWithIdMoreThanThree() {
     var newBook = new Book("new book", "new book author");
     var savedBook = bookRepository.save(newBook);
-
-    var optionalBook = bookRepository.findById(4L);
     var listOfBooks = bookRepository.findAll();
 
-    optionalBook.ifPresentOrElse(findByIdBook -> assertAll(
-            () -> assertEquals(savedBook, findByIdBook),
-            () -> assertTrue(titleIsEquals(findByIdBook, newBook)),
-            () -> assertTrue(authorIsEquals(findByIdBook, newBook)),
-            () -> assertTrue(findByIdBook.getId() > 3),
-            () -> assertEquals(4, listOfBooks.size()))
-        , fail()
+    bookRepository.findById(savedBook.getId()).ifPresentOrElse(findByIdBook ->
+            assertAll(
+                () -> assertEquals(savedBook, findByIdBook),
+                () -> assertTrue(titleIsEquals(findByIdBook, newBook)),
+                () -> assertTrue(authorIsEquals(findByIdBook, newBook)),
+                () -> assertTrue(findByIdBook.getId() > 3),
+                () -> assertEquals(4, listOfBooks.size())),
+        Assertions::fail
     );
   }
 
