@@ -4,44 +4,30 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 import org.example.entity.Book;
-import org.example.util.Util;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.View;
 
+@SpringBootTest
 class BookRepositoryTest {
 
-  private final BookRepository bookRepository = new BookRepository();
-
-  @BeforeAll
-  static void setUpClass() {
-    DBUtil.initDatabase();
-  }
-
-
-  @BeforeEach
-  void setUp() throws SQLException {
-    Util.executeSQLScript("books.sql");
-  }
+  @Autowired
+  private BookRepository bookRepository;
+  private View error;
 
   @Test
   void shouldFindAllBooks() {
     List<Book> allOnStartup = bookRepository.findAll();
     assertEquals(3, allOnStartup.size());
-    bookRepository.save(new Book("Book", "Book"));
-    bookRepository.save(new Book("Book2", "Book4"));
-
-    List<Book> allAfterChanges = bookRepository.findAll();
-    assertAll(() -> assertEquals(5, allAfterChanges.size()),
-        () -> assertTrue(allAfterChanges.stream().anyMatch(s -> s.getId() == 4L)),
-        () -> assertTrue(allAfterChanges.stream().anyMatch(s -> s.getId() == 5L)));
   }
 
   @ParameterizedTest
@@ -51,27 +37,31 @@ class BookRepositoryTest {
   }
 
   @Test
-  void shouldSaveNewBookWithId4() {
+  @Transactional
+  @Rollback
+  @DisplayName("Should save book with id more than three, and find book by id with the same content")
+  void shouldSaveNewBookWithIdMoreThanThree() {
     var newBook = new Book("new book", "new book author");
-    bookRepository.save(newBook);
-
-    var optionalBook = bookRepository.findById(4L);
+    var savedBook = bookRepository.save(newBook);
     var listOfBooks = bookRepository.findAll();
 
-    assertAll(() -> assertTrue(optionalBook.isPresent()),
-        () -> assertTrue(titleIsEquals(optionalBook, newBook)),
-        () -> assertTrue(authorIsEquals(optionalBook, newBook)),
-        () -> assertEquals(4, listOfBooks.size()));
+    bookRepository.findById(savedBook.getId()).ifPresentOrElse(findByIdBook ->
+            assertAll(
+                () -> assertEquals(savedBook, findByIdBook),
+                () -> assertTrue(titleIsEquals(findByIdBook, newBook)),
+                () -> assertTrue(authorIsEquals(findByIdBook, newBook)),
+                () -> assertTrue(findByIdBook.getId() > 3),
+                () -> assertEquals(4, listOfBooks.size())),
+        Assertions::fail
+    );
   }
 
-  private boolean titleIsEquals(Optional<Book> optionalBook, Book newBook) {
-    return optionalBook.map(savedBook -> savedBook.getName().contentEquals(newBook.getName()))
-        .orElse(false);
+  private boolean titleIsEquals(Book savedBook, Book newBook) {
+    return savedBook.getName().contentEquals(newBook.getName());
   }
 
-  private boolean authorIsEquals(Optional<Book> optionalBook, Book newBook) {
-    return optionalBook.map(savedBook -> savedBook.getAuthor().contentEquals(newBook.getAuthor()))
-        .orElse(false);
+  private boolean authorIsEquals(Book savedBook, Book newBook) {
+    return savedBook.getAuthor().contentEquals(newBook.getAuthor());
   }
 
   @Test

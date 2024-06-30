@@ -17,7 +17,7 @@ import org.postgresql.ds.PGSimpleDataSource;
 
 public class DBUtil {
 
-  private final static DataSource dataSource = createDataSource();
+  private final static DataSource dataSource = null;
 
   private static DataSource createDataSource() {
     Properties appProperties = getApplicationProperties();

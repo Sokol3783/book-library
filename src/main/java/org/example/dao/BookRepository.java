@@ -1,72 +1,69 @@
 package org.example.dao;
 
-import static org.example.dao.MapperUtil.mapToBook;
-import static org.example.dao.MapperUtil.mapToBookList;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 import org.example.entity.Book;
 import org.example.exception.DAOException;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class BookRepository {
 
-  public BookRepository() {
+  private final JdbcTemplate jdbcTemplate;
+
+  public BookRepository(JdbcTemplate jdbcTemplate) {
+    this.jdbcTemplate = jdbcTemplate;
   }
 
   public Optional<Book> findById(long id) {
-    try (Connection connection = DBUtil.getConnection();
-        var statement = connection.prepareStatement(
-            "SELECT id, author, title FROM book WHERE id = ?")) {
-      statement.setLong(1, id);
-      ResultSet resultSet = statement.executeQuery();
-      return mapToBook(resultSet);
-    } catch (SQLException e) {
+    try {
+      return jdbcTemplate.query("SELECT id, author, title FROM book WHERE id = ?",
+          MapperUtil::mapToBook, id);
+    } catch (DataAccessException e) {
       throw new DAOException(
           "Failed to retrieve a book by ID " + id + ", due to a DB error: " + e.getMessage());
     }
   }
 
+
   public List<Book> findAll() throws DAOException {
-    try (Connection connection = DBUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement(
-            "SELECT id, author, title FROM book");
-        ResultSet resultSet = statement.executeQuery()
-    ) {
-      return mapToBookList(resultSet);
-    } catch (SQLException e) {
+    try {
+      return jdbcTemplate.query("SELECT id, author, title FROM book", MapperUtil.mapToBookList());
+    } catch (DataAccessException e) {
       throw new DAOException("Failed to retrieve all books due to a DB error: " + e.getMessage());
     }
   }
 
-
   public Book save(Book book) {
-    try (Connection connection = DBUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement(
-            "INSERT INTO book(title, author) VALUES (?,?)",
-            Statement.RETURN_GENERATED_KEYS)) {
-      statement.setString(1, book.getName());
-      statement.setString(2, book.getAuthor());
-      statement.execute();
-      var generatedId = extractGeneratedId(statement.getGeneratedKeys());
-      book.setId(generatedId);
+    var key = new GeneratedKeyHolder();
+    try {
+      jdbcTemplate.update(connection -> getSaveBookPrepareStatement(connection, book), key);
+      Long id = Optional.of((Long) key.getKeys().get("id")).orElseThrow(
+          () -> new DAOException("Failed to return id of book %s".formatted(book.getName())));
+      book.setId(id);
       return book;
-    } catch (SQLException e) {
+    } catch (DataAccessException e) {
       throw new DAOException(
           "Failed to save book: " + book.getName() + ", due to a DB error " + e.getMessage());
+
     }
   }
 
-  private int extractGeneratedId(ResultSet generatedKeys) throws SQLException {
-    if (generatedKeys.next()) {
-      return generatedKeys.getInt(1);
-    } else {
-      throw new DAOException("Failed to save new book: no generated ID is returned from DB");
-    }
+  private PreparedStatement getSaveBookPrepareStatement(Connection connection, Book book)
+      throws SQLException {
+    var statement = connection.prepareStatement("INSERT INTO book(title, author) VALUES (?,?)",
+        Statement.RETURN_GENERATED_KEYS);
+    statement.setString(1, book.getName());
+    statement.setString(2, book.getAuthor());
+    return statement;
+
   }
 
 }
