@@ -3,7 +3,6 @@ package org.example.controllers;
 import static org.example.util.Util.getFirstBook;
 import static org.example.util.Util.getTestBooks;
 import static org.example.util.Util.setIdForTestBooks;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -17,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
-import org.example.controllers.BookController.BookDTO;
+import org.example.dto.NewBookDTO;
 import org.example.entity.Book;
 import org.example.services.BookService;
 import org.junit.jupiter.api.DisplayName;
@@ -37,6 +36,8 @@ import org.springframework.test.web.servlet.MvcResult;
 @WebMvcTest(BookController.class)
 class BookControllerTest {
 
+  private static final String REQUEST_PATH = "/api/v1/books";
+
   @Autowired
   MockMvc mvc;
   @Autowired
@@ -47,14 +48,17 @@ class BookControllerTest {
   @Test
   void shouldReturnNotFoundWhenBookNotPresent() throws Exception {
     when(bookService.findById(10L)).thenReturn(Optional.empty());
-    mvc.perform(get("book-library/api/v1/books/10")).andExpect(status().isNotFound());
+    mvc.perform(get(REQUEST_PATH + "/10")).
+        andExpect(status().isNotFound());
   }
 
   @Test
-  void shouldReturnFirstBook() throws Exception {
+  void shouldReturnBookWithId1() throws Exception {
     when(bookService.findById(1L)).thenReturn(Optional.of(getFirstBook()));
-    var mvcResult = mvc.perform(get("/book-library/api/v1/books/1")).andExpect(status().isOk())
-        .andReturn();
+    var mvcResult = mvc.perform(get(REQUEST_PATH + "/1")).
+        andExpect(status().isOk()).
+        andReturn();
+
     var contentAsString = mvcResult.getResponse().getContentAsString();
     var bookFromResponse = objectMapper.readValue(contentAsString, Book.class);
 
@@ -66,16 +70,16 @@ class BookControllerTest {
 
   @Test
   void shouldSaveNewBook() throws Exception {
-    var bookDTO = new BookDTO("title", "author");
+    var bookDTO = new NewBookDTO("title", "author");
     var book = new Book(bookDTO.title(), bookDTO.author());
     book.setId(5L);
     when(bookService.addNewBook(any(Book.class))).thenReturn(book);
 
     MvcResult mvcResult = mvc.perform(
-            post("/book-library/api/v1/book").
+            post(REQUEST_PATH).
                 contentType("application/json").
                 content(objectMapper.writeValueAsString(bookDTO)))
-        .andExpect(status().isOk())
+        .andExpect(status().is(202))
         .andReturn();
 
     var content = mvcResult.getResponse().getContentAsString();
@@ -92,9 +96,9 @@ class BookControllerTest {
   @Test
   @DisplayName("When send book with invalid fields should return 400 and error messages")
   void shouldReturnBadRequestWhenBookNotValid() throws Exception {
-    var bookDTO = new BookDTO("tit", "auh");
+    var bookDTO = new NewBookDTO("tit#", "!auh");
     mvc.perform(
-            post("/book-library/api/v1/book").
+            post(REQUEST_PATH).
                 contentType("application/json").
                 content(objectMapper.writeValueAsString(bookDTO)))
         .andExpectAll(status().isBadRequest(),
@@ -106,12 +110,15 @@ class BookControllerTest {
   @Test
   void shouldReturnListOfBooks() throws Exception {
     when(bookService.findAllBooks()).thenReturn(setIdForTestBooks(getTestBooks()));
-    mvc.perform(get("/book-library/api/v1/books"))
+    mvc.perform(get(REQUEST_PATH))
         .andExpectAll(status().isOk(),
-            jsonPath("$.length()", hasSize(3)),
+            jsonPath("$.length()", is(3)),
             jsonPath("$[0].id", is(1)),
             jsonPath("$[1].id", is(2)),
-            jsonPath("$[2].id", is(3))
+            jsonPath("$[2].id", is(3)),
+            jsonPath("$[0].author", is("Test 1")),
+            jsonPath("$[1].author", is("Test 2")),
+            jsonPath("$[2].author", is("Test 3"))
         );
   }
 
