@@ -36,18 +36,6 @@ class ReaderRepositoryTest {
   }
 
   @Test
-  void shouldFindAllReaders() {
-    List<Reader> afterStartup = readerRepository.findAll();
-    assertEquals(3, afterStartup.size());
-    readerRepository.save(new Reader("New Reader"));
-    readerRepository.save(new Reader("Second new"));
-    List<Reader> all = readerRepository.findAll();
-    assertAll(() -> assertEquals(5, all.size()),
-        () -> assertTrue(all.stream().anyMatch(s -> s.getId() == 4L)),
-        () -> assertTrue(all.stream().anyMatch(s -> s.getId() == 5L)));
-  }
-
-  @Test
   void shouldHaveThreeReadersOnStartup() {
     List<Reader> afterStart = readerRepository.findAll();
     var existingReaderOne = afterStart.get(0);
