@@ -11,10 +11,16 @@ import java.util.List;
 import java.util.Optional;
 import org.example.entity.Reader;
 import org.example.exception.DAOException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class ReaderRepository {
 
-  public ReaderRepository() {
+  private final JdbcTemplate jdbcTemplate;
+
+  public ReaderRepository(JdbcTemplate jdbcTemplate) {
+    this.jdbcTemplate = jdbcTemplate;
   }
 
   public Optional<Reader> findById(long id) {
