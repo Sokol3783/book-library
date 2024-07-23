@@ -3,8 +3,8 @@ package org.example.controllers;
 import static org.example.util.Util.getFirstBook;
 import static org.example.util.Util.getTestBooks;
 import static org.example.util.Util.setIdForTestBooks;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,22 +47,24 @@ class BookControllerTest {
 
   @Test
   void shouldReturnNotFoundWhenBookNotPresent() throws Exception {
-    when(bookService.findById(10L)).thenReturn(Optional.empty());
-    mvc.perform(get(REQUEST_PATH + "/10")).
+    var idTen = 10L;
+    when(bookService.findById(idTen)).thenReturn(Optional.empty());
+    mvc.perform(get(REQUEST_PATH + "/" + idTen)).
         andExpect(status().isNotFound());
   }
 
   @Test
   void shouldReturnBookWithId1() throws Exception {
-    when(bookService.findById(1L)).thenReturn(Optional.of(getFirstBook()));
-    var mvcResult = mvc.perform(get(REQUEST_PATH + "/1")).
+    var idOne = 1L;
+    when(bookService.findById(idOne)).thenReturn(Optional.of(getFirstBook()));
+    var mvcResult = mvc.perform(get(REQUEST_PATH + "/" + idOne)).
         andExpect(status().isOk()).
         andReturn();
 
     var contentAsString = mvcResult.getResponse().getContentAsString();
     var bookFromResponse = objectMapper.readValue(contentAsString, Book.class);
 
-    assertAll(() -> assertEquals(1L, bookFromResponse.getId()),
+    assertAll(() -> assertEquals(idOne, bookFromResponse.getId()),
         () -> assertEquals("book", bookFromResponse.getName()),
         () -> assertEquals("book", bookFromResponse.getName()));
 
@@ -102,8 +104,13 @@ class BookControllerTest {
                 contentType("application/json").
                 content(objectMapper.writeValueAsString(bookDTO)))
         .andExpectAll(status().isBadRequest(),
-            jsonPath("$.title", notNullValue()),
-            jsonPath("$.author", notNullValue()));
+            jsonPath("$.title", containsInAnyOrder(
+                "Invalid length. Title should contain more than 5 chars and less than 100 ones",
+                "Title contains invalid symbols: |/\\#%=+*_><]")),
+            jsonPath("$.author", containsInAnyOrder(
+                "Invalid length. Name should contain more than 5 chars and less than 30 ones",
+                "Name must contain only letters, spaces, dashes, apostrophes!")));
+
 
   }
 
@@ -121,5 +128,25 @@ class BookControllerTest {
             jsonPath("$[2].author", is("Test 3"))
         );
   }
+
+  @Test
+  void shouldReturnErrorWhenLessOrZeroValue() throws Exception {
+
+    mvc.perform(get(REQUEST_PATH + "/" + "-5"))
+        .andExpectAll(
+            status().isBadRequest(),
+            jsonPath("$.error").value("Min value should be 1")
+        );
+
+  }
+
+  @Test
+  void shouldReturnErrorWhenDecimal() throws Exception {
+    mvc.perform(get(REQUEST_PATH + "/" + "1.1"))
+        .andExpectAll(
+            status().isBadRequest(),
+            jsonPath("$.error").value("Parameter should contain only digits"));
+  }
+
 
 }
