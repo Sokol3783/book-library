@@ -81,7 +81,7 @@ class BookControllerTest {
             post(REQUEST_PATH).
                 contentType("application/json").
                 content(objectMapper.writeValueAsString(bookDTO)))
-        .andExpect(status().is(202))
+        .andExpect(status().is(201))
         .andReturn();
 
     var content = mvcResult.getResponse().getContentAsString();
