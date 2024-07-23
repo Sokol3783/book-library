@@ -1,42 +1,49 @@
 package org.example.controllers;
 
 
-import java.util.ArrayList;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import org.example.dto.NewBookDTO;
 import org.example.entity.Book;
+import org.example.services.BookService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("api/v1/books")
 public class BookController {
 
-  @GetMapping("/books")
+  private final BookService bookService;
+
+  public BookController(BookService bookService) {
+    this.bookService = bookService;
+  }
+
+  @GetMapping
   public ResponseEntity<List<Book>> getAllBooks() {
-    AtomicLong id = new AtomicLong(0);
-    var books = new ArrayList<>(List.of(
-        new Book("The Dark Tower", "Steven King"),
-        new Book("The name of the Wind", "Patric Rotfuss"),
-        new Book("A Game of Thrones", "George Martin")
-    ));
-    books.forEach(book -> book.setId(id.incrementAndGet()));
-    return ResponseEntity.ok(books);
+    return ResponseEntity.ok(bookService.findAllBooks());
   }
 
-  @PostMapping("/books")
-  public ResponseEntity<Book> saveBook(@RequestBody BookDTO newBook) {
-    var savedBook = new Book(newBook.title(), newBook.author());
-    savedBook.setId(12345L);
-    return ResponseEntity.ok(savedBook);
+  @PostMapping
+  public ResponseEntity<?> saveBook(@RequestBody @Valid NewBookDTO newBookDTO) {
+    var book = new Book(newBookDTO);
+    var savedBook = bookService.addNewBook(book);
+    return ResponseEntity.status(201).body(savedBook);
   }
 
-  public record BookDTO(String title, String author) {
-
+  @GetMapping("{id}")
+  public ResponseEntity<?> getBookById(@PathVariable(name = "id")
+  @Min(value = 0L, message = "Min value should be 1")
+  Long id) {
+    return bookService.findById(id).
+        map(ResponseEntity::ok).
+        orElse(ResponseEntity.notFound().build());
   }
 
 }
