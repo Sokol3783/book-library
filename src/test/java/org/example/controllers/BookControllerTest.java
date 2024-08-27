@@ -22,6 +22,8 @@ import org.example.services.BookService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -95,10 +97,14 @@ class BookControllerTest {
 
   }
 
-  @Test
+  @ParameterizedTest
   @DisplayName("When send book with invalid fields should return 400 and error messages")
-  void shouldReturnBadRequestWhenBookNotValid() throws Exception {
-    var bookDTO = new NewBookDTO("tit#", "!auh");
+  @CsvSource({
+      "tit#, !aut",
+      "$$, 1"
+  })
+  void shouldReturnBadRequestWhenBookNotValid(String title, String author) throws Exception {
+    var bookDTO = new NewBookDTO(title, author);
     mvc.perform(
             post(REQUEST_PATH).
                 contentType("application/json").
@@ -110,8 +116,6 @@ class BookControllerTest {
             jsonPath("$.author", containsInAnyOrder(
                 "Invalid length. Name should contain more than 5 chars and less than 30 ones",
                 "Name must contain only letters, spaces, dashes, apostrophes!")));
-
-
   }
 
   @Test
