@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("api/v1/books")
@@ -34,7 +35,11 @@ public class BookController {
   public ResponseEntity<?> saveBook(@RequestBody @Valid NewBookDTO newBookDTO) {
     var book = new Book(newBookDTO);
     var savedBook = bookService.addNewBook(book);
-    return ResponseEntity.status(201).body(savedBook);
+    var uri = ServletUriComponentsBuilder
+        .fromCurrentContextPath()
+        .path("/get/{id}")
+        .build(String.valueOf(savedBook.getId()));
+    return ResponseEntity.created(uri).body(savedBook);
   }
 
   @GetMapping("{id}")
@@ -45,5 +50,6 @@ public class BookController {
         map(ResponseEntity::ok).
         orElse(ResponseEntity.notFound().build());
   }
+
 
 }

@@ -25,7 +25,7 @@ public class ConsoleMenu {
   private boolean terminated;
 
   public ConsoleMenu() {
-    bookService = new BookService();
+    bookService = new BookService(null);
     readerService = new ReaderService();
     registryService = new RegistryService(bookService, readerService);
   }

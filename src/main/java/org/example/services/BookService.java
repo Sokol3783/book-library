@@ -14,10 +14,6 @@ public class BookService {
 
   private final BookRepository bookRepository;
 
-  public BookService() {
-    this.bookRepository = null;
-  }
-
   public BookService(BookRepository bookRepository) {
     this.bookRepository = bookRepository;
   }
