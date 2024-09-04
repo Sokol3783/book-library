@@ -37,7 +37,7 @@ public class BookController {
     var savedBook = bookService.addNewBook(book);
     var uri = ServletUriComponentsBuilder
         .fromCurrentContextPath()
-        .path("/get/{id}")
+        .path("/{id}")
         .build(String.valueOf(savedBook.getId()));
     return ResponseEntity.created(uri).body(savedBook);
   }
