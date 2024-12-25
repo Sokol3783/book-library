@@ -45,13 +45,15 @@ public class MapperUtil {
     return Optional.empty();
   }
 
-  static List<Reader> mapToReaderList(ResultSet resultSet) throws SQLException {
-    List<Reader> readers = new ArrayList<>();
-    Optional<Reader> reader;
-    while ((reader = mapToReader(resultSet)).isPresent()) {
-      readers.add(reader.get());
-    }
-    return readers;
+  static ResultSetExtractor<List<Reader>> mapToReaderList() throws SQLException {
+    return resultSet -> {
+      List<Reader> readers = new ArrayList<>();
+      Optional<Reader> reader;
+      while ((reader = mapToReader(resultSet)).isPresent()) {
+        readers.add(reader.get());
+      }
+      return readers;
+    };
   }
 
   static Map<Reader, List<Book>> mapToReadersAndBorrowedBooks(ResultSet resultSet)
