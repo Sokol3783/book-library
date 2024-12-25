@@ -4,33 +4,24 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import org.example.entity.Reader;
-import org.example.util.Util;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
-@Disabled
+@SpringBootTest
 class ReaderRepositoryTest {
 
-  private final ReaderRepository readerRepository = new ReaderRepository();
-
-  @BeforeAll
-  static void setUpDB() {
-    DBUtil.initDatabase();
-  }
-
-  @BeforeEach
-  void setUp() throws SQLException {
-    Util.executeSQLScript("readers.sql");
-  }
+  @Autowired
+  private ReaderRepository readerRepository;
 
   @Test
   void shouldFindById() {
@@ -77,6 +68,9 @@ class ReaderRepositoryTest {
   }
 
   @Test
+  @Transactional
+  @Rollback
+  @DisplayName("Should save new reader with id 4")
   void shouldSaveNewReaderWithIdFour() {
     var newReader = new Reader("test reader");
     readerRepository.save(newReader);
