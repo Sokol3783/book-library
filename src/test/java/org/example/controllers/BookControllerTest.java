@@ -72,9 +72,14 @@ class BookControllerTest {
 
   }
 
-  @Test
-  void shouldSaveNewBook() throws Exception {
-    var bookDTO = new NewBookDTO("title", "author");
+  @ParameterizedTest
+  @CsvSource({
+          "title, author",
+          "title valid, author valid",
+          "Fahrenheit 451,  Ray Douglas Bradbury"
+  })
+  void shouldSaveNewBook(String title, String author) throws Exception {
+    var bookDTO = new NewBookDTO(title, author);
     var book = new Book(bookDTO.title(), bookDTO.author());
     book.setId(5L);
     when(bookService.addNewBook(any(Book.class))).thenReturn(book);
