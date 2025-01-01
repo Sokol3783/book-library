@@ -12,17 +12,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.View;
 
-@SpringBootTest
+@JdbcTest
+@Import({BookRepository.class})
 class BookRepositoryTest {
 
   @Autowired
+  private JdbcTemplate jdbcTemplate;
+
+  @Autowired
   private BookRepository bookRepository;
-  private View error;
 
   @Test
   void shouldFindAllBooks() {
