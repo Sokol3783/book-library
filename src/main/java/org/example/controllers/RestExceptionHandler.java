@@ -1,13 +1,16 @@
 package org.example.controllers;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.example.dto.ErrorResponseDTO;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,14 +21,36 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @ControllerAdvice
 public class RestExceptionHandler {
 
+  private final DateTimeFormatter dateTimeFormatter;
+
+  public RestExceptionHandler(DateTimeFormatter dateTimeFormatter) {
+    this.dateTimeFormatter = dateTimeFormatter;
+  }
+
   @ExceptionHandler(value = MethodArgumentNotValidException.class)
   public ResponseEntity<?> handleInvalidField(BindingResult bindingResult) {
     return ResponseEntity.badRequest().
-        body(bindingResult.getFieldErrors().stream().
-            collect(Collectors.groupingBy(
-                FieldError::getField,
-                Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())
-            )));
+        body(mapToErrorResponseDTO(bindingResult));
+  }
+
+  private ErrorResponseDTO mapToErrorResponseDTO(BindingResult bindingResult) {
+    return new ErrorResponseDTO(getFormatedDateTimeNow(), getDetailErrorMessage(bindingResult),
+        bindingResult.getFieldErrors().stream().map(fieldError ->
+            new ErrorResponseDTO.ErrorField(
+                fieldError.getField(),
+                Optional.ofNullable(fieldError.getRejectedValue()).map(value -> value.toString()).orElse("unknown value"),
+                fieldError.getDefaultMessage())).toList());
+  }
+
+  private String getDetailErrorMessage(BindingResult bindingResult) {
+    return switch (bindingResult.getObjectName()) {
+      case "newBookDTO" -> "Failed to create new book due to validation errors";
+      default -> "Without details";
+    };
+  }
+
+  private String getFormatedDateTimeNow() {
+    return dateTimeFormatter.format(LocalDateTime.now());
   }
 
   @ExceptionHandler(value = HandlerMethodValidationException.class)

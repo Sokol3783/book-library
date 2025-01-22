@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.example.dao.DBUtil;
+import org.example.dto.ErrorResponseDTO;
+import org.example.dto.ErrorResponseDTO.ErrorField;
 import org.example.entity.Book;
 import org.example.entity.Reader;
 import org.example.exception.DAOException;
@@ -121,6 +123,22 @@ public class Util {
     }
     throw new DAOException(
         "Initiation of database failed because resource not found: " + resourceName);
+  }
+
+  public static ErrorResponseDTO getResponseForInvalidFieldsInNewBookDTO(String title,
+      String author) {
+    return new ErrorResponseDTO("18.06.2024 21:13:56",
+        "Failed to create new book due to validation errors",
+        List.of(
+            new ErrorField("title", title,
+                "Invalid length. Title should contain more than 5 chars and less than 100 ones"),
+            new ErrorField("title", title, "Title contains invalid symbols: |/\\#%=+*_><]"),
+            new ErrorField("author", author,
+                "Invalid length. Name should contain more than 5 chars and less than 30 ones"),
+            new ErrorField("author", author,
+                "Name must contain only letters, spaces, dashes, apostrophes!")
+        )
+    );
   }
 
 }
