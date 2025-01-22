@@ -143,7 +143,7 @@ class BookControllerTest {
   }
 
   @ParameterizedTest
-  @CsvSource("{0, -5, -101}")
+  @CsvSource("0, -5, -101")
   void shouldReturnErrorWhenLessOrZeroValue(String id) throws Exception {
 
     var expectedErrorResponseDTO = getResponseForIdZeroOrLess(id);
@@ -162,7 +162,7 @@ class BookControllerTest {
   }
 
   @ParameterizedTest
-  @CsvSource("{0.1, 1.5, 1.0}")
+  @CsvSource("0.1, 1.5, 1.0")
   void shouldReturnErrorWhenDecimal(String id) throws Exception {
     var expectedErrorResponseDTO = getResponseForInvalidDecimalId(id);
 

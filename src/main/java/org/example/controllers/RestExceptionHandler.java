@@ -3,11 +3,11 @@ package org.example.controllers;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.example.dto.ErrorResponseDTO;
+import org.example.dto.ErrorResponseDTO.ErrorField;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -38,7 +38,8 @@ public class RestExceptionHandler {
         bindingResult.getFieldErrors().stream().map(fieldError ->
             new ErrorResponseDTO.ErrorField(
                 fieldError.getField(),
-                Optional.ofNullable(fieldError.getRejectedValue()).map(value -> value.toString()).orElse("unknown value"),
+                Optional.ofNullable(fieldError.getRejectedValue()).map(Object::toString)
+                    .orElse("unknown value"),
                 fieldError.getDefaultMessage())).toList());
   }
 
@@ -69,13 +70,15 @@ public class RestExceptionHandler {
     return ResponseEntity.badRequest().body(getMismatchErrorMessage(ex));
   }
 
-  private Map<String, String> getMismatchErrorMessage(MethodArgumentTypeMismatchException ex) {
+  private ErrorResponseDTO getMismatchErrorMessage(MethodArgumentTypeMismatchException ex) {
     Function<MethodArgumentTypeMismatchException, String> errorFunction = exception -> {
       if (Long.class.equals(exception.getParameter().getParameterType())) {
         return "Parameter should contain only digits";
       }
       return exception.getMessage();
     };
-    return Map.of("error", errorFunction.apply(ex));
+    return new ErrorResponseDTO(getFormatedDateTimeNow(), errorFunction.apply(ex),
+        List.of(new ErrorField(ex.getName(), ex.getValue().toString(), errorFunction.apply(ex)))
+    );
   }
 }
