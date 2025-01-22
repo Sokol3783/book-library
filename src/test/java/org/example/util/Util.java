@@ -1,10 +1,9 @@
 package org.example.util;
 
-import static java.lang.Thread.sleep;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
+import static java.lang.Thread.sleep;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -138,6 +137,20 @@ public class Util {
             new ErrorField("author", author,
                 "Name must contain only letters, spaces, dashes, apostrophes!")
         )
+    );
+  }
+
+  public static ErrorResponseDTO getResponseForInvalidDecimalId(String id) {
+    return new ErrorResponseDTO("18.06.2024 21:13:56",
+        "Parameter should contain only digits",
+        List.of(new ErrorField("id", id, "Parameter should contain only digits"))
+    );
+  }
+
+  public static ErrorResponseDTO getResponseForIdZeroOrLess(String id) {
+    return new ErrorResponseDTO("18.06.2024 21:13:56",
+        "Min value have to be 1",
+        List.of(new ErrorField("id", id, "Min value have to be 1"))
     );
   }
 

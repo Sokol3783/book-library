@@ -1,20 +1,5 @@
 package org.example.controllers;
 
-import static org.example.util.Util.getFirstBook;
-import static org.example.util.Util.getResponseForInvalidFieldsInNewBookDTO;
-import static org.example.util.Util.getTestBooks;
-import static org.example.util.Util.setIdForTestBooks;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,11 +9,23 @@ import org.example.dto.ErrorResponseDTO;
 import org.example.dto.NewBookDTO;
 import org.example.entity.Book;
 import org.example.services.BookService;
+import static org.example.util.Util.getFirstBook;
+import static org.example.util.Util.getResponseForIdZeroOrLess;
+import static org.example.util.Util.getResponseForInvalidDecimalId;
+import static org.example.util.Util.getResponseForInvalidFieldsInNewBookDTO;
+import static org.example.util.Util.getTestBooks;
+import static org.example.util.Util.setIdForTestBooks;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -37,6 +34,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @AutoConfigureMockMvc
@@ -141,18 +142,39 @@ class BookControllerTest {
             jsonPath("$[2].author", is("Test 3")));
   }
 
-  @Test
-  void shouldReturnErrorWhenLessOrZeroValue() throws Exception {
+  @ParameterizedTest
+  @CsvSource("{0, -5, -101}")
+  void shouldReturnErrorWhenLessOrZeroValue(String id) throws Exception {
 
-    mvc.perform(get(REQUEST_PATH + "/" + "-5"))
-        .andExpectAll(status().isBadRequest(), jsonPath("$.error").value("Min value should be 1"));
+    var expectedErrorResponseDTO = getResponseForIdZeroOrLess(id);
+
+    var mvcResult = mvc.perform(get(REQUEST_PATH + "/" + id))
+        .andExpectAll(status().isBadRequest()).andReturn();
+
+    var errorResponseDTO = getErrorResponseFromMvcResult(mvcResult, objectMapper);
+
+    assertAll(() -> assertTrue(
+            expectedErrorResponseDTO.errorMessage().contentEquals(errorResponseDTO.errorMessage())),
+        () -> assertTrue(expectedErrorResponseDTO.errors().containsAll(errorResponseDTO.errors())),
+        () -> assertEquals(1, errorResponseDTO.errors().size())
+    );
 
   }
 
-  @Test
-  void shouldReturnErrorWhenDecimal() throws Exception {
-    mvc.perform(get(REQUEST_PATH + "/" + "1.1")).andExpectAll(status().isBadRequest(),
-        jsonPath("$.error").value("Parameter should contain only digits"));
+  @ParameterizedTest
+  @CsvSource("{0.1, 1.5, 1.0}")
+  void shouldReturnErrorWhenDecimal(String id) throws Exception {
+    var expectedErrorResponseDTO = getResponseForInvalidDecimalId(id);
+
+    var mvcResult = mvc.perform(get(REQUEST_PATH + "/" + id)).andExpect(status().isBadRequest()).andReturn();
+    var errorResponseDTO = getErrorResponseFromMvcResult(mvcResult, objectMapper);
+
+    assertAll(() -> assertTrue(
+            expectedErrorResponseDTO.errorMessage().contentEquals(errorResponseDTO.errorMessage())),
+        () -> assertTrue(expectedErrorResponseDTO.errors().containsAll(errorResponseDTO.errors())),
+        () -> assertEquals(1, errorResponseDTO.errors().size())
+    );
+
   }
 
 }
