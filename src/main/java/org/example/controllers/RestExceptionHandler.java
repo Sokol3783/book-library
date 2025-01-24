@@ -1,5 +1,7 @@
 package org.example.controllers;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -81,4 +83,29 @@ public class RestExceptionHandler {
         List.of(new ErrorField(ex.getName(), ex.getValue().toString(), errorFunction.apply(ex)))
     );
   }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<?> handleConstraintViolation(ConstraintViolationException ex) {
+    var date = getFormatedDateTimeNow();
+    var response = ex.getConstraintViolations().stream().map(
+        violation -> new ErrorResponseDTO(date
+            , violation.getMessage(),
+            List.of(new ErrorField(getNameField(violation),
+                violation.getInvalidValue().toString(),
+                violation.getMessage()
+            ))
+        )
+    ).findAny();
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  private String getNameField(ConstraintViolation<?> violation) {
+
+    if (violation.getPropertyPath().toString().contains("getBookById")) {
+      return "id";
+    }
+
+    return "unknown field";
+  }
+
 }

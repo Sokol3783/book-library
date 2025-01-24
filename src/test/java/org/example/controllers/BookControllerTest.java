@@ -117,9 +117,11 @@ class BookControllerTest {
     assertAll(
         () -> assertEquals(4, errorResponseDTO.errors().size(), "Expected four errors in fields"),
         () -> assertTrue(errorResponseDTO.errors().containsAll(expectedErrorResponseDTO.errors()),
-            "Some errors in fields miss"), () -> assertTrue(
+            "Some errors in fields miss"),
+        () -> assertTrue(
             errorResponseDTO.errorMessage().contentEquals(expectedErrorResponseDTO.errorMessage()),
-            "Error message is wrong"), () -> assertTrue(
+            "Error message is wrong"),
+        () -> assertTrue(
             now.isBefore(LocalDateTime.parse(errorResponseDTO.date(), dateTimeFormatter)),
             "Time is missed"));
 
@@ -129,7 +131,6 @@ class BookControllerTest {
       ObjectMapper objectMapper) throws Exception {
     var content = result.getResponse().getContentAsString();
     return objectMapper.readValue(content, ErrorResponseDTO.class);
-
   }
 
   @Test
@@ -143,17 +144,15 @@ class BookControllerTest {
   }
 
   @ParameterizedTest
-  @CsvSource("0, -5, -101")
+  @CsvSource({"0", "-5", "-101"})
   void shouldReturnErrorWhenLessOrZeroValue(String id) throws Exception {
-
     var expectedErrorResponseDTO = getResponseForIdZeroOrLess(id);
-
     var mvcResult = mvc.perform(get(REQUEST_PATH + "/" + id))
         .andExpectAll(status().isBadRequest()).andReturn();
-
     var errorResponseDTO = getErrorResponseFromMvcResult(mvcResult, objectMapper);
 
-    assertAll(() -> assertTrue(
+    assertAll(
+        () -> assertTrue(
             expectedErrorResponseDTO.errorMessage().contentEquals(errorResponseDTO.errorMessage())),
         () -> assertTrue(expectedErrorResponseDTO.errors().containsAll(errorResponseDTO.errors())),
         () -> assertEquals(1, errorResponseDTO.errors().size())
@@ -162,14 +161,15 @@ class BookControllerTest {
   }
 
   @ParameterizedTest
-  @CsvSource("0.1, 1.5, 1.0")
+  @CsvSource({"0.1", "1.5", "1.0"})
   void shouldReturnErrorWhenDecimal(String id) throws Exception {
     var expectedErrorResponseDTO = getResponseForInvalidDecimalId(id);
-
-    var mvcResult = mvc.perform(get(REQUEST_PATH + "/" + id)).andExpect(status().isBadRequest()).andReturn();
+    var mvcResult = mvc.perform(get(REQUEST_PATH + "/" + id)).andExpect(status().isBadRequest())
+        .andReturn();
     var errorResponseDTO = getErrorResponseFromMvcResult(mvcResult, objectMapper);
 
-    assertAll(() -> assertTrue(
+    assertAll(
+        () -> assertTrue(
             expectedErrorResponseDTO.errorMessage().contentEquals(errorResponseDTO.errorMessage())),
         () -> assertTrue(expectedErrorResponseDTO.errors().containsAll(errorResponseDTO.errors())),
         () -> assertEquals(1, errorResponseDTO.errors().size())
