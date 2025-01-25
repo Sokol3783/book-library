@@ -37,20 +37,16 @@ public class BookController {
   public ResponseEntity<?> saveBook(@RequestBody @Valid NewBookDTO newBookDTO) {
     var book = new Book(newBookDTO);
     var savedBook = bookService.addNewBook(book);
-    var uri = ServletUriComponentsBuilder
-        .fromCurrentContextPath()
-        .path("/{id}")
+    var uri = ServletUriComponentsBuilder.fromCurrentContextPath().path("/{id}")
         .build(String.valueOf(savedBook.getId()));
     return ResponseEntity.created(uri).body(savedBook);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<?> getBookById(@PathVariable("id")
-  @Positive(message = "Min value have to be 1")
-  Long id) {
-    return bookService.findById(id).
-        map(ResponseEntity::ok).
-        orElse(ResponseEntity.notFound().build());
+  public ResponseEntity<?> getBookById(
+      @PathVariable("id") @Positive(message = "Min value have to be 1") Long id) {
+    return bookService.findById(id).map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
   }
 
 
