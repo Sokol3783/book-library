@@ -4,11 +4,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import org.example.configuration.AppConfiguration;
+import org.example.configuration.DateTimeFormatterConfiguration;
 import org.example.dto.ErrorResponseDTO;
 import org.example.dto.NewBookDTO;
 import org.example.entity.Book;
 import org.example.services.BookService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
 import static org.example.util.Util.getFirstBook;
 import static org.example.util.Util.getResponseForIdZeroOrLess;
 import static org.example.util.Util.getResponseForInvalidDecimalId;
@@ -19,21 +33,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -43,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(BookController.class)
-@Import(AppConfiguration.class)
+@Import(DateTimeFormatterConfiguration.class)
 class BookControllerTest {
 
   private static final String REQUEST_PATH = "/api/v1/books";
@@ -110,7 +111,7 @@ class BookControllerTest {
             .content(objectMapper.writeValueAsString(bookDTO))).andExpect(status().isBadRequest())
         .andReturn();
 
-    var now = LocalDateTime.now().minusMinutes(1l);
+    var now = LocalDateTime.now().minusMinutes(1L);
     var expectedErrorResponseDTO = getResponseForInvalidFieldsInNewBookDTO(title, author);
     var errorResponseDTO = getErrorResponseFromMvcResult(result, objectMapper);
 
