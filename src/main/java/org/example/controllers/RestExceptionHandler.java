@@ -66,14 +66,19 @@ public class RestExceptionHandler {
   }
 
   private ErrorResponseDTO getMismatchErrorMessage(MethodArgumentTypeMismatchException ex) {
+    var message = getErrorDetailFromMismatchException(ex);
+    return new ErrorResponseDTO(getFormatedDateTimeNow(), message,
+        List.of(new ErrorField(ex.getName(), ex.getValue().toString(), message)));
+  }
+
+  private String getErrorDetailFromMismatchException(MethodArgumentTypeMismatchException ex) {
     Function<MethodArgumentTypeMismatchException, String> errorFunction = exception -> {
       if (Long.class.equals(exception.getParameter().getParameterType())) {
         return "Parameter should contain only digits";
       }
       return exception.getMessage();
     };
-    return new ErrorResponseDTO(getFormatedDateTimeNow(), errorFunction.apply(ex),
-        List.of(new ErrorField(ex.getName(), ex.getValue().toString(), errorFunction.apply(ex))));
+    return errorFunction.apply(ex);
   }
 
   @ExceptionHandler(ConstraintViolationException.class)
