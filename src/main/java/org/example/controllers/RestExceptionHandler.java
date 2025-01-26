@@ -1,11 +1,10 @@
 package org.example.controllers;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.example.dto.ErrorResponseDTO;
@@ -31,18 +30,14 @@ public class RestExceptionHandler {
 
   @ExceptionHandler(value = MethodArgumentNotValidException.class)
   public ResponseEntity<?> handleInvalidField(BindingResult bindingResult) {
-    return ResponseEntity.badRequest().
-        body(mapToErrorResponseDTO(bindingResult));
+    return ResponseEntity.badRequest().body(mapToErrorResponseDTO(bindingResult));
   }
 
   private ErrorResponseDTO mapToErrorResponseDTO(BindingResult bindingResult) {
     return new ErrorResponseDTO(getFormatedDateTimeNow(), getDetailErrorMessage(bindingResult),
-        bindingResult.getFieldErrors().stream().map(fieldError ->
-            new ErrorResponseDTO.ErrorField(
-                fieldError.getField(),
-                Optional.ofNullable(fieldError.getRejectedValue()).map(Object::toString)
-                    .orElse("unknown value"),
-                fieldError.getDefaultMessage())).toList());
+        bindingResult.getFieldErrors().stream().map(ErrorField::new).sorted(
+            Comparator.comparing(ErrorField::getField)
+        ).toList());
   }
 
   private String getDetailErrorMessage(BindingResult bindingResult) {
@@ -58,13 +53,11 @@ public class RestExceptionHandler {
 
   @ExceptionHandler(value = HandlerMethodValidationException.class)
   public ResponseEntity<?> handleInvalidMethod(HandlerMethodValidationException exception) {
-    return ResponseEntity.badRequest().body(exception.getAllValidationResults()
-        .stream()
-        .map(ParameterValidationResult::getResolvableErrors)
-        .flatMap(List::stream)
-        .collect(Collectors.groupingBy(error -> "error",
-            Collectors.mapping(MessageSourceResolvable::getDefaultMessage, Collectors.toList())
-        )));
+    return ResponseEntity.badRequest().body(exception.getAllValidationResults().stream()
+        .map(ParameterValidationResult::getResolvableErrors).flatMap(List::stream).collect(
+            Collectors.groupingBy(error -> "error",
+                Collectors.mapping(MessageSourceResolvable::getDefaultMessage,
+                    Collectors.toList()))));
   }
 
   @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
@@ -80,32 +73,18 @@ public class RestExceptionHandler {
       return exception.getMessage();
     };
     return new ErrorResponseDTO(getFormatedDateTimeNow(), errorFunction.apply(ex),
-        List.of(new ErrorField(ex.getName(), ex.getValue().toString(), errorFunction.apply(ex)))
-    );
+        List.of(new ErrorField(ex.getName(), ex.getValue().toString(), errorFunction.apply(ex))));
   }
 
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<?> handleConstraintViolation(ConstraintViolationException ex) {
     var date = getFormatedDateTimeNow();
     var response = ex.getConstraintViolations().stream().map(
-        violation -> new ErrorResponseDTO(date
-            , violation.getMessage(),
-            List.of(new ErrorField(getNameField(violation),
-                violation.getInvalidValue().toString(),
-                violation.getMessage()
-            ))
-        )
-    ).findAny();
+            violation -> new ErrorResponseDTO(date, violation.getMessage(),
+                List.of(ErrorField.mapErrorFieldFromConstraintViolationException(violation))))
+        .findAny();
     return ResponseEntity.badRequest().body(response);
   }
 
-  private String getNameField(ConstraintViolation<?> violation) {
-
-    if (violation.getPropertyPath().toString().contains("getBookById")) {
-      return "id";
-    }
-
-    return "unknown field";
-  }
 
 }
