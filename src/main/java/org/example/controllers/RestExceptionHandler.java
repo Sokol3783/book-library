@@ -1,10 +1,12 @@
 package org.example.controllers;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.example.dto.ErrorResponseDTO;
@@ -12,6 +14,7 @@ import org.example.dto.ErrorResponseDTO.ErrorField;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -35,9 +38,16 @@ public class RestExceptionHandler {
 
   private ErrorResponseDTO mapToErrorResponseDTO(BindingResult bindingResult) {
     return new ErrorResponseDTO(getFormatedDateTimeNow(), getDetailErrorMessage(bindingResult),
-        bindingResult.getFieldErrors().stream().map(ErrorField::new).sorted(
-            Comparator.comparing(ErrorField::getField)
+        bindingResult.getFieldErrors().stream().map(this::mapFromFieldError).sorted(
+            Comparator.comparing(ErrorField::field)
         ).toList());
+  }
+
+  private ErrorField mapFromFieldError(FieldError fieldError) {
+    return new ErrorField(fieldError.getField(),
+        Optional.ofNullable(fieldError.getRejectedValue()).map(Object::toString)
+            .orElse("unknown value"),
+        fieldError.getDefaultMessage());
   }
 
   private String getDetailErrorMessage(BindingResult bindingResult) {
@@ -81,10 +91,24 @@ public class RestExceptionHandler {
     var date = getFormatedDateTimeNow();
     var response = ex.getConstraintViolations().stream().map(
             violation -> new ErrorResponseDTO(date, violation.getMessage(),
-                List.of(ErrorField.mapErrorFieldFromConstraintViolationException(violation))))
+                List.of(mapErrorFieldFromConstraintViolationException(violation))))
         .findAny();
     return ResponseEntity.badRequest().body(response);
   }
 
+  public ErrorField mapErrorFieldFromConstraintViolationException(
+      ConstraintViolation<?> violation) {
+    return new ErrorField(getNameFieldFromConstraintViolationException(violation),
+        violation.getInvalidValue().toString(), violation.getMessage());
+  }
+
+  private String getNameFieldFromConstraintViolationException(
+      ConstraintViolation<?> violation) {
+
+    if (violation.getPropertyPath().toString().contains("getBookById")) {
+      return "id";
+    }
+    return "unknown field";
+  }
 
 }
