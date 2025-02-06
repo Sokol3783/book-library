@@ -26,7 +26,7 @@ public class ReaderRepository {
   public Optional<Reader> findById(long id) {
 
     try {
-      return jdbcTemplate.query("SELECT id, name FROM READER WHERE id =?",
+      return jdbcTemplate.query("SELECT id, name FROM reader WHERE id =?",
           MapperUtil::mapToReader, id);
     } catch (DataAccessException e) {
       throw new DAOException(
@@ -36,7 +36,7 @@ public class ReaderRepository {
 
   public List<Reader> findAll() {
     try {
-      return jdbcTemplate.query("SELECT id, name FROM READER", MapperUtil.mapToReaderList());
+      return jdbcTemplate.query("SELECT id, name FROM reader", MapperUtil.mapToReaderList());
     } catch (SQLException e) {
       throw new DAOException("Failed to retrieve all readers due to a DB error: " + e.getMessage());
     }
@@ -58,7 +58,7 @@ public class ReaderRepository {
 
   private PreparedStatement getSaveReaderPrepareStatement(Connection connection, Reader reader)
       throws SQLException {
-    var statement = connection.prepareStatement("INSERT INTO reader(name) VALUES (?,?)",
+    var statement = connection.prepareStatement("INSERT INTO reader(name) VALUES (?)",
         Statement.RETURN_GENERATED_KEYS);
     statement.setString(1, reader.getName());
     return statement;
