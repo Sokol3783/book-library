@@ -1,11 +1,14 @@
 package org.example.services;
 
 
+import static org.example.util.Util.getFirstBook;
 import static org.example.util.Util.getTestBooks;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,7 +20,7 @@ import java.util.stream.Stream;
 import org.example.dao.BookRepository;
 import org.example.entity.Book;
 import org.example.exception.ConsoleValidationException;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,10 +29,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(MockitoExtension.class)
-@Disabled
+@ExtendWith(SpringExtension.class)
 class BookServiceTest {
 
   @Mock
@@ -127,6 +129,31 @@ class BookServiceTest {
         () -> assertTrue(
             exception.getMessage().contains("Title contains invalid symbols: |/\\\\#%=+*_><]"))
     );
+  }
+
+  @Test
+  void shouldSaveNewBookFromEntity() {
+    when(bookRepository.save(any(Book.class))).thenReturn(getFirstBook());
+    var book = new Book("book", "book");
+    var saved = bookService.addNewBook(book);
+    assertNotEquals(0, saved.getId());
+    verify(bookRepository, times(1)).save(book);
+  }
+
+  @Test
+  @DisplayName("Should find book by id when type is long and book present")
+  void shouldFindByIdLong() {
+    when(bookRepository.findById(1L)).thenReturn(Optional.of(getFirstBook()));
+    assertTrue(bookService.findById(1L).isPresent());
+    verify(bookRepository, times(1)).findById(anyLong());
+  }
+
+  @Test
+  @DisplayName("Should return empty optional when value not present")
+  void shouldNotFindByIdLong() {
+    when(bookRepository.findById(500L)).thenReturn(Optional.empty());
+    assertTrue(bookService.findById(500L).isEmpty());
+    verify(bookRepository, times(1)).findById(anyLong());
   }
 
 }

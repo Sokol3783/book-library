@@ -119,7 +119,7 @@ class ConsoleMenuTest {
     when(bookService.addNewBook(anyString())).thenReturn(book);
     setInputAndRunMenu("4", "15 / 15");
     String message = output.toString();
-    assertAll(() -> verify(bookService, times(1)).addNewBook(any()),
+    assertAll(() -> verify(bookService, times(1)).addNewBook(any(String.class)),
         () -> assertTrue(message.contains(
             "Please, enter new book name and author separated by “/”. Like this: name / author")),
         () -> assertTrue(message.contains(book.toString()))

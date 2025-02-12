@@ -54,7 +54,7 @@ class RegistryServiceTest {
   @Test
   void shouldThrowRegistryRepositoryExceptionWhenReaderIsEmpty() {
     when(readerService.findById(any())).thenThrow(new RuntimeException());
-    when(bookService.findById(any())).thenReturn(Optional.of(getFirstBook()));
+    when(bookService.findById(anyString())).thenReturn(Optional.of(getFirstBook()));
     assertAll(
         () -> assertThrows(RuntimeException.class, () -> registryService.borrowBook("1 / 1")),
         () -> assertThrows(RuntimeException.class,
@@ -63,7 +63,7 @@ class RegistryServiceTest {
 
   @Test
   void shouldThrowRegistryRepositoryExceptionWhenBookIsEmpty() {
-    when(bookService.findById(any())).thenThrow(new RuntimeException("Book not found"));
+    when(bookService.findById(anyString())).thenThrow(new RuntimeException("Book not found"));
 
     assertAll(
         () -> assertThrows(RuntimeException.class, () -> registryService.borrowBook("1 / 1")),
@@ -140,7 +140,7 @@ class RegistryServiceTest {
   @Test
   void shouldReturnBook() throws RegistryRepositoryException {
     var book = getFirstBook();
-    when(bookService.findById(any())).thenReturn(Optional.of(book));
+    when(bookService.findById(anyString())).thenReturn(Optional.of(book));
     var returnedBook = registryService.returnBook("1");
 
     assertAll(

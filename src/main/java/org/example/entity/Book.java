@@ -1,5 +1,7 @@
 package org.example.entity;
 
+import org.example.dto.NewBookDTO;
+
 public class Book {
 
   private long id;
@@ -9,6 +11,11 @@ public class Book {
   public Book(String title, String author) {
     this.title = title;
     this.author = author;
+  }
+
+  public Book(NewBookDTO newBook) {
+    this.title = newBook.title();
+    this.author = newBook.author();
   }
 
   public Book() {
