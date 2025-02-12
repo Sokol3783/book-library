@@ -75,13 +75,13 @@ class ReaderRepositoryTest {
   @Test
   @Transactional
   @Rollback
-  @DisplayName("Should save new reader with id 4")
+  @DisplayName("Should save reader with id more than three, and find reader by id with the same content")
   void shouldSaveNewReaderWithIdFour() {
-    var newReader = new Reader("test reader");
-    readerRepository.save(newReader);
-    var optionalReader = readerRepository.findById(4L);
+    var newReader = readerRepository.save(new Reader("test reader"));
+    var optionalReader = readerRepository.findById(newReader.getId());
     var allReader = readerRepository.findAll();
     assertAll(() -> assertTrue(optionalReader.isPresent()),
+        () -> assertTrue(newReader.getId() > 3),
         () -> assertTrue(isNameEquals(optionalReader, newReader)),
         () -> assertEquals(4, allReader.size()));
   }
