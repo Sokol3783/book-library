@@ -14,10 +14,6 @@ public class ReaderService {
 
   private final ReaderRepository readerRepository;
 
-  public ReaderService() {
-    this.readerRepository = new ReaderRepository(null);
-  }
-
   public ReaderService(ReaderRepository readerRepository) {
     this.readerRepository = readerRepository;
   }
