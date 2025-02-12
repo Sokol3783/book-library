@@ -5,9 +5,11 @@ import java.util.Optional;
 import org.example.dao.ReaderRepository;
 import org.example.entity.Reader;
 import org.example.validator.ValidatorUtil;
+import org.springframework.stereotype.Service;
 
 import static org.example.validator.ValidatorUtil.validateInputOfId;
 
+@Service
 public class ReaderService {
 
   private final ReaderRepository readerRepository;
