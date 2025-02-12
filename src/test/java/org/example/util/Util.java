@@ -1,9 +1,9 @@
 package org.example.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
-import static java.lang.Thread.sleep;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -17,6 +17,9 @@ import org.example.dto.ErrorResponseDTO.ErrorField;
 import org.example.entity.Book;
 import org.example.entity.Reader;
 import org.example.exception.DAOException;
+import org.springframework.test.web.servlet.MvcResult;
+
+import static java.lang.Thread.sleep;
 
 public class Util {
 
@@ -62,6 +65,12 @@ public class Util {
     return testBooks;
   }
 
+  public static List<Reader> setIdForTestReaders(List<Reader> testReaders) {
+    IdGenerator idGenerator = new IdGenerator();
+    testReaders.forEach(s -> s.setId(idGenerator.getNextId()));
+    return testReaders;
+  }
+
   public static int countRepeatedSubstrings(String str, String target) {
     return (str.length() - str.replace(target, "").length()) / target.length();
   }
@@ -94,15 +103,6 @@ public class Util {
     book.setId(2L);
     map.put(book, Optional.empty());
     return map;
-  }
-
-  public static class IdGenerator {
-
-    private long id = 0;
-
-    public long getNextId() {
-      return ++id;
-    }
   }
 
   public static void executeSQLScript(String fileName)
@@ -140,6 +140,18 @@ public class Util {
     );
   }
 
+  public static ErrorResponseDTO getResponseForInvalidFieldsNewReaderDTO(String name) {
+    return new ErrorResponseDTO("18.06.2024 21:13:56",
+        "Failed to create new reader due to validation errors",
+        List.of(
+            new ErrorField("name", name,
+                "Invalid length. Name should contain more than 5 chars and less than 30 ones"),
+            new ErrorField("name", name,
+                "Name must contain only letters, spaces, dashes, apostrophes!")
+        )
+    );
+  }
+
   public static ErrorResponseDTO getResponseForInvalidDecimalId(String id) {
     return new ErrorResponseDTO("18.06.2024 21:13:56",
         "Parameter should contain only digits",
@@ -153,5 +165,21 @@ public class Util {
         List.of(new ErrorField("id", id, "Min value have to be 1"))
     );
   }
+
+  public static class IdGenerator {
+
+    private long id = 0;
+
+    public long getNextId() {
+      return ++id;
+    }
+  }
+
+  public static ErrorResponseDTO getErrorResponseFromMvcResult(MvcResult result,
+      ObjectMapper objectMapper) throws Exception {
+    var content = result.getResponse().getContentAsString();
+    return objectMapper.readValue(content, ErrorResponseDTO.class);
+  }
+
 
 }
