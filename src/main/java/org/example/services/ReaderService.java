@@ -1,12 +1,12 @@
 package org.example.services;
 
-import static org.example.validator.ValidatorUtil.validateInputOfId;
-
 import java.util.List;
 import java.util.Optional;
 import org.example.dao.ReaderRepository;
 import org.example.entity.Reader;
 import org.example.validator.ValidatorUtil;
+
+import static org.example.validator.ValidatorUtil.validateInputOfId;
 
 public class ReaderService {
 
@@ -34,4 +34,11 @@ public class ReaderService {
     return readerRepository.findById(Long.parseLong(input));
   }
 
+  public Optional<Reader> findById(Long id) {
+    return readerRepository.findById(id);
+  }
+
+  public Reader addNewReader(Reader reader) {
+    return readerRepository.save(reader);
+  }
 }

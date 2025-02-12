@@ -1,17 +1,5 @@
 package org.example.services;
 
-import static org.example.util.Util.getFistReader;
-import static org.example.util.Util.getTestReaders;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -19,6 +7,7 @@ import org.example.dao.ReaderRepository;
 import org.example.entity.Reader;
 import org.example.exception.ConsoleValidationException;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,6 +17,19 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.example.util.Util.getFistReader;
+import static org.example.util.Util.getTestReaders;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @Disabled
@@ -96,5 +98,31 @@ class ReaderServiceTest {
             () -> readerService.findById("asdasda")),
         () -> assertTrue(readerService.findById("1").isEmpty())
     );
+  }
+
+
+  @Test
+  void shouldSaveNewBookFromEntity() {
+    when(readerRepository.save(any(Reader.class))).thenReturn(getFistReader());
+    var reader = new Reader("new reader");
+    var saved = readerService.addNewReader(reader);
+    assertNotEquals(0, saved.getId());
+    verify(readerRepository, times(1)).save(reader);
+  }
+
+  @Test
+  @DisplayName("Should find book by id when type is long and book present")
+  void shouldFindByIdLong() {
+    when(readerRepository.findById(1L)).thenReturn(Optional.of(getFistReader()));
+    assertTrue(readerService.findById(1L).isPresent());
+    verify(readerRepository, times(1)).findById(anyLong());
+  }
+
+  @Test
+  @DisplayName("Should return empty optional when value not present")
+  void shouldNotFindByIdLong() {
+    when(readerRepository.findById(500L)).thenReturn(Optional.empty());
+    assertTrue(readerService.findById(500L).isEmpty());
+    verify(readerRepository, times(1)).findById(anyLong());
   }
 }

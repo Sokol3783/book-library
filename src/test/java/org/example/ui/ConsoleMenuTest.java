@@ -1,24 +1,5 @@
 package org.example.ui;
 
-import static java.lang.Thread.sleep;
-import static org.example.util.Util.countRepeatedSubstrings;
-import static org.example.util.Util.getFirstBook;
-import static org.example.util.Util.getFistReader;
-import static org.example.util.Util.getTestBooks;
-import static org.example.util.Util.inputWithSleep;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -37,6 +18,25 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import static java.lang.Thread.sleep;
+import static org.example.util.Util.countRepeatedSubstrings;
+import static org.example.util.Util.getFirstBook;
+import static org.example.util.Util.getFistReader;
+import static org.example.util.Util.getTestBooks;
+import static org.example.util.Util.inputWithSleep;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @Disabled
 class ConsoleMenuTest {
@@ -106,7 +106,7 @@ class ConsoleMenuTest {
     when(readerService.addNewReader(anyString())).thenReturn(reader);
     setInputAndRunMenu("3", "ASDAS");
     String message = output.toString();
-    assertAll(() -> verify(readerService, times(1)).addNewReader(any()),
+    assertAll(() -> verify(readerService, times(1)).addNewReader(any(String.class)),
         () -> assertTrue(message.contains("Please enter new reader full name!")),
         () -> assertTrue(message.contains(reader.toString()))
     );
