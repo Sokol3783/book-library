@@ -53,6 +53,7 @@ public class RestExceptionHandler {
   private String getDetailErrorMessage(BindingResult bindingResult) {
     return switch (bindingResult.getObjectName()) {
       case "newBookDTO" -> "Failed to create new book due to validation errors";
+      case "newReaderDTO" -> "Failed to create new reader due to validation errors";
       default -> "Without details";
     };
   }
@@ -105,7 +106,8 @@ public class RestExceptionHandler {
   private String getNameFieldFromConstraintViolationException(
       ConstraintViolation<?> violation) {
 
-    if (violation.getPropertyPath().toString().contains("getBookById")) {
+    if (violation.getPropertyPath().toString().contains("getBookById")
+        || violation.getPropertyPath().toString().contains("getReaderById")) {
       return "id";
     }
     return "unknown field";

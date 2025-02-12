@@ -1,20 +1,5 @@
 package org.example.services;
 
-import static org.example.util.Util.getFirstBook;
-import static org.example.util.Util.getFistReader;
-import static org.example.util.Util.getTestBooks;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,6 +17,21 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.example.util.Util.getFirstBook;
+import static org.example.util.Util.getFistReader;
+import static org.example.util.Util.getTestBooks;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @Disabled
@@ -53,7 +53,7 @@ class RegistryServiceTest {
 
   @Test
   void shouldThrowRegistryRepositoryExceptionWhenReaderIsEmpty() {
-    when(readerService.findById(any())).thenThrow(new RuntimeException());
+    when(readerService.findById(any(String.class))).thenThrow(new RuntimeException());
     when(bookService.findById(anyString())).thenReturn(Optional.of(getFirstBook()));
     assertAll(
         () -> assertThrows(RuntimeException.class, () -> registryService.borrowBook("1 / 1")),

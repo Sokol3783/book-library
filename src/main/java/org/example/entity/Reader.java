@@ -1,5 +1,7 @@
 package org.example.entity;
 
+import org.example.dto.NewReaderDTO;
+
 public class Reader {
 
   private long id;
@@ -10,6 +12,10 @@ public class Reader {
   }
 
   public Reader() {
+  }
+
+  public Reader(NewReaderDTO newReaderDTO) {
+    this.name = newReaderDTO.name();
   }
 
   public long getId() {

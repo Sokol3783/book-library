@@ -1,48 +1,42 @@
 package org.example.dao;
 
+import java.util.List;
+import java.util.Optional;
+import org.example.entity.Reader;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
+
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
-import org.example.entity.Reader;
-import org.example.util.Util;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-
-@Disabled
+@JdbcTest
+@Import({ReaderRepository.class})
 class ReaderRepositoryTest {
 
-  private final ReaderRepository readerRepository = new ReaderRepository();
+  @Autowired
+  private ReaderRepository readerRepository;
 
-  @BeforeAll
-  static void setUpDB() {
-    DBUtil.initDatabase();
-  }
-
-  @BeforeEach
-  void setUp() throws SQLException {
-    Util.executeSQLScript("readers.sql");
-  }
-
-  @Test
-  void shouldFindById() {
-    readerRepository.findById(1L).
+  @ParameterizedTest
+  @CsvSource({"1,Mike Douglas", "2,Fedor Trybeckoi", "3,IVAN MAZEPA"})
+  void shouldFindById(Long id, String name) {
+    readerRepository.findById(id).
         ifPresentOrElse(reader -> assertAll(
-                () -> assertEquals(1L, reader.getId()),
-                () -> assertEquals("Mike Douglas", reader.getName())
+                () -> assertEquals(id, reader.getId()),
+                () -> assertEquals(name, reader.getName())
             ),
             Assertions::fail
         );
   }
-
 
   @ParameterizedTest
   @ValueSource(longs = {5L, 250L, 1000L, 12631231L})
@@ -51,15 +45,17 @@ class ReaderRepositoryTest {
   }
 
   @Test
+  @Transactional
+  @Rollback
   void shouldFindAllReaders() {
     List<Reader> afterStartup = readerRepository.findAll();
     assertEquals(3, afterStartup.size());
-    readerRepository.save(new Reader("New Reader"));
-    readerRepository.save(new Reader("Second new"));
+    var newReader = readerRepository.save(new Reader("New Reader"));
+    var secondNew = readerRepository.save(new Reader("Second new"));
     List<Reader> all = readerRepository.findAll();
     assertAll(() -> assertEquals(5, all.size()),
-        () -> assertTrue(all.stream().anyMatch(s -> s.getId() == 4L)),
-        () -> assertTrue(all.stream().anyMatch(s -> s.getId() == 5L)));
+        () -> assertTrue(all.stream().anyMatch(newReader::equals)),
+        () -> assertTrue(all.stream().anyMatch(secondNew::equals)));
   }
 
   @Test
@@ -77,12 +73,15 @@ class ReaderRepositoryTest {
   }
 
   @Test
+  @Transactional
+  @Rollback
+  @DisplayName("Should save reader with id more than three, and find reader by id with the same content")
   void shouldSaveNewReaderWithIdFour() {
-    var newReader = new Reader("test reader");
-    readerRepository.save(newReader);
-    var optionalReader = readerRepository.findById(4L);
+    var newReader = readerRepository.save(new Reader("test reader"));
+    var optionalReader = readerRepository.findById(newReader.getId());
     var allReader = readerRepository.findAll();
     assertAll(() -> assertTrue(optionalReader.isPresent()),
+        () -> assertTrue(newReader.getId() > 3),
         () -> assertTrue(isNameEquals(optionalReader, newReader)),
         () -> assertEquals(4, allReader.size()));
   }
